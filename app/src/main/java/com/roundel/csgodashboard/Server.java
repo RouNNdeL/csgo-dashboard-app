@@ -14,18 +14,22 @@ import java.util.Objects;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Server extends Activity {
+public class Server extends AppCompatActivity
+{
 
     private ServerSocket serverSocket;
     Handler updateConversationHandler;
     Thread serverThread = null;
     private TextView text;
+    private Toolbar toolbar;
     private JSONObject gameState = new JSONObject();
 
     public static final int SERVER_PORT = 6000;
@@ -37,6 +41,9 @@ public class Server extends Activity {
         setContentView(R.layout.activity_main);
 
         text = (TextView) findViewById(R.id.text2);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
 
         updateConversationHandler = new Handler();
 
@@ -165,7 +172,7 @@ public class Server extends Activity {
             {
                 e.printStackTrace();
             }
-            text.setText(weapon_name+" "+weapon_ammo_clip+"/"+weapon_ammo_reserve+(reloading?" (reloading)aa":""));
+            text.setText(weapon_name+" "+weapon_ammo_clip+"/"+weapon_ammo_reserve+(reloading?" (reloading)":""));
         }
     }
 

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">CS:GO Dashboard</string>
+    <string name="weapon_ak47">AK-47</string>
+    <string name="weapon_aug">AUG</string>
+    <string name="weapon_awp">AWP</string>
+    <string name="weapon_bizon">PP-Bizon</string>
+    <string name="weapon_c4">C4 Explosive</string>
+    <string name="weapon_cz75a">CZ75-Auto</string>
 </resources>
