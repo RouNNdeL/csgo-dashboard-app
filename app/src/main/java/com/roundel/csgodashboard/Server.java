@@ -11,25 +11,36 @@ import java.net.Socket;
 import java.util.Iterator;
 import java.util.Objects;
 
-import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.roundel.csgodashboard.ui.ServerSetupActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Server extends AppCompatActivity
+public class Server extends AppCompatActivity implements View.OnClickListener
 {
 
     private ServerSocket serverSocket;
     Handler updateConversationHandler;
     Thread serverThread = null;
     private TextView text;
+    private TextView title;
+    private ImageView backdrop;
     private Toolbar toolbar;
+    private AppBarLayout appBarLayout;
     private JSONObject gameState = new JSONObject();
 
     public static final int SERVER_PORT = 6000;
@@ -41,14 +52,40 @@ public class Server extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         text = (TextView) findViewById(R.id.text2);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        backdrop = (ImageView) findViewById(R.id.main_backdrop);
+        //title = (TextView) findViewById(R.id.main_toolbar_title);
+        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        appBarLayout = (AppBarLayout) findViewById(R.id.main_appbar);
 
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Mirage");
+
+        ViewTreeObserver observer = backdrop.getViewTreeObserver();
+        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
+        {
+            @Override
+            public boolean onPreDraw()
+            {
+                backdrop.getViewTreeObserver().removeOnPreDrawListener(this);
+                int backdropHeight = backdrop.getMeasuredHeight();
+                int backdropWidth = backdrop.getMeasuredWidth();
+
+                Bitmap backdropContent = BitmapFactory.decodeResource(getResources(), R.drawable.map_de_mirage);
+                int newHeight = (int) ( Double.valueOf(backdropContent.getHeight()) * (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())) );
+                Log.d("BitmapScale", backdropContent.getHeight()+" "+ backdropWidth+" " + backdropContent.getWidth() + " "+(Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())) );
+                Bitmap scaled = Bitmap.createScaledBitmap(backdropContent, (int) backdropWidth, newHeight, true);
+                backdrop.setImageBitmap(scaled);
+
+                return true;
+            }
+        });
 
         updateConversationHandler = new Handler();
 
-        this.serverThread = new Thread(new ServerThread());
-        this.serverThread.start();
+        /*this.serverThread = new Thread(new ServerThread());
+        this.serverThread.start();*/
+
+        findViewById(R.id.testButton).setOnClickListener(this);
 
     }
 
@@ -57,8 +94,18 @@ public class Server extends AppCompatActivity
         super.onStop();
         try {
             serverSocket.close();
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        if(v.getId() == R.id.testButton)
+        {
+            Intent intent = new Intent(Server.this, ServerSetupActivity.class);
+            startActivity(intent);
         }
     }
 

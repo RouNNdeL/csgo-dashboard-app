@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?android:attr/colorPrimary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_signal_wifi_off_white_24dp"
+            android:contentDescription="@string/setup_no_wifi_content_disc"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="24dp"
+            android:lineSpacingExtra="2dp"
+            android:paddingStart="64dp"
+            android:paddingEnd="64dp"
+            android:text="@string/setup_no_wifi_hint"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+            android:textSize="20sp"/>
+
+        <Button
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:id="@+id/setup_wifi_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wifi_turn_on"/>
+
+    </LinearLayout>
+
+
+</RelativeLayout>
