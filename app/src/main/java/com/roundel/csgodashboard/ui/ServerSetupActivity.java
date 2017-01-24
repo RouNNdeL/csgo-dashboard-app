@@ -13,13 +13,17 @@ import android.widget.Button;
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.IndicatorController;
 import com.roundel.csgodashboard.R;
+import com.roundel.csgodashboard.SlideAction;
 
 /**
  * Created by Krzysiek on 2017-01-23.
  */
-public class ServerSetupActivity extends AppIntro
+public class ServerSetupActivity extends AppIntro implements SlideAction
 {
     public static final String TAG = "ServerSetupActivity";
+
+    private NoWifiSlide noWifiSlide;
+    private ServerSearchSlide serverSearchSlide;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -28,30 +32,25 @@ public class ServerSetupActivity extends AppIntro
 
         showSkipButton(false);
         setSeparatorColor(getColor(android.R.color.transparent));
-        addSlide(NoWifiSlide.newInstance(R.layout.setup_no_wifi));
-        addSlide(ServerSearchSlide.newInstance(R.layout.setup_connecting));
 
-        //TODO: Fork AppIntro repo and add functions to prevent going to the next page
-        //canNavigateToNextPage(isWiFiOn);
+        noWifiSlide = NoWifiSlide.newInstance(R.layout.setup_no_wifi);
+        serverSearchSlide = ServerSearchSlide.newInstance(R.layout.setup_connecting);
+
+        noWifiSlide.attachSlideActionInterface(this);
+
+        addSlide(noWifiSlide);
+        addSlide(serverSearchSlide);
     }
 
     @Override
-    public void onSlideChanged(@Nullable Fragment oldFragment, @Nullable Fragment newFragment)
+    public void onNextPageRequested(Fragment fragment)
     {
-        /*if(newFragment instanceof NoWifiSlide)
-        {
-            Log.d(TAG, "Instance of NoWifiSlide");
-            //setIndicatorColor(R.color.fuckingRED, R.color.fuckingRED);
-            setNextArrowColor(getColor(android.R.color.white));
-            setColorDoneText(getColor(android.R.color.white));
-        }
-        else if(newFragment instanceof ServerSearchSlide)
-        {
-            Log.d(TAG, "Instance of ServerSearchSlide");
-            //setIndicatorColor();
-            setNextArrowColor(getColor(R.color.colorMaterialDark54));
-            setColorDoneText(getColor(R.color.colorMaterialDark54));
-        }*/
-        super.onSlideChanged(oldFragment, newFragment);
+        nextButton.performClick();
+    }
+
+    @Override
+    public void onPreviousPageRequested(Fragment fragment)
+    {
+
     }
 }
