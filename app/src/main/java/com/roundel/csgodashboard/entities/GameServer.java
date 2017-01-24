@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard;
+package com.roundel.csgodashboard.entities;
 
 /**
  * Created by Krzysiek on 2017-01-23.

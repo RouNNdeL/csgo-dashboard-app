@@ -1,29 +1,26 @@
 package com.roundel.csgodashboard.ui;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.AppCompatImageButton;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 
 import com.github.paolorotolo.appintro.AppIntro;
-import com.github.paolorotolo.appintro.IndicatorController;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.SlideAction;
 
 /**
  * Created by Krzysiek on 2017-01-23.
  */
-public class ServerSetupActivity extends AppIntro implements SlideAction
+public class ServerSetupActivity extends AppIntro implements SlideAction, ServerSearchSlide.ServerConnectionInfo
 {
     public static final String TAG = "ServerSetupActivity";
 
     private NoWifiSlide noWifiSlide;
     private ServerSearchSlide serverSearchSlide;
+    private WaitGameSlide  waitGameSlide;
+    private boolean connecting = false;
+
+    private Fragment currentSlide;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -34,12 +31,16 @@ public class ServerSetupActivity extends AppIntro implements SlideAction
         setSeparatorColor(getColor(android.R.color.transparent));
 
         noWifiSlide = NoWifiSlide.newInstance(R.layout.setup_no_wifi);
-        serverSearchSlide = ServerSearchSlide.newInstance(R.layout.setup_connecting);
+        serverSearchSlide = ServerSearchSlide.newInstance(R.layout.setup_server_search);
+        waitGameSlide = WaitGameSlide.newInstance(R.layout.setup_wait_game);
 
         noWifiSlide.attachSlideActionInterface(this);
+        serverSearchSlide.attachSlideActionInterface(this);
+        serverSearchSlide.attachServerConnectionInfoInterface(this);
 
         addSlide(noWifiSlide);
         addSlide(serverSearchSlide);
+        addSlide(waitGameSlide);
     }
 
     @Override
@@ -51,6 +52,45 @@ public class ServerSetupActivity extends AppIntro implements SlideAction
     @Override
     public void onPreviousPageRequested(Fragment fragment)
     {
+        backButton.performClick();
+    }
 
+    @Override
+    public void onSlideChanged(@Nullable Fragment oldFragment, @Nullable Fragment newFragment)
+    {
+        super.onSlideChanged(oldFragment, newFragment);
+        currentSlide = newFragment;
+    }
+
+    @Override
+    public void onConnected()
+    {
+
+    }
+
+    @Override
+    public void onConnecting()
+    {
+        connecting = true;
+    }
+
+    @Override
+    public void onFailed()
+    {
+
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if(connecting && currentSlide instanceof ServerSearchSlide)
+        {
+            connecting = false;
+            serverSearchSlide.reverseAnimateConnecting();
+        }
+        else
+        {
+            super.onBackPressed();
+        }
     }
 }

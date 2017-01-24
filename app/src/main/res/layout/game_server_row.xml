@@ -10,11 +10,11 @@
 
         android:layout_width="match_parent"
         android:layout_height="72dp"
+        android:background="?android:attr/selectableItemBackground"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingEnd="16dp"
-        android:paddingStart="16dp"
-        android:background="?android:attr/selectableItemBackground">
+        android:paddingStart="16dp">
 
         <TextView
             android:id="@+id/game_server_name"
@@ -26,17 +26,39 @@
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp"/>
 
-        <TextView
-            android:id="@+id/game_server_host"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:paddingTop="8dp"
-            android:text="192.168.1.123:3000"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="14sp"/>
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/game_server_host"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:paddingTop="8dp"
+                android:text="192.168.1.123:300"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/game_server_connect"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/grey_ripple"
+        android:gravity="center_vertical"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:text="Connect"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        android:textColor="?android:attr/colorPrimary"
+        android:visibility="gone"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

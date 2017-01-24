@@ -24,26 +24,27 @@
             android:paddingEnd="64dp"
             android:paddingStart="64dp"
             android:textSize="20sp"
-            android:text="@string/setup_con_searching"
+            android:text="@string/setup_server_searching"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"/>
 
         <android.support.v7.widget.CardView
+            android:id="@+id/setup_server_search_cardview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/setup_search_server_cardview_margin"
             app:cardBackgroundColor="?android:attr/colorBackground"
             app:cardElevation="@dimen/cardview_default_elevation"
             app:cardCornerRadius="@dimen/cardview_default_radius">
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/setup_connecting_recyclerview"
+                android:id="@+id/setup_server_search_recyclerview"
                 android:layout_width="match_parent"
-                android:layout_height="320dp">
+                android:layout_height="@dimen/setup_search_server_recyclerview_height">
 
             </android.support.v7.widget.RecyclerView>
         </android.support.v7.widget.CardView>
