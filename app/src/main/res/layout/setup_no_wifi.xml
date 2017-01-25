@@ -50,7 +50,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/wifi_turn_on"/>
+            android:text="@string/setup_no_wifi_turn_on"/>
 
         <ProgressBar
             android:id="@+id/setup_wifi_progress"

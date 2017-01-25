@@ -7,7 +7,7 @@
     <string name="weapon_c4">C4 Explosive</string>
     <string name="weapon_cz75a">CZ75-Auto</string>
     <string name="setup_no_wifi_hint">Wi-Fi connection is required to connect to the game</string>
-    <string name="wifi_turn_on">Turn on</string>
+    <string name="setup_no_wifi_turn_on">Turn on</string>
     <string name="setup_no_wifi_content_disc">No wifi</string>
     <string name="setup_server_searching">Searching on %s…</string>
     <string name="setup_con_hint">Make sure the server app is running on your PC</string>
@@ -15,6 +15,6 @@
     <string name="setup_wifi_connect_hint">You need to be connected to a Wi-Fi network to proceed to the next step</string>
     <string name="setup_wifi_connected">Connected!</string>
     <string name="setup_no_wifi_title">Enable Wi-Fi</string>
-    <string name="setup_server_search_title">Select a server</string>
+    <string name="setup_server_search_title">Select a PC</string>
     <string name="setup_wait_match_title">Start a match</string>
 </resources>
