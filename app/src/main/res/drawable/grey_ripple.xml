@@ -5,13 +5,13 @@
 
     <!-- the normal bg color will be light grey -->
     <item>
-        <color android:color="#FFF1F1F1" />
+        <color android:color="#FFF1F1F1"/>
     </item>
 
     <!-- make sure the ripple doesn't exceed the bounds -->
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
-            <solid android:color="?android:colorAccent" />
+            <solid android:color="?android:colorAccent"/>
         </shape>
     </item>
 </ripple>

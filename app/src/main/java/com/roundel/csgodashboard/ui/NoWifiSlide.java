@@ -11,8 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.transition.Slide;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,13 +23,14 @@ import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.SlideAction;
 
 
-import static android.view.View.*;
 import static android.view.View.GONE;
+import static android.view.View.OnClickListener;
+import static android.view.View.VISIBLE;
 
 /**
  * Created by Krzysiek on 2017-01-23.
  */
-public class NoWifiSlide extends Fragment implements OnClickListener, ISlidePolicy
+public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePolicy
 {
     public static final String TAG = "NoWifiSlide";
 
@@ -41,48 +40,31 @@ public class NoWifiSlide extends Fragment implements OnClickListener, ISlidePoli
     private Button mTurnWifiButton;
     private Button mOpenWifiSettingsButton;
     private ProgressBar mWifiProgress;
+    private ViewGroup root;
     private SlideAction mSlideActionInterface;
-
-    public static NoWifiSlide newInstance(int layoutResId)
-    {
-        NoWifiSlide sampleSlide = new NoWifiSlide();
-
-        Bundle args = new Bundle();
-        args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
-        sampleSlide.setArguments(args);
-
-        return sampleSlide;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-
-        if(getArguments() != null && getArguments().containsKey(ARG_LAYOUT_RES_ID))
-        {
-            layoutResId = getArguments().getInt(ARG_LAYOUT_RES_ID);
-        }
-    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        final View view = inflater.inflate(layoutResId, container, false);
+        super.onCreateView(inflater, container, savedInstanceState);
 
-        mTurnWifiButton = (Button) view.findViewById(R.id.setup_wifi_on);
-        mOpenWifiSettingsButton = (Button) view.findViewById(R.id.setup_wifi_settings);
-        mWifiProgress = (ProgressBar) view.findViewById(R.id.setup_wifi_progress);
+        root = getRoot();
+
+        mTurnWifiButton = (Button) root.findViewById(R.id.setup_wifi_on);
+        mOpenWifiSettingsButton = (Button) root.findViewById(R.id.setup_wifi_settings);
+        mWifiProgress = (ProgressBar) root.findViewById(R.id.setup_wifi_progress);
 
         mOpenWifiSettingsButton.setOnClickListener(this);
         mTurnWifiButton.setOnClickListener(this);
-        return view;
+        return root;
     }
 
+    @Override
     public void attachSlideActionInterface(SlideAction slideAction)
     {
-        this.mSlideActionInterface = slideAction;
+        super.attachSlideActionInterface(slideAction);
+        mSlideActionInterface = getSlideActionInterface();
     }
 
     @Override
@@ -160,5 +142,16 @@ public class NoWifiSlide extends Fragment implements OnClickListener, ISlidePoli
     public void onUserIllegallyRequestedNextPage()
     {
         Toast.makeText(getContext(), R.string.setup_wifi_connect_hint, Toast.LENGTH_SHORT).show();
+    }
+
+    public static NoWifiSlide newInstance(int layoutResId)
+    {
+        NoWifiSlide sampleSlide = new NoWifiSlide();
+
+        Bundle args = new Bundle();
+        args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
+        sampleSlide.setArguments(args);
+
+        return sampleSlide;
     }
 }

@@ -12,42 +12,42 @@
         android:layout_height="48dp"
         android:theme="@style/PrimaryAccent"/>
 
-  <!--  <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="90dp"
-        android:src="@drawable/ic_desktop_windows_white_24dp"
-        android:tint="@color/colorMaterialDark54"/>
+    <!--  <ImageView
+          android:layout_width="match_parent"
+          android:layout_height="90dp"
+          android:src="@drawable/ic_desktop_windows_white_24dp"
+          android:tint="@color/colorMaterialDark54"/>
 
-    <TextView
-        android:id="@+id/connecting_game_server_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="TZC"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:textColor="?android:attr/textColorPrimary"/>
+      <TextView
+          android:id="@+id/connecting_game_server_name"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="TZC"
+          android:textAlignment="center"
+          android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+          android:textColor="?android:attr/textColorPrimary"/>
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/connecting_game_server_host"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="IP: 192.168.0.1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+          <TextView
+              android:id="@+id/connecting_game_server_host"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="IP: 192.168.0.1"
+              android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
-        <TextView
-            android:id="@+id/connecting_game_server_port"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Port: 3000"
-            android:textAlignment="viewEnd"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
-    </LinearLayout>
--->
+          <TextView
+              android:id="@+id/connecting_game_server_port"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="Port: 3000"
+              android:textAlignment="viewEnd"
+              android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+      </LinearLayout>
+  -->
 </LinearLayout>

@@ -3,6 +3,8 @@ package com.roundel.csgodashboard.ui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.github.paolorotolo.appintro.AppIntro;
 import com.roundel.csgodashboard.R;
@@ -17,7 +19,7 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
 
     private NoWifiSlide noWifiSlide;
     private ServerSearchSlide serverSearchSlide;
-    private WaitGameSlide  waitGameSlide;
+    private WaitGameSlide waitGameSlide;
     private boolean connecting = false;
 
     private Fragment currentSlide;
@@ -26,6 +28,9 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
         showSkipButton(false);
         setSeparatorColor(getColor(android.R.color.transparent));
@@ -60,6 +65,7 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
     {
         super.onSlideChanged(oldFragment, newFragment);
         currentSlide = newFragment;
+        onNewSlide((SlideBase) currentSlide);
     }
 
     @Override
@@ -86,11 +92,17 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
         if(connecting && currentSlide instanceof ServerSearchSlide)
         {
             connecting = false;
-            serverSearchSlide.reverseAnimateConnecting();
+            serverSearchSlide.cancelConnectingProcess();
         }
         else
         {
             super.onBackPressed();
         }
+    }
+
+    public void onNewSlide(SlideBase slide)
+    {
+        /*window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(slide.getBackgroundColor());*/
     }
 }

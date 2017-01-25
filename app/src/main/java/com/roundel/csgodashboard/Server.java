@@ -3,13 +3,6 @@ package com.roundel.csgodashboard;
 /**
  * Created by Krzysiek on 2017-01-20.
  */
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Iterator;
-import java.util.Objects;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -30,12 +23,21 @@ import com.roundel.csgodashboard.ui.ServerSetupActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Iterator;
+import java.util.Objects;
+
 public class Server extends AppCompatActivity implements View.OnClickListener
 {
 
-    private ServerSocket serverSocket;
+    public static final int SERVER_PORT = 6000;
     Handler updateConversationHandler;
     Thread serverThread = null;
+    private ServerSocket serverSocket;
     private TextView text;
     private TextView title;
     private ImageView backdrop;
@@ -43,10 +45,9 @@ public class Server extends AppCompatActivity implements View.OnClickListener
     private AppBarLayout appBarLayout;
     private JSONObject gameState = new JSONObject();
 
-    public static final int SERVER_PORT = 6000;
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -71,9 +72,9 @@ public class Server extends AppCompatActivity implements View.OnClickListener
                 int backdropWidth = backdrop.getMeasuredWidth();
 
                 Bitmap backdropContent = BitmapFactory.decodeResource(getResources(), R.drawable.map_de_mirage);
-                int newHeight = (int) ( Double.valueOf(backdropContent.getHeight()) * (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())) );
-                Log.d("BitmapScale", backdropContent.getHeight()+" "+ backdropWidth+" " + backdropContent.getWidth() + " "+(Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())) );
-                Bitmap scaled = Bitmap.createScaledBitmap(backdropContent, (int) backdropWidth, newHeight, true);
+                int newHeight = (int) (Double.valueOf(backdropContent.getHeight()) * (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())));
+                Log.d("BitmapScale", backdropContent.getHeight() + " " + backdropWidth + " " + backdropContent.getWidth() + " " + (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())));
+                Bitmap scaled = Bitmap.createScaledBitmap(backdropContent, backdropWidth, newHeight, true);
                 backdrop.setImageBitmap(scaled);
 
                 return true;
@@ -90,11 +91,15 @@ public class Server extends AppCompatActivity implements View.OnClickListener
     }
 
     @Override
-    protected void onStop() {
+    protected void onStop()
+    {
         super.onStop();
-        try {
+        try
+        {
             serverSocket.close();
-        } catch (IOException | NullPointerException e) {
+        }
+        catch(IOException | NullPointerException e)
+        {
             e.printStackTrace();
         }
     }
@@ -109,56 +114,103 @@ public class Server extends AppCompatActivity implements View.OnClickListener
         }
     }
 
-    class ServerThread implements Runnable {
+    public static boolean isInteger(String s, int radix)
+    {
+        if(s.isEmpty()) return false;
+        for(int i = 0; i < s.length(); i++)
+        {
+            if(i == 0 && s.charAt(i) == '-')
+            {
+                if(s.length() == 1) return false;
+                else continue;
+            }
+            if(Character.digit(s.charAt(i), radix) < 0) return false;
+        }
+        return true;
+    }
 
-        public void run() {
+    public static JSONObject merge(JSONObject... params) throws JSONException
+    {
+        JSONObject merged = new JSONObject();
+        for(JSONObject obj : params)
+        {
+            Iterator it = obj.keys();
+            while(it.hasNext())
+            {
+                String key = (String) it.next();
+                merged.put(key, obj.get(key));
+            }
+        }
+        return merged;
+    }
+
+    class ServerThread implements Runnable
+    {
+
+        public void run()
+        {
             Socket socket = null;
-            try {
+            try
+            {
                 serverSocket = new ServerSocket(SERVER_PORT);
-                Log.d("Server", "Started socket on port: "+SERVER_PORT);
-            } catch (IOException e) {
+                Log.d("Server", "Started socket on port: " + SERVER_PORT);
+            }
+            catch(IOException e)
+            {
                 e.printStackTrace();
             }
-            while (!Thread.currentThread().isInterrupted()) {
+            while(!Thread.currentThread().isInterrupted())
+            {
 
-                try {
+                try
+                {
 
                     socket = serverSocket.accept();
 
                     CommunicationThread commThread = new CommunicationThread(socket);
                     new Thread(commThread).start();
 
-                } catch (IOException e) {
+                }
+                catch(IOException e)
+                {
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    class CommunicationThread implements Runnable {
+    class CommunicationThread implements Runnable
+    {
 
         private Socket clientSocket;
 
         private BufferedReader input;
 
-        public CommunicationThread(Socket clientSocket) {
+        public CommunicationThread(Socket clientSocket)
+        {
 
             this.clientSocket = clientSocket;
 
-            try {
+            try
+            {
 
                 this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
 
-            } catch (IOException e) {
+            }
+            catch(IOException e)
+            {
                 e.printStackTrace();
             }
         }
 
-        public void run() {
+        public void run()
+        {
 
-            while (!Thread.currentThread().isInterrupted()) {
+            while(!Thread.currentThread().isInterrupted())
+            {
 
-                try {
+                try
+                {
 
                     String read = input.readLine();
                     if(read == null)
@@ -168,7 +220,9 @@ public class Server extends AppCompatActivity implements View.OnClickListener
                     Log.d("GameState", gameState.toString());
                     updateConversationHandler.post(new updateUIThread(gameState));
 
-                } catch (IOException e) {
+                }
+                catch(IOException e)
+                {
                     e.printStackTrace();
                 }
                 catch(JSONException e)
@@ -180,15 +234,18 @@ public class Server extends AppCompatActivity implements View.OnClickListener
 
     }
 
-    class updateUIThread implements Runnable {
+    class updateUIThread implements Runnable
+    {
         private JSONObject state;
 
-        public updateUIThread(JSONObject state) {
+        public updateUIThread(JSONObject state)
+        {
             this.state = state;
         }
 
         @Override
-        public void run() {
+        public void run()
+        {
             String weapon_name = "none";
             boolean reloading = false;
             int weapon_ammo_clip = -1;
@@ -219,32 +276,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
             {
                 e.printStackTrace();
             }
-            text.setText(weapon_name+" "+weapon_ammo_clip+"/"+weapon_ammo_reserve+(reloading?" (reloading)":""));
+            text.setText(weapon_name + " " + weapon_ammo_clip + "/" + weapon_ammo_reserve + (reloading ? " (reloading)" : ""));
         }
-    }
-
-    public static boolean isInteger(String s, int radix) {
-        if(s.isEmpty()) return false;
-        for(int i = 0; i < s.length(); i++) {
-            if(i == 0 && s.charAt(i) == '-') {
-                if(s.length() == 1) return false;
-                else continue;
-            }
-            if(Character.digit(s.charAt(i),radix) < 0) return false;
-        }
-        return true;
-    }
-
-    public static JSONObject merge(JSONObject... params) throws JSONException
-    {
-        JSONObject merged = new JSONObject();
-        for (JSONObject obj : params) {
-            Iterator it = obj.keys();
-            while (it.hasNext()) {
-                String key = (String)it.next();
-                merged.put(key, obj.get(key));
-            }
-        }
-        return merged;
     }
 }

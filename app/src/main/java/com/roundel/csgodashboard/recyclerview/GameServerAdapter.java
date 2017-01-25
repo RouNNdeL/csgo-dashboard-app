@@ -41,32 +41,6 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
         mListener = listener;
     }
 
-    public boolean isRefreshing()
-    {
-        return refreshing;
-    }
-
-    public void setRefreshing(boolean refreshing)
-    {
-        this.refreshing = refreshing;
-        if(refreshing)
-            notifyItemInserted(getItemCount());
-        else
-            notifyItemRemoved(getItemCount());
-    }
-
-    public void expandWhenConnecting(int position)
-    {
-        mConnectingPosition = position;
-        notifyDataSetChanged();
-    }
-
-    public void collapseWhenConnecting()
-    {
-        mConnectingPosition = -1;
-        notifyDataSetChanged();
-    }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
@@ -161,10 +135,37 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+    public void onAttachedToRecyclerView(RecyclerView recyclerView)
+    {
         super.onAttachedToRecyclerView(recyclerView);
 
         mRecyclerView = recyclerView;
+    }
+
+    public void expandWhenConnecting(int position)
+    {
+        mConnectingPosition = position;
+        notifyDataSetChanged();
+    }
+
+    public void collapseWhenConnecting()
+    {
+        mConnectingPosition = -1;
+        notifyDataSetChanged();
+    }
+
+    public boolean isRefreshing()
+    {
+        return refreshing;
+    }
+
+    public void setRefreshing(boolean refreshing)
+    {
+        this.refreshing = refreshing;
+        if(refreshing)
+            notifyItemInserted(getItemCount());
+        else
+            notifyItemRemoved(getItemCount());
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder
