@@ -78,7 +78,7 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
             host.setText(String.format(Locale.getDefault(), "%s:%d", gameServer.getHost(), gameServer.getPort()));
 
             final boolean isExpanded = position == mExpandedPosition;
-            Log.d(TAG, content.toString());
+
             content.findViewById(R.id.game_server_connect).setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             content.setActivated(isExpanded);
             content.setOnClickListener(new View.OnClickListener()

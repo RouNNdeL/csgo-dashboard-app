@@ -9,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,7 +19,9 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.ui.ServerSetupActivity;
 
 import org.json.JSONException;
@@ -86,7 +90,9 @@ public class Server extends AppCompatActivity implements View.OnClickListener
         /*this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();*/
 
+
         findViewById(R.id.testButton).setOnClickListener(this);
+        findViewById(R.id.testDiscover).setOnClickListener(this);
 
     }
 
@@ -111,6 +117,10 @@ public class Server extends AppCompatActivity implements View.OnClickListener
         {
             Intent intent = new Intent(Server.this, ServerSetupActivity.class);
             startActivity(intent);
+        }
+        else if(v.getId() == R.id.testDiscover)
+        {
+
         }
     }
 

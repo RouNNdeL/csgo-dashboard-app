@@ -15,9 +15,7 @@
         android:paddingEnd="32dp"
         android:paddingStart="32dp"
         android:text="@string/setup_no_wifi_title"
-        android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
-        android:textSize="32sp"/>
+        android:textAppearance="@style/TextSetupTitle"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,7 +40,7 @@
             android:paddingStart="64dp"
             android:text="@string/setup_no_wifi_hint"
             android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium.Inverse"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textSize="20sp"/>
 
         <Button
@@ -50,6 +48,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             android:text="@string/setup_no_wifi_turn_on"/>
 
         <ProgressBar
@@ -64,6 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/setup_wifi_settings"
+            android:textColor="@android:color/white"
             android:visibility="gone"/>
     </LinearLayout>
 

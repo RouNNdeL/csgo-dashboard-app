@@ -102,6 +102,10 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
 
     public void onNewSlide(SlideBase slide)
     {
+        if(slide instanceof ServerSearchSlide)
+        {
+            serverSearchSlide.startDiscovery();
+        }
         /*window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(slide.getBackgroundColor());*/
     }

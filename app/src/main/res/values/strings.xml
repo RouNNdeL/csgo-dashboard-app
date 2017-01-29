@@ -17,4 +17,10 @@
     <string name="setup_no_wifi_title">Enable Wi-Fi</string>
     <string name="setup_server_search_title">Select a PC</string>
     <string name="setup_wait_match_title">Start a match</string>
+    <string name="game_info_stats_header">Stats</string>
+    <string name="game_info_kills">Kills</string>
+    <string name="game_info_assists">Assists</string>
+    <string name="game_info_deaths">Deaths</string>
+    <string name="game_info_home_name">Your team</string>
+    <string name="game_info_away_name">Opponents</string>
 </resources>

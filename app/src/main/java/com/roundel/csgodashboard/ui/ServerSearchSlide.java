@@ -10,21 +10,26 @@ import android.support.annotation.Nullable;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.ButtonBarLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.paolorotolo.appintro.ISlidePolicy;
 import com.roundel.csgodashboard.R;
+import com.roundel.csgodashboard.ServerDiscoveryThread;
 import com.roundel.csgodashboard.SlideAction;
 import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.recyclerview.GameServerAdapter;
@@ -32,6 +37,7 @@ import com.roundel.csgodashboard.recyclerview.GameServerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 
 import static android.view.View.OVER_SCROLL_ALWAYS;
@@ -40,7 +46,7 @@ import static android.view.View.OVER_SCROLL_NEVER;
 /**
  * Created by Krzysiek on 2017-01-23.
  */
-public class ServerSearchSlide extends SlideBase implements View.OnClickListener, ISlidePolicy
+public class ServerSearchSlide extends SlideBase implements View.OnClickListener, ISlidePolicy, ServerDiscoveryThread.ServerDiscoveryListener
 {
     public static final String TAG = "ServerSearchSlide";
 
@@ -51,7 +57,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private RecyclerView.LayoutManager mLayoutManager;
     private TextView mTitle;
     private CardView mCardView;
-    //private LinearLayout mConnectingStatus;
+    private Button mRefreshButton;
 
     private boolean canContinue = false;
     private boolean connectingToServer;
@@ -69,25 +75,20 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         root = getRoot();
 
         mTitle = (TextView) root.findViewById(R.id.setup_connecting_title);
-
         setTitleSearchingWifi();
+
+        mRefreshButton = (Button) root.findViewById(R.id.setup_server_search_refresh);
+        mRefreshButton.setOnClickListener(this);
 
         mCardView = (CardView) root.findViewById(R.id.setup_server_search_cardview);
 
-        //mConnectingStatus = (LinearLayout) root.findViewById(R.id.setup_server_search_connecting);
-
-        gameServers.add(new GameServer("TZC", "192.168.1.123", 3000));
-        gameServers.add(new GameServer("PC", "192.168.1.76", 3000));
-
         mAdapter = new GameServerAdapter(gameServers, this);
-        mAdapter.setRefreshing(true);
 
         mLayoutManager = new LinearLayoutManager(getContext());
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.setup_server_search_recyclerview);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        //mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
 
         return root;
     }
@@ -121,6 +122,71 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 }, 500);
             }
         }
+        else if(v.getId() == R.id.setup_server_search_refresh)
+        {
+            startDiscovery();
+        }
+    }
+
+    @Override
+    public void onServerFound(final GameServer server)
+    {
+        Log.d("ServerDiscoveryThread", server.getHost() + ":" + server.getPort());
+        try
+        {
+            getActivity().runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    addServer(server);
+                }
+            });
+        }
+        catch(NullPointerException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onSocketOpened()
+    {
+        try
+        {
+            getActivity().runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    mAdapter.setRefreshing(true);
+                }
+            });
+        }
+        catch(NullPointerException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onSocketClosed()
+    {
+        try
+        {
+            getActivity().runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    mAdapter.setRefreshing(false);
+                }
+            });
+        }
+        catch(NullPointerException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -153,8 +219,20 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     public void addServer(GameServer server)
     {
+        for(GameServer gameServer: gameServers)
+        {
+            if(Objects.equals(gameServer.getHost(), server.getHost()))
+                return;
+        }
         gameServers.add(server);
         mAdapter.notifyItemInserted(gameServers.size() - 1);
+    }
+
+    public void startDiscovery()
+    {
+        ServerDiscoveryThread serverDiscoveryThread = new ServerDiscoveryThread(this);
+        serverDiscoveryThread.setDiscoveryTimeout(2500);
+        serverDiscoveryThread.start();
     }
 
     private void animateConnecting(int position)

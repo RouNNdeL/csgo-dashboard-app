@@ -16,10 +16,11 @@
         android:paddingStart="32dp"
         android:text="@string/setup_server_search_title"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textSize="32sp"/>
 
     <LinearLayout
+        android:id="@+id/setup_server_search_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -38,8 +39,7 @@
             android:paddingStart="64dp"
             android:text="@string/setup_server_searching"
             android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
-            android:textSize="20sp"/>
+            android:textAppearance="@style/TextSetupTitle"/>
 
         <android.support.v7.widget.CardView
             android:id="@+id/setup_server_search_cardview"
@@ -50,9 +50,10 @@
             android:paddingEnd="8dp"
             android:paddingStart="8dp"
             android:paddingTop="8dp"
-            app:cardBackgroundColor="?android:attr/colorBackground"
+            app:cardBackgroundColor="@color/cardview_light_background"
             app:cardCornerRadius="@dimen/cardview_default_radius"
             app:cardElevation="@dimen/cardview_default_elevation">
+
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/setup_server_search_recyclerview"
@@ -60,7 +61,19 @@
                 android:layout_height="@dimen/setup_search_server_recyclerview_height">
 
             </android.support.v7.widget.RecyclerView>
+
         </android.support.v7.widget.CardView>
+
+        <Button
+            android:id="@+id/setup_server_search_refresh"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Refresh"
+            android:backgroundTint="?android:attr/colorPrimary"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="4dp"
+            android:layout_gravity="center"/>
 
     </LinearLayout>
 

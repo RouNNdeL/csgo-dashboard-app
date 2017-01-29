@@ -24,7 +24,7 @@
         android:ellipsize="end"
         android:lines="1"
         android:text="RouNdeL"
-        android:textColor="?android:attr/textColorPrimary"
+        android:textColor="?android:attr/textColorPrimaryInverse"
         android:textSize="24sp"/>
 
 </LinearLayout>
