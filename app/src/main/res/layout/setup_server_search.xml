@@ -39,7 +39,7 @@
             android:paddingStart="64dp"
             android:text="@string/setup_server_searching"
             android:textAlignment="center"
-            android:textAppearance="@style/TextSetupTitle"/>
+            android:textAppearance="@style/TextAppearance.SetupTitle"/>
 
         <android.support.v7.widget.CardView
             android:id="@+id/setup_server_search_cardview"

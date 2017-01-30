@@ -4,24 +4,29 @@ package com.roundel.csgodashboard;
  * Created by Krzysiek on 2017-01-20.
  */
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.design.widget.AppBarLayout;
+import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.ui.ServerSetupActivity;
 
 import org.json.JSONException;
@@ -35,6 +40,12 @@ import java.net.Socket;
 import java.util.Iterator;
 import java.util.Objects;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+
+import static android.R.attr.startColor;
+
 public class Server extends AppCompatActivity implements View.OnClickListener
 {
 
@@ -44,7 +55,11 @@ public class Server extends AppCompatActivity implements View.OnClickListener
     private ServerSocket serverSocket;
     private TextView text;
     private TextView title;
+    @BindView(R.id.game_info_round_time) TextView mRoundTime;
+    @BindView(R.id.game_info_round_no) TextView mRoundNumber;
+    @BindView(R.id.game_info_bomb) ImageView mBombView;
     private ImageView backdrop;
+    @BindView(R.id.game_info_section_round) LinearLayout mSectionRoundInfo;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
     private JSONObject gameState = new JSONObject();
@@ -55,6 +70,8 @@ public class Server extends AppCompatActivity implements View.OnClickListener
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ButterKnife.bind(this);
 
         text = (TextView) findViewById(R.id.text2);
         backdrop = (ImageView) findViewById(R.id.main_backdrop);
@@ -92,7 +109,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
 
 
         findViewById(R.id.testButton).setOnClickListener(this);
-        findViewById(R.id.testDiscover).setOnClickListener(this);
+        findViewById(R.id.testBomb).setOnClickListener(this);
 
     }
 
@@ -118,9 +135,57 @@ public class Server extends AppCompatActivity implements View.OnClickListener
             Intent intent = new Intent(Server.this, ServerSetupActivity.class);
             startActivity(intent);
         }
-        else if(v.getId() == R.id.testDiscover)
+        else if(v.getId() == R.id.testBomb)
         {
+            mRoundNumber.setVisibility(View.GONE);
+            mBombView.setVisibility(View.VISIBLE);
+            TransitionManager.beginDelayedTransition(mSectionRoundInfo);
 
+            ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
+
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    Integer color = (Integer) animation.getAnimatedValue();
+                    if (color != null) {
+                        mBombView.setImageTintList(ColorStateList.valueOf(color));
+                    }
+                }
+            });
+
+            animator.addListener(new Animator.AnimatorListener()
+            {
+                @Override
+                public void onAnimationStart(Animator animation)
+                {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation)
+                {
+                    mBombView.setImageDrawable(getDrawable(R.drawable.bomb_defused));
+                    mBombView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombDefused)));
+                    TransitionManager.beginDelayedTransition(mSectionRoundInfo);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation)
+                {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation)
+                {
+
+                }
+            });
+
+            animator.setRepeatMode(ValueAnimator.REVERSE);
+            animator.setDuration(1000);
+            animator.setRepeatCount(10);
+            animator.start();
         }
     }
 

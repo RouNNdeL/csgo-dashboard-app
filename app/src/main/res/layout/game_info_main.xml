@@ -26,10 +26,11 @@
             android:paddingBottom="16dp"
             android:paddingTop="16dp">
 
+            <!--Home-->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp"
                 android:paddingStart="8dp">
@@ -39,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/game_info_home_name"
-                    android:textAppearance="@style/TextTeamTitle"/>
+                    android:textAppearance="@style/TextAppearance.TeamTitle"/>
 
                 <TextView
                     android:id="@+id/game_info_score_home"
@@ -49,7 +50,7 @@
                     android:paddingBottom="2dp"
                     android:paddingTop="2dp"
                     android:text="10"
-                    android:textAppearance="@style/TextGameScore"/>
+                    android:textAppearance="@style/TextAppearance.Score"/>
 
                 <TextView
                     android:id="@+id/game_info_side_home"
@@ -57,15 +58,59 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="T"
-                    android:textAppearance="@style/TextGameSide"
+                    android:textAppearance="@style/TextAppearance.Side"
                     android:textColor="@color/yellowT"/>
 
             </LinearLayout>
 
+            <!--Time-->
+            <LinearLayout
+                android:id="@+id/game_info_section_round"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/game_info_round_no"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:gravity="center"
+                    android:text="Round 16"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Time"
+                    android:textAppearance="@style/TextAppearance.RoundTimeTitle"/>
+
+                <TextView
+                    android:id="@+id/game_info_round_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="0:35"
+                    android:textAppearance="@style/TextAppearance.RoundTime"/>
+
+                <ImageView
+                    android:id="@+id/game_info_bomb"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/bomb_ticking"
+                    android:visibility="gone"
+                    android:tint="@color/bombPlantedInactive"/>
+            </LinearLayout>
+
+            <!--Away-->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical"
                 android:paddingEnd="8dp"
                 android:paddingStart="8dp">
@@ -75,7 +120,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/game_info_away_name"
-                    android:textAppearance="@style/TextTeamTitle"/>
+                    android:textAppearance="@style/TextAppearance.TeamTitle"/>
 
                 <TextView
                     android:id="@+id/game_info_score_away"
@@ -85,7 +130,7 @@
                     android:paddingBottom="2dp"
                     android:paddingTop="2dp"
                     android:text="3"
-                    android:textAppearance="@style/TextGameScore"/>
+                    android:textAppearance="@style/TextAppearance.Score"/>
 
                 <TextView
                     android:id="@+id/game_info_side_away"
@@ -93,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="CT"
-                    android:textAppearance="@style/TextGameSide"
+                    android:textAppearance="@style/TextAppearance.Side"
                     android:textColor="@color/blueCT"/>
 
             </LinearLayout>
@@ -108,7 +153,7 @@
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
         android:text="@string/game_info_stats_header"
-        android:textAppearance="@style/TextListSubHeader"/>
+        android:textAppearance="@style/TextAppearance.ListSubHeader"/>
 
     <!--Stats-->
     <android.support.v7.widget.CardView
@@ -138,14 +183,14 @@
                     android:layout_marginBottom="@dimen/game_info_stats_gap"
                     android:gravity="center"
                     android:text="12"
-                    android:textAppearance="@style/TextGameStatsAmount"/>
+                    android:textAppearance="@style/TextAppearance.StatsAmount"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/game_info_kills"
-                    android:textAppearance="@style/TextGameStatsName"/>
+                    android:textAppearance="@style/TextAppearance.StatsName"/>
 
             </LinearLayout>
 
@@ -162,14 +207,14 @@
                     android:layout_marginBottom="@dimen/game_info_stats_gap"
                     android:gravity="center"
                     android:text="3"
-                    android:textAppearance="@style/TextGameStatsAmount"/>
+                    android:textAppearance="@style/TextAppearance.StatsAmount"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/game_info_assists"
-                    android:textAppearance="@style/TextGameStatsName"/>
+                    android:textAppearance="@style/TextAppearance.StatsName"/>
 
             </LinearLayout>
 
@@ -186,14 +231,14 @@
                     android:layout_marginBottom="@dimen/game_info_stats_gap"
                     android:gravity="center"
                     android:text="7"
-                    android:textAppearance="@style/TextGameStatsAmount"/>
+                    android:textAppearance="@style/TextAppearance.StatsAmount"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/game_info_deaths"
-                    android:textAppearance="@style/TextGameStatsName"/>
+                    android:textAppearance="@style/TextAppearance.StatsName"/>
 
             </LinearLayout>
 
@@ -209,14 +254,14 @@
                     android:layout_marginBottom="@dimen/game_info_stats_gap"
                     android:gravity="center"
                     android:text="1.71"
-                    android:textAppearance="@style/TextGameStatsAmount"/>
+                    android:textAppearance="@style/TextAppearance.StatsAmount"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="KDR"
-                    android:textAppearance="@style/TextGameStatsName"/>
+                    android:textAppearance="@style/TextAppearance.StatsName"/>
 
             </LinearLayout>
 
@@ -230,8 +275,9 @@
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
         android:text="Health and armor"
-        android:textAppearance="@style/TextListSubHeader"/>
+        android:textAppearance="@style/TextAppearance.ListSubHeader"/>
 
+    <!--Health and armor-->
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -301,9 +347,9 @@
         android:text="Test intro"/>
 
     <Button
-        android:id="@+id/testDiscover"
+        android:id="@+id/testBomb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test discovery"/>
+        android:text="Plant the bomb"/>
 
 </LinearLayout>
