@@ -5,6 +5,8 @@
         android:viewportWidth="146.17"
         android:viewportHeight="91.84">
 
+    <!--TODO: Fix the path (c in c4 not showing properly)-->
+
     <path
         android:fillColor="#FFFFFFFF"
         android:pathData="M40.57,68.63 L49.29,54.8 L49.29,68.63 Z M11.86,91.83
