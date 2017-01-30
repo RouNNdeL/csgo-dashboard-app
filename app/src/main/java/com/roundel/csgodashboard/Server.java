@@ -5,9 +5,7 @@ package com.roundel.csgodashboard;
  */
 
 import android.animation.Animator;
-import android.animation.AnimatorInflater;
 import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -22,7 +20,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,9 +39,6 @@ import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-
-import static android.R.attr.startColor;
 
 public class Server extends AppCompatActivity implements View.OnClickListener
 {
@@ -164,6 +158,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
                 @Override
                 public void onAnimationEnd(Animator animation)
                 {
+                    //TODO: Add a custom transition that will hide the flashing lights
                     mBombView.setImageDrawable(getDrawable(R.drawable.bomb_defused));
                     mBombView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombDefused)));
                     TransitionManager.beginDelayedTransition(mSectionRoundInfo);

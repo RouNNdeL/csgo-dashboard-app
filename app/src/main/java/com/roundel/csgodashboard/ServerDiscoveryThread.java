@@ -30,7 +30,6 @@ public class ServerDiscoveryThread extends Thread implements Runnable
 
     private DatagramSocket socket;
     private ServerDiscoveryListener listener;
-    private boolean waitForResponse = true;
     private int discoveryTimeout = 500;
 
     public ServerDiscoveryThread(ServerDiscoveryListener listener)
@@ -109,7 +108,7 @@ public class ServerDiscoveryThread extends Thread implements Runnable
             }, discoveryTimeout);
 
             //Wait for a response
-            while(waitForResponse)
+            while(true)
             {
                 byte[] recvBuf = new byte[15000];
                 DatagramPacket receivePacket = new DatagramPacket(recvBuf, recvBuf.length);
