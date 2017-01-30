@@ -25,4 +25,7 @@
     <color name="blueCT">#73A0B7</color>
     <color name="greenMoney">#73B779</color>
     <color name="redHealth">#C37365</color>
+    <color name="bombDefused">#00FF00</color>
+    <color name="bombPlantedActive">#cf0e0e</color>
+    <color name="bombPlantedInactive">#980000</color>
 </resources>
