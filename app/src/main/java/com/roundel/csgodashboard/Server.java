@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
@@ -24,6 +25,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.roundel.csgodashboard.ui.ServerSetupActivity;
 
 import org.json.JSONException;
@@ -34,7 +39,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 import butterknife.BindView;
@@ -49,6 +56,8 @@ public class Server extends AppCompatActivity implements View.OnClickListener
     private ServerSocket serverSocket;
     private TextView text;
     private TextView title;
+    @BindView(R.id.chart)
+    LineChart mLineChart;
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
     @BindView(R.id.game_info_bomb) ImageView mBombView;
@@ -101,9 +110,27 @@ public class Server extends AppCompatActivity implements View.OnClickListener
         /*this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();*/
 
+        Log.d("Name", Build.MANUFACTURER + " " + Build.MODEL);
 
         findViewById(R.id.testButton).setOnClickListener(this);
         findViewById(R.id.testBomb).setOnClickListener(this);
+
+        List<Entry> entries = new ArrayList<>();
+        entries.add(new Entry(1, 800));
+        entries.add(new Entry(2, 3400));
+        entries.add(new Entry(3, 2000));
+
+        LineDataSet dataSet = new LineDataSet(entries, "Money"); // add entries to dataset
+        dataSet.setColor(getColor(R.color.greenMoney));
+        dataSet.setCircleColor(getColor(R.color.greenMoney));
+        dataSet.setCircleColorHole(getColor(R.color.grey900));
+        dataSet.setLineWidth(2.5f);
+        dataSet.setCircleRadius(4);
+
+        LineData lineData = new LineData(dataSet);
+        mLineChart.setData(lineData);
+        mLineChart.setDrawGridBackground(false);
+        mLineChart.invalidate(); // refresh
 
     }
 
@@ -161,7 +188,6 @@ public class Server extends AppCompatActivity implements View.OnClickListener
                     //TODO: Add a custom transition that will hide the flashing lights
                     mBombView.setImageDrawable(getDrawable(R.drawable.bomb_defused));
                     mBombView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombDefused)));
-                    TransitionManager.beginDelayedTransition(mSectionRoundInfo);
                 }
 
                 @Override
@@ -234,7 +260,6 @@ public class Server extends AppCompatActivity implements View.OnClickListener
 
                 try
                 {
-
                     socket = serverSocket.accept();
 
                     CommunicationThread commThread = new CommunicationThread(socket);
@@ -273,6 +298,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
             }
         }
 
+        @Override
         public void run()
         {
 
