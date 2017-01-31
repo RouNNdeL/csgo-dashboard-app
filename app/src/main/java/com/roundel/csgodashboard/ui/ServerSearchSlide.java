@@ -10,8 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.ButtonBarLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,9 +24,11 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.paolorotolo.appintro.ISlidePolicy;
 import com.roundel.csgodashboard.R;
+import com.roundel.csgodashboard.ServerCommunicationThread;
 import com.roundel.csgodashboard.ServerDiscoveryThread;
 import com.roundel.csgodashboard.SlideAction;
 import com.roundel.csgodashboard.entities.GameServer;
@@ -99,12 +99,14 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         if(v.getId() == R.id.game_server_connect)
         {
             View root = (View) v.getParent();
+            final int position = mRecyclerView.getChildLayoutPosition(root);
+
             mAdapter.setRefreshing(!mAdapter.isRefreshing());
 
-            canContinue = true;
             connectingToServer = true;
 
-            animateConnecting(mRecyclerView.getChildLayoutPosition(root));
+
+            animateConnecting(position);
 
             if(mServerConnectionInfoInterface != null)
                 mServerConnectionInfoInterface.onConnecting();
@@ -121,6 +123,42 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                     }
                 }, 500);
             }
+
+            Log.d(TAG, "Attempting Connection");
+            final GameServer selectedGameServer = gameServers.get(position);
+            ServerCommunicationThread sendingThread = new ServerCommunicationThread(selectedGameServer, "CSGO_DASHBOARD_CONNECTION_REQUEST");
+            sendingThread.setServerCommunication(new ServerCommunicationThread.ServerCommunication()
+            {
+                @Override
+                public void onReceive(final byte[] response)
+                {
+                    String responseAsString = new String(response).trim();
+                    if(Objects.equals(responseAsString, "CSGO:PC:RESPONSE"))
+                    {
+                        getActivity().runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                if(mSlideActionInterface != null)
+                                {
+                                    new Handler().postDelayed(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            mSlideActionInterface.onNextPageRequested(getTargetFragment());
+                                        }
+                                    }, 250);
+                                }
+                                canContinue = true;
+                                Toast.makeText(getContext(), "Connected to " + selectedGameServer.getName(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            });
+            sendingThread.start();
         }
         else if(v.getId() == R.id.setup_server_search_refresh)
         {
