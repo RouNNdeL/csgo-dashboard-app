@@ -24,10 +24,12 @@ public class ServerCommunicationThread extends Thread implements Runnable
 
     private static final String TAG = ServerCommunicationThread.class.getSimpleName();
 
-    private static final String CONNECTION_REQUEST = "CSGO_DASHBOARD_CONNECTION_REQUEST";
-    private static final String CONNECTION_RESPONSE = "CSGO_DASHBOARD_CONNECTION_RESPONSE";
-    private static final String CONNECTION_GRANTED = "CSGO_DASHBOARD_ACCESS_GRANTED";
-    private static final String CONNECTION_DENIED = "CSGO_DASHBOARD_ACCESS_DENIED";
+    private static final String CONNECTION_REQUEST = "CSGO_DASHBOARD_CONNECTION_REQUEST";                                           //json params: none
+    private static final String CONNECTION_RESPONSE = "CSGO_DASHBOARD_CONNECTION_RESPONSE";                                         //JSON params: none
+    private static final String CONNECTION_DEVICE_NAME = "CSGO_DASHBOARD_CONNECTION_DEVICE_NAME";                                   //JSON params: "device_name"
+    private static final String CONNECTION_USER_AGREEMENT = "CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT";                             //JSON params: "user_allowed"
+    private static final String CONNECTION_GAME_INFO_PORT = "CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT";                             //JSON params: "game_info_port"
+    private static final String CONNECTION_GAME_INFO_PORT_RESPONSE = "CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE";           //JSON params: none
 
     private GameServer gameServer;
     private Socket gameServerSocket;
@@ -64,29 +66,61 @@ public class ServerCommunicationThread extends Thread implements Runnable
                 {
                     gameServerSocket = new Socket(gameServer.getHost(), gameServer.getPort());
                     JSONObject json = new JSONObject();
-                    json.put("device_name", Build.MANUFACTURER + " " + Build.MODEL);
                     json.put("code", CONNECTION_REQUEST);
-
                     sendBytes(gameServerSocket, json.toString().getBytes());
-                    byte[] response = receiveBytes();
-                    if(Objects.equals(new String(response).trim(), CONNECTION_RESPONSE))
+
+                    JSONObject response = jsonFromByteArr(receiveBytes());
+
+                    if(Objects.equals(response.getString("code"), CONNECTION_RESPONSE))
                     {
                         json = new JSONObject();
-                        json.put("game_port", gameListeningPort);
+                        json.put("code", CONNECTION_DEVICE_NAME);
+                        json.put("device_name", Build.MANUFACTURER + " " + Build.MODEL);
+
                         sendBytes(gameServerSocket, json.toString().getBytes());
-                        response = receiveBytes();
-                        if(Objects.equals(new String(response).trim(), CONNECTION_GRANTED) && connectionListener != null)
+                        response = jsonFromByteArr(receiveBytes());
+
+                        if(Objects.equals(response.getString("code"), CONNECTION_USER_AGREEMENT))
                         {
-                            connectionListener.onAccessGranted();
+                            if(response.getBoolean("user_allowed"))
+                            {
+                                json = new JSONObject();
+                                json.put("code", CONNECTION_GAME_INFO_PORT);
+                                json.put("game_info_port", gameListeningPort);
+
+                                sendBytes(gameServerSocket, json.toString().getBytes());
+                                response = jsonFromByteArr(receiveBytes());
+                                if(Objects.equals(response.getString("code"), CONNECTION_GAME_INFO_PORT_RESPONSE))
+                                {
+                                    connectionListener.onAccessGranted();
+                                }
+                                else
+                                {
+                                    connectionListener.onServerNotResponded();
+                                }
+                            }
+                            else if(response.getBoolean("user_allowed"))
+                            {
+                                connectionListener.onAccessDenied();
+                            }
+                            else
+                            {
+                                connectionListener.onServerNotResponded();
+                            }
                         }
-                        else if(Objects.equals(new String(response).trim(), CONNECTION_DENIED) && connectionListener != null)
+                        else
                         {
-                            connectionListener.onAccessDenied();
+                            connectionListener.onServerNotResponded();
                         }
+                    }
+                    else
+                    {
+                        connectionListener.onServerNotResponded();
                     }
                 }
                 catch(IOException | JSONException e)
                 {
+                    connectionListener.onServerNotResponded();
                     e.printStackTrace();
                 }
             }
@@ -128,6 +162,11 @@ public class ServerCommunicationThread extends Thread implements Runnable
         return b;
     }
 
+    private JSONObject jsonFromByteArr(byte[] array) throws JSONException
+    {
+        return new JSONObject(new String(array).trim());
+    }
+
     public void setConnectionListener(ServerConnectionListener listener)
     {
         this.connectionListener = listener;
@@ -138,5 +177,7 @@ public class ServerCommunicationThread extends Thread implements Runnable
         void onAccessGranted();
 
         void onAccessDenied();
+
+        void onServerNotResponded();
     }
 }
