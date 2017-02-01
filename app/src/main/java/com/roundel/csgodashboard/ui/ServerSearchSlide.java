@@ -256,6 +256,20 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             {
                 onConnectionRefused();
             }
+
+            @Override
+            public void onServerNotResponded()
+            {
+                //TODO: Remove after debugging
+                getActivity().runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        Toast.makeText(getContext(), "Server didn't responded", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
         });
         sendingThread.start();
     }
@@ -268,7 +282,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             @Override
             public void run()
             {
-                Toast.makeText(getContext(), "Access granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Access granted", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -281,7 +295,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             @Override
             public void run()
             {
-                Toast.makeText(getContext(), "Access denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Access denied", Toast.LENGTH_LONG).show();
                 reverseAnimateConnecting();
             }
         });

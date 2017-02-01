@@ -37,11 +37,6 @@ public class ServerDiscoveryThread extends Thread implements Runnable
         this.listener = listener;
     }
 
-    public void setDiscoveryTimeout(int discoveryTimeout)
-    {
-        this.discoveryTimeout = discoveryTimeout;
-    }
-
     @Override
     public void run()
     {
@@ -115,7 +110,7 @@ public class ServerDiscoveryThread extends Thread implements Runnable
                 socket.receive(receivePacket);
 
                 //We have a response
-                Log.d(TAG, "Broadcast response from "+receivePacket.getAddress().getHostName()+": " + receivePacket.getAddress().getHostAddress()+":"+receivePacket.getPort());
+                Log.d(TAG, "Broadcast response from " + receivePacket.getAddress().getHostName() + ": " + receivePacket.getAddress().getHostAddress() + ":" + receivePacket.getPort());
 
                 //Check if the message is correct
                 String message = new String(receivePacket.getData()).trim();
@@ -124,7 +119,12 @@ public class ServerDiscoveryThread extends Thread implements Runnable
                     JSONObject response = new JSONObject(message);
                     if(Objects.equals(response.getString("code"), DISCOVERY_RESPONSE))
                     {
-                        listener.onServerFound(new GameServer(receivePacket.getAddress().getHostName(), receivePacket.getAddress().getHostAddress(), response.getInt("receiving_port")));
+                        listener.onServerFound(
+                                new GameServer(
+                                        receivePacket.getAddress().getHostName(),
+                                        receivePacket.getAddress().getHostAddress(),
+                                        response.getInt("communication_port")
+                                ));
                     }
                 }
                 catch(JSONException e)
@@ -141,6 +141,11 @@ public class ServerDiscoveryThread extends Thread implements Runnable
         {
             e.printStackTrace();
         }
+    }
+
+    public void setDiscoveryTimeout(int discoveryTimeout)
+    {
+        this.discoveryTimeout = discoveryTimeout;
     }
 
     public interface ServerDiscoveryListener
