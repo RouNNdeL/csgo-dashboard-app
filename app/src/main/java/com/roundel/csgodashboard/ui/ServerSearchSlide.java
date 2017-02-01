@@ -123,7 +123,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                     }
                 }, 500);
             }
-            
+
             final GameServer selectedGameServer = gameServers.get(position);
             attemptConnection(selectedGameServer);
         }
@@ -242,7 +242,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void attemptConnection(GameServer server)
     {
-        ServerCommunicationThread sendingThread = new ServerCommunicationThread(server, ServerCommunicationThread.MODE_CONNECT, 6000);
+        ServerCommunicationThread sendingThread = new ServerCommunicationThread(server, ServerCommunicationThread.MODE_CONNECT, "6000");
         sendingThread.setConnectionListener(new ServerCommunicationThread.ServerConnectionListener()
         {
             @Override
@@ -287,6 +287,11 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         });
     }
 
+    public void updateTitleWifi()
+    {
+        setTitleSearchingWifi();
+    }
+
     private void animateConnecting(int position)
     {
         final int cardMargin = (int) getResources().getDimension(R.dimen.setup_search_server_cardview_margin);
@@ -309,6 +314,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         transition.setDuration(200);
         TransitionManager.beginDelayedTransition(root);
     }
+
 
     private void reverseAnimateConnecting()
     {
@@ -368,6 +374,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     public void cancelConnectingProcess()
     {
         connectingToServer = false;
+        reverseAnimateConnecting();
         //TODO: Kill a Process handling connection;
     }
 
