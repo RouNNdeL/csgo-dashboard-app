@@ -42,6 +42,23 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
     private ProgressBar mWifiProgress;
     private ViewGroup root;
     private SlideAction mSlideActionInterface;
+    private WifiConnectionListener mWifiConnectionListener;
+
+    public static NoWifiSlide newInstance(int layoutResId)
+    {
+        NoWifiSlide sampleSlide = new NoWifiSlide();
+
+        Bundle args = new Bundle();
+        args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
+        sampleSlide.setArguments(args);
+
+        return sampleSlide;
+    }
+
+    public void attachWifiConnectionListener(WifiConnectionListener listener)
+    {
+        this.mWifiConnectionListener = listener;
+    }
 
     @Nullable
     @Override
@@ -94,15 +111,17 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
                             if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI && networkInfo.isConnected())
                             {
                                 Toast.makeText(context, R.string.setup_wifi_connected, Toast.LENGTH_SHORT).show();
-                                new Handler().postDelayed(new Runnable()
+                                if(mSlideActionInterface != null)
                                 {
-                                    @Override
-                                    public void run()
+                                    new Handler().postDelayed(new Runnable()
                                     {
-                                        if(mSlideActionInterface != null)
+                                        @Override
+                                        public void run()
+                                        {
                                             mSlideActionInterface.onNextPageRequested(getParentFragment());
-                                    }
-                                }, 500);
+                                        }
+                                    }, 250);
+                                }
                             }
                         }
                         catch(NullPointerException e)
@@ -144,14 +163,8 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
         Toast.makeText(getContext(), R.string.setup_wifi_connect_hint, Toast.LENGTH_SHORT).show();
     }
 
-    public static NoWifiSlide newInstance(int layoutResId)
+    public interface WifiConnectionListener
     {
-        NoWifiSlide sampleSlide = new NoWifiSlide();
-
-        Bundle args = new Bundle();
-        args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
-        sampleSlide.setArguments(args);
-
-        return sampleSlide;
+        void onWifiConnected();
     }
 }

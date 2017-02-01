@@ -13,7 +13,7 @@ import com.roundel.csgodashboard.SlideAction;
 /**
  * Created by Krzysiek on 2017-01-23.
  */
-public class ServerSetupActivity extends AppIntro implements SlideAction, ServerSearchSlide.ServerConnectionInfo
+public class ServerSetupActivity extends AppIntro implements SlideAction, ServerSearchSlide.ServerConnectionInfo, NoWifiSlide.WifiConnectionListener
 {
     public static final String TAG = "ServerSetupActivity";
 
@@ -40,6 +40,7 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
         waitGameSlide = WaitGameSlide.newInstance(R.layout.setup_wait_game);
 
         noWifiSlide.attachSlideActionInterface(this);
+        noWifiSlide.attachWifiConnectionListener(this);
         serverSearchSlide.attachSlideActionInterface(this);
         serverSearchSlide.attachServerConnectionInfoInterface(this);
 
@@ -84,6 +85,12 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
     public void onFailed()
     {
 
+    }
+
+    @Override
+    public void onWifiConnected()
+    {
+        serverSearchSlide.updateTitleWifi();
     }
 
     @Override
