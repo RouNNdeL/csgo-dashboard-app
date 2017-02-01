@@ -123,42 +123,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                     }
                 }, 500);
             }
-
-            Log.d(TAG, "Attempting Connection");
+            
             final GameServer selectedGameServer = gameServers.get(position);
-            ServerCommunicationThread sendingThread = new ServerCommunicationThread(selectedGameServer, "CSGO_DASHBOARD_CONNECTION_REQUEST");
-            sendingThread.setServerCommunication(new ServerCommunicationThread.ServerCommunication()
-            {
-                @Override
-                public void onReceive(final byte[] response)
-                {
-                    String responseAsString = new String(response).trim();
-                    if(Objects.equals(responseAsString, "CSGO:PC:RESPONSE"))
-                    {
-                        getActivity().runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                if(mSlideActionInterface != null)
-                                {
-                                    new Handler().postDelayed(new Runnable()
-                                    {
-                                        @Override
-                                        public void run()
-                                        {
-                                            mSlideActionInterface.onNextPageRequested(getTargetFragment());
-                                        }
-                                    }, 250);
-                                }
-                                canContinue = true;
-                                Toast.makeText(getContext(), "Connected to " + selectedGameServer.getName(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }
-            });
-            sendingThread.start();
+            attemptConnection(selectedGameServer);
         }
         else if(v.getId() == R.id.setup_server_search_refresh)
         {
@@ -271,6 +238,53 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         ServerDiscoveryThread serverDiscoveryThread = new ServerDiscoveryThread(this);
         serverDiscoveryThread.setDiscoveryTimeout(2500);
         serverDiscoveryThread.start();
+    }
+
+    private void attemptConnection(GameServer server)
+    {
+        ServerCommunicationThread sendingThread = new ServerCommunicationThread(server, ServerCommunicationThread.MODE_CONNECT, 6000);
+        sendingThread.setConnectionListener(new ServerCommunicationThread.ServerConnectionListener()
+        {
+            @Override
+            public void onAccessGranted()
+            {
+                onConnectionSuccessful();
+            }
+
+            @Override
+            public void onAccessDenied()
+            {
+                onConnectionRefused();
+            }
+        });
+        sendingThread.start();
+    }
+
+    private void onConnectionSuccessful()
+    {
+        //Remember to run UI operations with Activity.runOnUiThread();
+        getActivity().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Toast.makeText(getContext(), "Access granted", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void onConnectionRefused()
+    {
+        //Remember to run UI operations with Activity.runOnUiThread();
+        getActivity().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Toast.makeText(getContext(), "Access denied", Toast.LENGTH_SHORT).show();
+                reverseAnimateConnecting();
+            }
+        });
     }
 
     private void animateConnecting(int position)
