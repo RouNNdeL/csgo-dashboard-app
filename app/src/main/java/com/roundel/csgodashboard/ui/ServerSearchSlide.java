@@ -235,7 +235,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     public void startDiscovery()
     {
-        ServerDiscoveryThread serverDiscoveryThread = new ServerDiscoveryThread(this);
+        ServerDiscoveryThread serverDiscoveryThread = new ServerDiscoveryThread();
+        serverDiscoveryThread.setServerDiscoveryListener(this);
         serverDiscoveryThread.setDiscoveryTimeout(2500);
         serverDiscoveryThread.start();
     }
@@ -258,7 +259,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             }
 
             @Override
-            public void onServerNotResponded()
+            public void onServerNotResponded(final String error)
             {
                 //TODO: Remove after debugging
                 getActivity().runOnUiThread(new Runnable()
@@ -266,7 +267,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                     @Override
                     public void run()
                     {
-                        Toast.makeText(getContext(), "Server didn't responded", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
                     }
                 });
             }

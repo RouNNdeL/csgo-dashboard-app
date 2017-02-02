@@ -32,9 +32,12 @@ public class ServerDiscoveryThread extends Thread implements Runnable
     private ServerDiscoveryListener listener;
     private int discoveryTimeout = 500;
 
-    public ServerDiscoveryThread(ServerDiscoveryListener listener)
+
+    /**
+     * This thread is used to send a UDP broadcast and detect servers running on the local network
+     */
+    public ServerDiscoveryThread()
     {
-        this.listener = listener;
     }
 
     @Override
@@ -141,6 +144,14 @@ public class ServerDiscoveryThread extends Thread implements Runnable
         {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @param listener a {@link ServerDiscoveryListener} that notifies about the process
+     */
+    public void setServerDiscoveryListener(ServerDiscoveryListener listener)
+    {
+        this.listener = listener;
     }
 
     public void setDiscoveryTimeout(int discoveryTimeout)

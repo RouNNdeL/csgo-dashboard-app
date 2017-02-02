@@ -39,6 +39,15 @@ public class ServerCommunicationThread extends Thread implements Runnable
 
     private int gameListeningPort = -1;
 
+
+    /**
+     * @param gameServer        A game server to communicate with
+     * @param communicationMode A communication protocol Has to be {@link #MODE_CONNECT}
+     * @param args              Arguments depend on the {@param communicationMode}
+     *
+     * @throws IllegalArgumentException if the {@param communicationMode} is invalid or arguments
+     *                                  don't match the mode
+     */
     public ServerCommunicationThread(GameServer gameServer, int communicationMode, String... args)
     {
         this.gameServer = gameServer;
@@ -69,7 +78,7 @@ public class ServerCommunicationThread extends Thread implements Runnable
                     json.put("code", CONNECTION_REQUEST);
                     sendBytes(gameServerSocket, json.toString().getBytes());
 
-                    JSONObject response = jsonFromByteArr(receiveBytes());
+                    JSONObject response = jsonFromByteArr(receiveBytes(gameServerSocket));
 
                     if(Objects.equals(response.getString("code"), CONNECTION_RESPONSE))
                     {
@@ -78,7 +87,7 @@ public class ServerCommunicationThread extends Thread implements Runnable
                         json.put("device_name", Build.MANUFACTURER + " " + Build.MODEL);
 
                         sendBytes(gameServerSocket, json.toString().getBytes());
-                        response = jsonFromByteArr(receiveBytes());
+                        response = jsonFromByteArr(receiveBytes(gameServerSocket));
 
                         if(Objects.equals(response.getString("code"), CONNECTION_USER_AGREEMENT))
                         {
@@ -89,49 +98,62 @@ public class ServerCommunicationThread extends Thread implements Runnable
                                 json.put("game_info_port", gameListeningPort);
 
                                 sendBytes(gameServerSocket, json.toString().getBytes());
-                                response = jsonFromByteArr(receiveBytes());
+                                response = jsonFromByteArr(receiveBytes(gameServerSocket));
                                 if(Objects.equals(response.getString("code"), CONNECTION_GAME_INFO_PORT_RESPONSE))
                                 {
                                     connectionListener.onAccessGranted();
                                 }
                                 else
                                 {
-                                    connectionListener.onServerNotResponded();
+                                    connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE");
                                 }
                             }
-                            else if(response.getBoolean("user_allowed"))
+                            else if(!response.getBoolean("user_allowed"))
                             {
                                 connectionListener.onAccessDenied();
-                            }
-                            else
-                            {
-                                connectionListener.onServerNotResponded();
                             }
                         }
                         else
                         {
-                            connectionListener.onServerNotResponded();
+                            connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
                         }
                     }
                     else
                     {
-                        connectionListener.onServerNotResponded();
+                        connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
                     }
                 }
                 catch(IOException | JSONException e)
                 {
-                    connectionListener.onServerNotResponded();
+                    connectionListener.onServerNotResponded("Didn't send a proper JSON");
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    private void sendBytes(Socket socket, byte[] myByteArray) throws IOException
+    /**
+     * @param socket socket to send the bytes on
+     * @param bytes  bytes to send
+     *
+     * @throws IOException
+     */
+    private void sendBytes(Socket socket, byte[] bytes) throws IOException
     {
-        sendBytes(socket, myByteArray, 0, myByteArray.length);
+        sendBytes(socket, bytes, 0, bytes.length);
     }
 
+
+    /**
+     * @param socket      socket to send the bytes to
+     * @param myByteArray bytes to send
+     * @param start       offset for the bytes
+     * @param len         length of the message
+     *
+     * @throws IOException
+     * @throws IllegalArgumentException  when length is negative
+     * @throws IndexOutOfBoundsException when start is negative or exceeds the array
+     */
     private void sendBytes(Socket socket, byte[] myByteArray, int start, int len) throws IOException
     {
         if(len < 0)
@@ -153,15 +175,21 @@ public class ServerCommunicationThread extends Thread implements Runnable
         dos.flush();
     }
 
-    private byte[] receiveBytes() throws IOException
+    private byte[] receiveBytes(Socket socket) throws IOException
     {
-        InputStream inputStream = gameServerSocket.getInputStream();
+        InputStream inputStream = socket.getInputStream();
         DataInputStream dataInputStream = new DataInputStream(inputStream);
         final byte[] b = new byte[1024];
         dataInputStream.read(b);
         return b;
     }
 
+    /**
+     * @param array array of bytes to be parsed
+     *
+     * @return parsed {@link JSONObject}
+     * @throws JSONException
+     */
     private JSONObject jsonFromByteArr(byte[] array) throws JSONException
     {
         return new JSONObject(new String(array).trim());
@@ -174,10 +202,21 @@ public class ServerCommunicationThread extends Thread implements Runnable
 
     public interface ServerConnectionListener
     {
+        /**
+         * Called when user allows for the connection
+         */
         void onAccessGranted();
 
+        /**
+         * Called when user denies the connection
+         */
         void onAccessDenied();
 
-        void onServerNotResponded();
+        /**
+         * Called when server response was not understood
+         *
+         * @param error cause of this call
+         */
+        void onServerNotResponded(String error);
     }
 }
