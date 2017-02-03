@@ -9,12 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.roundel.csgodashboard.OnBackPressedListener;
 import com.roundel.csgodashboard.SlideAction;
 
 /**
  * Created by Krzysiek on 2017-01-25.
  */
-public class SlideBase extends Fragment
+public class SlideBase extends Fragment implements OnBackPressedListener
 {
     private static final String TAG = SlideBase.class.getSimpleName();
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
@@ -72,5 +73,11 @@ public class SlideBase extends Fragment
     public SlideAction getSlideActionInterface()
     {
         return mSlideActionInterface;
+    }
+
+    @Override
+    public boolean onBackPressed()
+    {
+        return true;
     }
 }

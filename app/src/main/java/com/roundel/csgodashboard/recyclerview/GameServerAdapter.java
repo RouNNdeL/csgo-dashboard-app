@@ -5,7 +5,6 @@ import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
 import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +33,7 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
     private int mExpandedPosition = -1;
     private int mConnectingPosition = -1;
     private RecyclerView mRecyclerView;
+    private String connectingStatusText = "";
 
     public GameServerAdapter(List<GameServer> data, View.OnClickListener listener)
     {
@@ -97,15 +97,9 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
         }
         else if(holder.getItemViewType() == TYPE_EXPANDED)
         {
-            /*View content = holder.getContent();
-            TextView name = (TextView) content.findViewById(R.id.connecting_game_server_name);
-            TextView host = (TextView) content.findViewById(R.id.connecting_game_server_host);
-            TextView port = (TextView) content.findViewById(R.id.connecting_game_server_port);
-
-            final GameServer gameServer = mDataSet.get(mConnectingPosition);
-            name.setText(gameServer.getName());
-            host.setText(String.format(Locale.getDefault(), "IP:%s", gameServer.getHost()));
-            port.setText(String.format(Locale.getDefault(), "Port:%d", gameServer.getPort()));*/
+            View content = holder.getContent();
+            final TextView status = (TextView) content.findViewById(R.id.setup_server_connection_status);
+            status.setText(connectingStatusText);
         }
     }
 
@@ -146,12 +140,14 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
     {
         mConnectingPosition = position;
         notifyDataSetChanged();
+        setRefreshing(false);
     }
 
     public void collapseWhenConnecting()
     {
         mConnectingPosition = -1;
         notifyDataSetChanged();
+        setRefreshing(false);
     }
 
     public boolean isRefreshing()
@@ -166,6 +162,11 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
             notifyItemInserted(getItemCount());
         else
             notifyItemRemoved(getItemCount());
+    }
+
+    public void setConnectingStatusText(String connectingStatusText)
+    {
+        this.connectingStatusText = connectingStatusText;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder
