@@ -20,6 +20,12 @@ public class GameServer
         this.port = port;
     }
 
+    @Override
+    public String toString()
+    {
+        return String.format(Locale.getDefault(), "%s - %s:%d", name, host, port);
+    }
+
     public String getName()
     {
         return name;
@@ -33,11 +39,5 @@ public class GameServer
     public int getPort()
     {
         return port;
-    }
-
-    @Override
-    public String toString()
-    {
-        return String.format(Locale.getDefault(), "%s - %s:%d", name, host, port);
     }
 }

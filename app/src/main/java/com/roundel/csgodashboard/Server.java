@@ -29,6 +29,7 @@ import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.roundel.csgodashboard.ui.LogActivity;
 import com.roundel.csgodashboard.ui.ServerSetupActivity;
 
 import org.json.JSONException;
@@ -53,19 +54,48 @@ public class Server extends AppCompatActivity implements View.OnClickListener
     public static final int SERVER_PORT = 6000;
     Handler updateConversationHandler;
     Thread serverThread = null;
-    private ServerSocket serverSocket;
-    private TextView text;
-    private TextView title;
-    @BindView(R.id.chart)
-    LineChart mLineChart;
+    @BindView(R.id.chart) LineChart mLineChart;
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
     @BindView(R.id.game_info_bomb) ImageView mBombView;
-    private ImageView backdrop;
     @BindView(R.id.game_info_section_round) LinearLayout mSectionRoundInfo;
+    private ServerSocket serverSocket;
+    private TextView text;
+    private TextView title;
+    private ImageView backdrop;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
     private JSONObject gameState = new JSONObject();
+
+    public static boolean isInteger(String s, int radix)
+    {
+        if(s.isEmpty()) return false;
+        for(int i = 0; i < s.length(); i++)
+        {
+            if(i == 0 && s.charAt(i) == '-')
+            {
+                if(s.length() == 1) return false;
+                else continue;
+            }
+            if(Character.digit(s.charAt(i), radix) < 0) return false;
+        }
+        return true;
+    }
+
+    public static JSONObject merge(JSONObject... params) throws JSONException
+    {
+        JSONObject merged = new JSONObject();
+        for(JSONObject obj : params)
+        {
+            Iterator it = obj.keys();
+            while(it.hasNext())
+            {
+                String key = (String) it.next();
+                merged.put(key, obj.get(key));
+            }
+        }
+        return merged;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -114,6 +144,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
 
         findViewById(R.id.testButton).setOnClickListener(this);
         findViewById(R.id.testBomb).setOnClickListener(this);
+        findViewById(R.id.viewLogs).setOnClickListener(this);
 
         List<Entry> entries = new ArrayList<>();
         entries.add(new Entry(1, 800));
@@ -151,93 +182,77 @@ public class Server extends AppCompatActivity implements View.OnClickListener
     @Override
     public void onClick(View v)
     {
-        if(v.getId() == R.id.testButton)
+        switch(v.getId())
         {
-            Intent intent = new Intent(Server.this, ServerSetupActivity.class);
-            startActivity(intent);
-        }
-        else if(v.getId() == R.id.testBomb)
-        {
-            mRoundNumber.setVisibility(View.GONE);
-            mBombView.setVisibility(View.VISIBLE);
-            TransitionManager.beginDelayedTransition(mSectionRoundInfo);
+            case R.id.testButton:
+            {
+                Intent intent = new Intent(Server.this, ServerSetupActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case R.id.testBomb:
+            {
+                mRoundNumber.setVisibility(View.GONE);
+                mBombView.setVisibility(View.VISIBLE);
+                TransitionManager.beginDelayedTransition(mSectionRoundInfo);
 
-            ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
+                ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
 
-            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    Integer color = (Integer) animation.getAnimatedValue();
-                    if (color != null) {
-                        mBombView.setImageTintList(ColorStateList.valueOf(color));
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
+                {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation)
+                    {
+                        Integer color = (Integer) animation.getAnimatedValue();
+                        if(color != null)
+                        {
+                            mBombView.setImageTintList(ColorStateList.valueOf(color));
+                        }
                     }
-                }
-            });
+                });
 
-            animator.addListener(new Animator.AnimatorListener()
-            {
-                @Override
-                public void onAnimationStart(Animator animation)
+                animator.addListener(new Animator.AnimatorListener()
                 {
+                    @Override
+                    public void onAnimationStart(Animator animation)
+                    {
 
-                }
+                    }
 
-                @Override
-                public void onAnimationEnd(Animator animation)
-                {
-                    //TODO: Add a custom transition that will hide the flashing lights
-                    mBombView.setImageDrawable(getDrawable(R.drawable.bomb_defused));
-                    mBombView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombDefused)));
-                }
+                    @Override
+                    public void onAnimationEnd(Animator animation)
+                    {
+                        //TODO: Add a custom transition that will hide the flashing lights
+                        mBombView.setImageDrawable(getDrawable(R.drawable.bomb_defused));
+                        mBombView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombDefused)));
+                    }
 
-                @Override
-                public void onAnimationCancel(Animator animation)
-                {
+                    @Override
+                    public void onAnimationCancel(Animator animation)
+                    {
 
-                }
+                    }
 
-                @Override
-                public void onAnimationRepeat(Animator animation)
-                {
+                    @Override
+                    public void onAnimationRepeat(Animator animation)
+                    {
 
-                }
-            });
+                    }
+                });
 
-            animator.setRepeatMode(ValueAnimator.REVERSE);
-            animator.setDuration(1000);
-            animator.setRepeatCount(10);
-            animator.start();
-        }
-    }
-
-    public static boolean isInteger(String s, int radix)
-    {
-        if(s.isEmpty()) return false;
-        for(int i = 0; i < s.length(); i++)
-        {
-            if(i == 0 && s.charAt(i) == '-')
-            {
-                if(s.length() == 1) return false;
-                else continue;
+                animator.setRepeatMode(ValueAnimator.REVERSE);
+                animator.setDuration(1000);
+                animator.setRepeatCount(10);
+                animator.start();
+                break;
             }
-            if(Character.digit(s.charAt(i), radix) < 0) return false;
-        }
-        return true;
-    }
-
-    public static JSONObject merge(JSONObject... params) throws JSONException
-    {
-        JSONObject merged = new JSONObject();
-        for(JSONObject obj : params)
-        {
-            Iterator it = obj.keys();
-            while(it.hasNext())
+            case R.id.viewLogs:
             {
-                String key = (String) it.next();
-                merged.put(key, obj.get(key));
+                Intent intent = new Intent(Server.this, LogActivity.class);
+                startActivity(intent);
+                break;
             }
         }
-        return merged;
     }
 
     class ServerThread implements Runnable

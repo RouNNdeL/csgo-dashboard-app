@@ -99,4 +99,10 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <style name="LightDialog" parent="AlertDialog.AppCompat.Light">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textColorPrimary">@color/colorMaterialDark87</item>
+    </style>
+
 </resources>

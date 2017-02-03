@@ -3,6 +3,7 @@ package com.roundel.csgodashboard;
 import android.os.Build;
 
 import com.roundel.csgodashboard.entities.GameServer;
+import com.roundel.csgodashboard.util.LogHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +13,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Objects;
 
 /**
@@ -22,18 +25,20 @@ public class ServerCommunicationThread extends Thread implements Runnable
 {
     public static final int MODE_CONNECT = 0;
 
-    private static final String TAG = ServerCommunicationThread.class.getSimpleName();
-
-    private static final String CONNECTION_REQUEST = "CSGO_DASHBOARD_CONNECTION_REQUEST";                                           //json params: none
-    private static final String CONNECTION_RESPONSE = "CSGO_DASHBOARD_CONNECTION_RESPONSE";                                         //JSON params: none
     private static final String CONNECTION_DEVICE_NAME = "CSGO_DASHBOARD_CONNECTION_DEVICE_NAME";                                   //JSON params: "device_name"
-    private static final String CONNECTION_USER_AGREEMENT = "CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT";                             //JSON params: "user_allowed"
     private static final String CONNECTION_GAME_INFO_PORT = "CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT";                             //JSON params: "game_info_port"
     private static final String CONNECTION_GAME_INFO_PORT_RESPONSE = "CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE";           //JSON params: none
+    private static final String CONNECTION_REQUEST = "CSGO_DASHBOARD_CONNECTION_REQUEST";                                           //json params: none
+    private static final String CONNECTION_RESPONSE = "CSGO_DASHBOARD_CONNECTION_RESPONSE";                                         //JSON params: none
+    private static final String CONNECTION_USER_AGREEMENT = "CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT";                             //JSON params: "user_allowed"
+
+    private static final String TAG = ServerCommunicationThread.class.getSimpleName();
 
     private GameServer gameServer;
     private Socket gameServerSocket;
     private int communicationMode;
+    private int connectionTimeout = 5000;
+    private int receiveTimeout = 15000;
 
     private ServerConnectionListener connectionListener;
 
@@ -73,12 +78,16 @@ public class ServerCommunicationThread extends Thread implements Runnable
             {
                 try
                 {
-                    gameServerSocket = new Socket(gameServer.getHost(), gameServer.getPort());
+                    gameServerSocket = new Socket();
+                    gameServerSocket.connect(new InetSocketAddress(gameServer.getHost(), gameServer.getPort()), connectionTimeout);
+                    gameServerSocket.setSoTimeout(receiveTimeout);
                     JSONObject json = new JSONObject();
                     json.put("code", CONNECTION_REQUEST);
                     sendBytes(gameServerSocket, json.toString().getBytes());
+                    LogHelper.i(TAG, "Sending " + json.toString());
 
                     JSONObject response = jsonFromByteArr(receiveBytes(gameServerSocket));
+                    LogHelper.i(TAG, "Received: " + response.toString());
 
                     if(Objects.equals(response.getString("code"), CONNECTION_RESPONSE))
                     {
@@ -87,7 +96,13 @@ public class ServerCommunicationThread extends Thread implements Runnable
                         json.put("device_name", Build.MANUFACTURER + " " + Build.MODEL);
 
                         sendBytes(gameServerSocket, json.toString().getBytes());
+                        LogHelper.i(TAG, "Sending " + json.toString());
+
+                        if(connectionListener != null)
+                            connectionListener.onAllowConnection();
+
                         response = jsonFromByteArr(receiveBytes(gameServerSocket));
+                        LogHelper.i(TAG, "Received: " + response.toString());
 
                         if(Objects.equals(response.getString("code"), CONNECTION_USER_AGREEMENT))
                         {
@@ -98,34 +113,55 @@ public class ServerCommunicationThread extends Thread implements Runnable
                                 json.put("game_info_port", gameListeningPort);
 
                                 sendBytes(gameServerSocket, json.toString().getBytes());
+                                LogHelper.i(TAG, "Sending " + json.toString());
+
                                 response = jsonFromByteArr(receiveBytes(gameServerSocket));
+                                LogHelper.i(TAG, "Received: " + response.toString());
+
                                 if(Objects.equals(response.getString("code"), CONNECTION_GAME_INFO_PORT_RESPONSE))
                                 {
-                                    connectionListener.onAccessGranted();
+                                    if(connectionListener != null)
+                                        connectionListener.onAccessGranted();
+                                    LogHelper.i(TAG, "Access granted");
                                 }
                                 else
                                 {
-                                    connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE");
+                                    if(connectionListener != null)
+                                        connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE");
                                 }
                             }
                             else if(!response.getBoolean("user_allowed"))
                             {
-                                connectionListener.onAccessDenied();
+                                if(connectionListener != null)
+                                    connectionListener.onAccessDenied();
+                                LogHelper.i(TAG, "Access denied");
                             }
                         }
                         else
                         {
-                            connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
+                            if(connectionListener != null)
+                                connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
+                            LogHelper.e(TAG, "Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
                         }
                     }
                     else
                     {
-                        connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
+                        if(connectionListener != null)
+                            connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
+                        LogHelper.e(TAG, "Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
                     }
+                }
+                catch(SocketTimeoutException e)
+                {
+                    if(connectionListener != null)
+                        connectionListener.onServerTimedOut();
+                    LogHelper.e(TAG, e.toString());
                 }
                 catch(IOException | JSONException e)
                 {
-                    connectionListener.onServerNotResponded("Didn't send a proper JSON");
+                    if(connectionListener != null)
+                        connectionListener.onServerNotResponded("Didn't send a proper JSON");
+                    LogHelper.e(TAG, e.toString());
                     e.printStackTrace();
                 }
             }
@@ -200,6 +236,16 @@ public class ServerCommunicationThread extends Thread implements Runnable
         this.connectionListener = listener;
     }
 
+    public void setConnectionTimeout(int connectionTimeout)
+    {
+        this.connectionTimeout = connectionTimeout;
+    }
+
+    public void setReceiveTimeout(int receiveTimeout)
+    {
+        this.receiveTimeout = receiveTimeout;
+    }
+
     public interface ServerConnectionListener
     {
         /**
@@ -218,5 +264,15 @@ public class ServerCommunicationThread extends Thread implements Runnable
          * @param error cause of this call
          */
         void onServerNotResponded(String error);
+
+        /**
+         * Called when the socket times-out
+         */
+        void onServerTimedOut();
+
+        /**
+         * Called when the socket is awaiting for user action on the PC
+         */
+        void onAllowConnection();
     }
 }

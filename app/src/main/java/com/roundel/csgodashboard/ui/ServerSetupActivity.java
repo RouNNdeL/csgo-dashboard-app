@@ -20,7 +20,7 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
     private NoWifiSlide noWifiSlide;
     private ServerSearchSlide serverSearchSlide;
     private WaitGameSlide waitGameSlide;
-    private boolean connecting = false;
+    private SlideBase mCurrentSlide;
 
     private Fragment currentSlide;
 
@@ -78,7 +78,7 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
     @Override
     public void onConnecting()
     {
-        connecting = true;
+
     }
 
     @Override
@@ -96,12 +96,7 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
     @Override
     public void onBackPressed()
     {
-        if(connecting && currentSlide instanceof ServerSearchSlide)
-        {
-            connecting = false;
-            serverSearchSlide.cancelConnectingProcess();
-        }
-        else
+        if(mCurrentSlide.onBackPressed())
         {
             super.onBackPressed();
         }
@@ -113,6 +108,7 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
         {
             serverSearchSlide.startDiscovery();
         }
+        mCurrentSlide = slide;
         /*window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(slide.getBackgroundColor());*/
     }

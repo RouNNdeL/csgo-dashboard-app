@@ -381,4 +381,10 @@
         android:layout_height="wrap_content"
         android:text="Plant the bomb"/>
 
+    <Button
+        android:id="@+id/viewLogs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View logs"/>
+
 </LinearLayout>

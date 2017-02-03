@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.roundel.csgodashboard.entities.GameServer;
+import com.roundel.csgodashboard.util.LogHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,25 +114,37 @@ public class ServerDiscoveryThread extends Thread implements Runnable
                 socket.receive(receivePacket);
 
                 //We have a response
-                Log.d(TAG, "Broadcast response from " + receivePacket.getAddress().getHostName() + ": " + receivePacket.getAddress().getHostAddress() + ":" + receivePacket.getPort());
+                LogHelper.i(TAG, "Broadcast response from " + receivePacket.getAddress().getHostName() + ": " + receivePacket.getAddress().getHostAddress() + ":" + receivePacket.getPort());
 
                 //Check if the message is correct
                 String message = new String(receivePacket.getData()).trim();
+
+                LogHelper.i(TAG, "Message: " + message);
                 try
                 {
                     JSONObject response = new JSONObject(message);
                     if(Objects.equals(response.getString("code"), DISCOVERY_RESPONSE))
                     {
+                        String hostName = receivePacket.getAddress().getHostName();
+                        final String hostAddress = receivePacket.getAddress().getHostAddress();
+                        final int communicationPort = response.getInt("communication_port");
+
+                        if(Objects.equals(hostAddress, hostName))
+                            hostName = response.getString("server_hostname");
+
+                        Log.i(TAG, "New server \"" + hostName + "\"at:" + hostAddress + ":" + communicationPort);
+
                         listener.onServerFound(
                                 new GameServer(
-                                        receivePacket.getAddress().getHostName(),
-                                        receivePacket.getAddress().getHostAddress(),
-                                        response.getInt("communication_port")
+                                        hostName,
+                                        hostAddress,
+                                        communicationPort
                                 ));
                     }
                 }
                 catch(JSONException e)
                 {
+                    LogHelper.e(TAG, e.toString());
                     e.printStackTrace();
                 }
             }
@@ -143,6 +156,7 @@ public class ServerDiscoveryThread extends Thread implements Runnable
         catch(IOException e)
         {
             e.printStackTrace();
+            LogHelper.e(TAG, e.toString());
         }
     }
 
