@@ -16,11 +16,13 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
  * Created by Krzysiek on 2017-01-31.
  */
+
 public class ServerCommunicationThread extends Thread implements Runnable
 {
     public static final int MODE_CONNECT = 0;
@@ -62,7 +64,7 @@ public class ServerCommunicationThread extends Thread implements Runnable
             case MODE_CONNECT:
                 if(args.length < 1)
                     throw new IllegalArgumentException("You have to supply a port that the app is going to send game info to, when using MODE_CONNECT.");
-                gameListeningPort = Integer.valueOf(args[0]);
+                gameListeningPort = Integer.parseInt(args[0]);
                 break;
             default:
                 throw new IllegalArgumentException("Mode has to be one of [MODE_CONNECT]");
@@ -83,7 +85,7 @@ public class ServerCommunicationThread extends Thread implements Runnable
                     gameServerSocket.setSoTimeout(receiveTimeout);
                     JSONObject json = new JSONObject();
                     json.put("code", CONNECTION_REQUEST);
-                    sendBytes(gameServerSocket, json.toString().getBytes());
+                    sendBytes(gameServerSocket, json.toString().getBytes(Charset.defaultCharset()));
                     LogHelper.i(TAG, "Sending " + json.toString());
 
                     JSONObject response = jsonFromByteArr(receiveBytes(gameServerSocket));
@@ -95,7 +97,7 @@ public class ServerCommunicationThread extends Thread implements Runnable
                         json.put("code", CONNECTION_DEVICE_NAME);
                         json.put("device_name", Build.MANUFACTURER + " " + Build.MODEL);
 
-                        sendBytes(gameServerSocket, json.toString().getBytes());
+                        sendBytes(gameServerSocket, json.toString().getBytes(Charset.defaultCharset()));
                         LogHelper.i(TAG, "Sending " + json.toString());
 
                         if(connectionListener != null)
@@ -165,6 +167,9 @@ public class ServerCommunicationThread extends Thread implements Runnable
                     e.printStackTrace();
                 }
             }
+            default:
+                LogHelper.e(TAG, "Unknown communicationMode");
+                break;
         }
     }
 
@@ -228,7 +233,7 @@ public class ServerCommunicationThread extends Thread implements Runnable
      */
     private JSONObject jsonFromByteArr(byte[] array) throws JSONException
     {
-        return new JSONObject(new String(array).trim());
+        return new JSONObject(new String(array, Charset.defaultCharset()).trim());
     }
 
     public void setConnectionListener(ServerConnectionListener listener)

@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#1976d2</color>
     <color name="colorAccent">#ffab00</color>
     <color name="backgroundGreen">#4caf50</color>
+    <color name="backgroundRed">#F44336</color>
     <color name="backgroundBlueGrey">#607D8B</color>
     <color name="backgroundDeepPurple">#673AB7</color>
 
@@ -28,4 +29,7 @@
     <color name="bombDefused">#00FF00</color>
     <color name="bombPlantedActive">#cf0e0e</color>
     <color name="bombPlantedInactive">#980000</color>
+
+    <color name="greenSuccess">@color/backgroundGreen</color>
+    <color name="redFailure">#E53935</color>
 </resources>

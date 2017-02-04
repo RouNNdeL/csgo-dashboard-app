@@ -56,116 +56,123 @@
             app:cardElevation="@dimen/cardview_default_elevation">
 
 
-            <LinearLayout
-                android:id="@+id/setup_server_connection_auto"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/setup_search_server_recyclerview_height"
-                android:orientation="vertical">
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/setup_server_search_recyclerview"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
-
-                </android.support.v7.widget.RecyclerView>
-
-                <LinearLayout
-                    android:id="@+id/setup_server_search_manual_connect"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/ripple_white_bg"
-                    android:clickable="true"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingBottom="16dp"
-                    android:paddingEnd="8dp"
-                    android:paddingStart="8dp"
-                    android:paddingTop="16dp">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_help_white_24dp"
-                        android:tint="@color/colorMaterialDark50"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:paddingStart="8dp"
-                        android:text="Can't see your PC?"
-                        android:textColor="@color/colorMaterialDark50"
-                        android:textSize="16sp"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/setup_server_connection_manual"
-                android:layout_width="match_parent"
+            <RelativeLayout
+                android:id="@+id/setup_server_connection_container"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:layout_marginBottom="8dp"
-                android:visibility="gone">
+                android:layout_width="match_parent">
 
                 <LinearLayout
+                    android:id="@+id/setup_server_connection_auto"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingBottom="16dp"
-                    android:paddingTop="0dp">
+                    android:layout_height="@dimen/setup_search_server_recyclerview_height"
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:id="@+id/setup_server_back_to_auto"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:background="@drawable/ripple_borderless"
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/setup_server_search_recyclerview"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1">
+
+                    </android.support.v7.widget.RecyclerView>
+
+                    <LinearLayout
+                        android:id="@+id/setup_server_search_manual_connect"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ripple_white_bg"
                         android:clickable="true"
-                        android:contentDescription="back to automatic search"
-                        android:padding="8dp"
-                        android:src="@drawable/ic_arrow_back_white_24dp"
-                        android:tint="@color/colorMaterialDark54"/>
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingBottom="16dp"
+                        android:paddingEnd="8dp"
+                        android:paddingStart="8dp"
+                        android:paddingTop="16dp">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:gravity="center_vertical"
-                        android:text="Manual connection"
-                        android:textColor="@color/colorMaterialDark54"
-                        android:textSize="24sp"/>
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/ic_help_white_24dp"
+                            android:tint="@color/colorMaterialDark50"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:paddingStart="8dp"
+                            android:text="Can't see your PC?"
+                            android:textColor="@color/colorMaterialDark50"
+                            android:textSize="16sp"/>
+                    </LinearLayout>
                 </LinearLayout>
 
-
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/setup_server_manual_host_wrapper"
+                <LinearLayout
+                    android:id="@+id/setup_server_connection_manual"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:theme="@style/ThemeOverlay.AppCompat.Light">
+                    android:layout_marginBottom="8dp"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
 
-                    <android.support.design.widget.TextInputEditText
-                        android:id="@+id/setup_server_manual_host"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="IP Address"/>
-                </android.support.design.widget.TextInputLayout>
+                        android:orientation="horizontal"
+                        android:paddingBottom="16dp"
+                        android:paddingTop="0dp">
 
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/setup_server_manual_port_wrapper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:theme="@style/ThemeOverlay.AppCompat.Light">
+                        <ImageView
+                            android:id="@+id/setup_server_back_to_auto"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/ripple_borderless"
+                            android:clickable="true"
+                            android:contentDescription="back to automatic search"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_arrow_back_white_24dp"
+                            android:tint="@color/colorMaterialDark54"/>
 
-                    <android.support.design.widget.TextInputEditText
-                        android:id="@+id/setup_server_manual_port"
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:text="Manual connection"
+                            android:textColor="@color/colorMaterialDark54"
+                            android:textSize="24sp"/>
+                    </LinearLayout>
+
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/setup_server_manual_host_wrapper"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Port"
-                        android:inputType="number"/>
-                </android.support.design.widget.TextInputLayout>
-            </LinearLayout>
+                        android:theme="@style/ThemeOverlay.AppCompat.Light">
+
+                        <android.support.design.widget.TextInputEditText
+                            android:id="@+id/setup_server_manual_host"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="IP Address"/>
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/setup_server_manual_port_wrapper"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:theme="@style/ThemeOverlay.AppCompat.Light">
+
+                        <android.support.design.widget.TextInputEditText
+                            android:id="@+id/setup_server_manual_port"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Port"
+                            android:inputType="number"/>
+                    </android.support.design.widget.TextInputLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
 
             <LinearLayout
                 android:id="@+id/setup_server_connection_progress"
@@ -176,9 +183,26 @@
                 android:visibility="gone">
 
                 <ProgressBar
+                    android:id="@+id/setup_server_connection_bar"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:theme="@style/PrimaryAccent"/>
+
+                <ImageView
+                    android:id="@+id/setup_server_connection_success"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/green_success_circle"
+                    android:visibility="gone"/>
+
+                <ImageView
+                    android:id="@+id/setup_server_connection_failure"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/red_failure_circle"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/setup_server_connection_status"
@@ -186,8 +210,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:paddingEnd="8dp"
-                    android:paddingStart="8dp"
+                    android:paddingEnd="4dp"
+                    android:paddingStart="4dp"
                     android:text="@string/setup_server_search_allow_connection"
                     android:textAlignment="gravity"
                     android:textColor="@color/colorMaterialDark87"

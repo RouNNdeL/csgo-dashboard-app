@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -122,7 +123,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
             public boolean onPreDraw()
             {
                 backdrop.getViewTreeObserver().removeOnPreDrawListener(this);
-                int backdropHeight = backdrop.getMeasuredHeight();
+                //int backdropHeight = backdrop.getMeasuredHeight();
                 int backdropWidth = backdrop.getMeasuredWidth();
 
                 Bitmap backdropContent = BitmapFactory.decodeResource(getResources(), R.drawable.map_de_mirage);
@@ -304,7 +305,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
             try
             {
 
-                this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
+                this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream(), Charset.defaultCharset()));
 
             }
             catch(IOException e)
