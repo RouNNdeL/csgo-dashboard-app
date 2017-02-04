@@ -2,6 +2,7 @@ package com.roundel.csgodashboard.ui;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -12,8 +13,10 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.transition.AutoTransition;
+import android.support.transition.ChangeBounds;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
+import android.support.transition.TransitionSet;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.CardView;
@@ -28,19 +31,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.paolorotolo.appintro.ISlidePolicy;
+import com.google.zxing.integration.android.IntentIntegrator;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.ServerCommunicationThread;
 import com.roundel.csgodashboard.ServerDiscoveryThread;
 import com.roundel.csgodashboard.SlideAction;
 import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.recyclerview.GameServerAdapter;
+import com.roundel.csgodashboard.util.LogHelper;
+import com.transitionseverywhere.extra.Scale;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +56,9 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-
-import static android.view.View.OVER_SCROLL_ALWAYS;
-import static android.view.View.OVER_SCROLL_NEVER;
 
 /**
  * Created by Krzysiek on 2017-01-23.
@@ -69,6 +73,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private static final int PORT_MAX = (1 << 16) - 1;
     private static final int PORT_MIN = 0;
     //<editor-fold desc="private variables">
+    @BindView(R.id.setup_server_connection_container) RelativeLayout mConnectionContainer;
     @BindView(R.id.setup_server_search_manual_connect) LinearLayout mManualConnectButton;
     @BindView(R.id.setup_server_connection_auto) LinearLayout mAutoConnectionContainer;
     @BindView(R.id.setup_server_connection_manual) LinearLayout mManualConnectionContainer;
@@ -79,12 +84,20 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
      * mode)
      */
     @BindView(R.id.setup_server_back_to_auto) ImageView mBackToAutoButton;
+
     @BindView(R.id.setup_server_manual_host) TextInputEditText mManualHost;
     @BindView(R.id.setup_server_manual_host_wrapper) TextInputLayout mManualHostWrapper;
     @BindView(R.id.setup_server_manual_port) TextInputEditText mManualPort;
     @BindView(R.id.setup_server_manual_port_wrapper) TextInputLayout mManualPortWrapper;
+
     @BindView(R.id.setup_server_connection_status) TextView mConnectionStatus;
-    private int layoutResId;
+
+    @BindView(R.id.setup_server_connection_bar) ProgressBar mConnectionIconProgress;
+    @BindView(R.id.setup_server_connection_success) ImageView mConnectionIconSuccess;
+    @BindView(R.id.setup_server_connection_failure) ImageView mConnectionIconFailure;
+
+    @BindInt(R.integer.default_transition_duration) int defaultTransitionDuration;
+
     private GameServerAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -154,32 +167,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             {
                 View root = (View) v.getParent();
                 final int position = mRecyclerView.getChildLayoutPosition(root);
-
-                mAdapter.setRefreshing(!mAdapter.isRefreshing());
-
-                connectingToServer = true;
-
                 currentGameServer = gameServers.get(position);
 
-                animateAutoConnecting();
-
-                if(mServerConnectionInfoInterface != null)
-                    mServerConnectionInfoInterface.onConnecting();
-
-                if(mSlideActionInterface != null)
-                {
-                    new Handler().postDelayed(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            if(mSlideActionInterface != null)
-                                mSlideActionInterface.onNextPageRequested(getParentFragment());
-                        }
-                    }, 500);
-                }
-
-                attemptConnection(currentGameServer);
+                connect();
                 break;
             }
             case R.id.setup_server_search_action_btn:
@@ -187,9 +177,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 if(isInManualMode && validateManualForm())
                 {
                     currentGameServer = getManualGameServer();
-                    attemptConnection(currentGameServer);
-                    animateManualConnecting();
-                    connectingToServer = true;
+                    connect();
                 }
                 else
                     startDiscovery();
@@ -201,7 +189,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 builder.setTitle("Can't connect?");
                 builder.setMessage("On some networks the app might not be able to automatically detect a PC. " +
                         "You can however attempt a manual connection by supplying an IP and a port shown by the server running on you PC." +
-                        "\nDo you want to attempt the manual connection?");
+                        "\n\nDo you want to attempt the manual connection?");
                 builder.setPositiveButton("Manual", new DialogInterface.OnClickListener()
                 {
                     @Override
@@ -313,26 +301,47 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     @Override
     public boolean onBackPressed()
     {
-        if(connectingToServer && isInManualMode)
+        if(connectingToServer)
         {
-            reverseAnimateManualConnecting();
-            connectingToServer = false;
-            return false;
-        }
-        else if(!isInManualMode && connectingToServer)
-        {
-            reverseAnimateAutoConnecting();
+            reverseAnimateConnecting();
             connectingToServer = false;
             return false;
         }
         else if(isInManualMode && !connectingToServer)
         {
             animateToAutoConnection();
-            isInManualMode = false;
             return false;
         }
         return true;
     }
+
+    //<editor-fold desc="Main connection methods">
+
+    /**
+     * Remember to always set the {@link #currentGameServer} before calling this method
+     */
+    private void connect()
+    {
+        if(connectingToServer)
+            return;
+        connectingToServer = true;
+
+        setStatusConnecting();
+        setTitleConnecting();
+        setStatusIconProgress();
+        animateConnecting();
+        attemptConnection(currentGameServer);
+    }
+
+   /* private void autoConnect()
+    {
+        connectingToServer = true;
+
+        setStatusConnecting();
+        animateAutoConnecting();
+      attemptConnection(currentGameServer);
+    }*/
+    //</editor-fold>
 
     public void attachServerConnectionInfoInterface(ServerConnectionInfo serverConnectionInfo)
     {
@@ -405,42 +414,47 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             @Override
             public void run()
             {
-                Toast.makeText(getContext(), "Access granted", Toast.LENGTH_LONG).show();
+                setStatusIconSuccess();
+
+                setStatusConnectedSuccessfully();
             }
         });
     }
 
     private void onConnectionRefused()
     {
-        connectingToServer = false;
+        //connectingToServer = false;
         //Remember to run UI operations with Activity.runOnUiThread();
         getActivity().runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
-                Toast.makeText(getContext(), "Access denied", Toast.LENGTH_LONG).show();
-                if(isInManualMode)
-                    reverseAnimateManualConnecting();
-                else
-                    reverseAnimateAutoConnecting();
+                setStatusIconFailure();
+
+                setStatusConnectionDeined();
             }
         });
     }
 
     private void onConnectionFailed()
     {
-        connectingToServer = false;
+        //connectingToServer = false;
         getActivity().runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
-                Toast.makeText(getContext(), "Connection failed", Toast.LENGTH_LONG).show();
-                if(isInManualMode)
-                    reverseAnimateManualConnecting();
-                else
-                    reverseAnimateAutoConnecting();
+                new Handler().postDelayed(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        setStatusIconFailure();
+
+                        setStatusConnectionFailure();
+                    }
+                }, defaultTransitionDuration * 2);
             }
         });
     }
@@ -459,72 +473,30 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     //</editor-fold>
 
     //<editor-fold desc="Connecting animation">
-    private void animateAutoConnecting()
+    private void animateConnecting()
     {
-        final int cardMargin = (int) getResources().getDimension(R.dimen.setup_search_server_cardview_margin);
-        final int recyclerViewHeight = (int) getResources().getDimension(R.dimen.setup_search_server_recyclerview_height);
+        Transition autoTransition = new AutoTransition();
+        autoTransition.setDuration(defaultTransitionDuration);
+        TransitionManager.beginDelayedTransition(root, autoTransition);
 
-        final LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        final FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-
-        cardParams.setMargins(0, cardMargin, 0, cardMargin);
-
-        mCardView.setLayoutParams(cardParams);
-        mAutoConnectionContainer.setLayoutParams(containerParams);
-        mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
-
-        mManualConnectButton.setVisibility(View.GONE);
-
-        setTitleConnecting();
-
-        mAdapter.expandWhenConnecting(0);
-
-        Transition transition = new AutoTransition();
-        transition.setDuration(200);
-        TransitionManager.beginDelayedTransition(root);
-    }
-
-    private void reverseAnimateAutoConnecting()
-    {
-        final int cardMargin = (int) getResources().getDimension(R.dimen.setup_search_server_cardview_margin);
-        final int recyclerViewHeight = (int) getResources().getDimension(R.dimen.setup_search_server_recyclerview_height);
-
-        final LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        final FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, recyclerViewHeight);
-
-        cardParams.setMargins(cardMargin, cardMargin, cardMargin, cardMargin);
-
-        mCardView.setLayoutParams(cardParams);
-        mAutoConnectionContainer.setLayoutParams(containerParams);
-        mRecyclerView.setOverScrollMode(OVER_SCROLL_ALWAYS);
-
-        mManualConnectButton.setVisibility(View.VISIBLE);
-
-        setTitleSearchingWifi();
-
-        mAdapter.collapseWhenConnecting();
-
-        Transition transition = new AutoTransition();
-        transition.setDuration(200);
-        TransitionManager.beginDelayedTransition(root, transition);
-    }
-
-    private void animateManualConnecting()
-    {
-        mAutoConnectionContainer.setVisibility(View.GONE);
-
+        mConnectionContainer.setVisibility(View.GONE);
         mConnectionProgressContainer.setVisibility(View.VISIBLE);
-
-        TransitionManager.beginDelayedTransition(root);
+        mActionButton.setVisibility(View.GONE);
     }
 
-    private void reverseAnimateManualConnecting()
+    private void reverseAnimateConnecting()
     {
-        mAutoConnectionContainer.setVisibility(View.VISIBLE);
+        Transition autoTransition = new AutoTransition();
+        autoTransition.setDuration(defaultTransitionDuration);
+        TransitionManager.beginDelayedTransition(root, autoTransition);
 
+        mConnectionContainer.setVisibility(View.VISIBLE);
         mConnectionProgressContainer.setVisibility(View.GONE);
 
-        TransitionManager.beginDelayedTransition(root);
+        mConnectionIconSuccess.setVisibility(View.GONE);
+        mConnectionIconFailure.setVisibility(View.GONE);
+
+        mActionButton.setVisibility(View.VISIBLE);
     }
     //</editor-fold>
 
@@ -532,23 +504,61 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private void animateToManualConnection()
     {
         isInManualMode = true;
+
+        Transition autoTransition = new AutoTransition();
+        autoTransition.setDuration(defaultTransitionDuration);
+        TransitionManager.beginDelayedTransition(root, autoTransition);
+
         mManualConnectionContainer.setVisibility(View.VISIBLE);
         mAutoConnectionContainer.setVisibility(View.GONE);
         mActionButton.setText("Connect");
-        TransitionManager.beginDelayedTransition(root);
         setTitleInvisible();
     }
 
     private void animateToAutoConnection()
     {
         isInManualMode = false;
+
+        Transition autoTransition = new AutoTransition();
+        autoTransition.setDuration((defaultTransitionDuration));
+        TransitionManager.beginDelayedTransition(root, autoTransition);
+
         mManualConnectionContainer.setVisibility(View.GONE);
         mAutoConnectionContainer.setVisibility(View.VISIBLE);
         mActionButton.setText("Refresh");
-        TransitionManager.beginDelayedTransition(root);
         setTitleSearchingWifi();
     }
 
+    //</editor-fold>
+
+    //<editor-fold desc="Status icon changes">
+    private void setStatusIconSuccess()
+    {
+        com.transitionseverywhere.TransitionManager.beginDelayedTransition(root, new Scale());
+
+        mConnectionIconSuccess.setVisibility(View.VISIBLE);
+
+        mConnectionIconProgress.setVisibility(View.GONE);
+        mConnectionIconFailure.setVisibility(View.GONE);
+    }
+
+    private void setStatusIconFailure()
+    {
+        com.transitionseverywhere.TransitionManager.beginDelayedTransition(root, new Scale());
+
+        mConnectionIconFailure.setVisibility(View.VISIBLE);
+
+        mConnectionIconProgress.setVisibility(View.GONE);
+        mConnectionIconSuccess.setVisibility(View.GONE);
+    }
+
+    private void setStatusIconProgress()
+    {
+        mConnectionIconProgress.setVisibility(View.VISIBLE);
+
+        mConnectionIconSuccess.setVisibility(View.GONE);
+        mConnectionIconFailure.setVisibility(View.GONE);
+    }
     //</editor-fold>
 
     //<editor-fold desc="Title modifications">
@@ -617,6 +627,21 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         mConnectionStatus.setText("Establishing connection...");
     }
 
+    private void setStatusConnectedSuccessfully()
+    {
+        mConnectionStatus.setText("Connected!");
+    }
+
+    private void setStatusConnectionFailure()
+    {
+        mConnectionStatus.setText("Connection failure");
+    }
+
+    private void setStatusConnectionDeined()
+    {
+        mConnectionStatus.setText("Connection denied by the server");
+    }
+
     private void setStatusAllow()
     {
         final String text = String.format(
@@ -643,6 +668,12 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
         boolean passes = true;
 
+        TransitionSet set = new TransitionSet();
+        set.addTransition(new ChangeBounds());
+        set.addTransition(new android.support.transition.Fade());
+
+        TransitionManager.beginDelayedTransition(root, set);
+
         if(hostMatcher.matches())
         {
             if(localHostMatcher.matches())
@@ -662,17 +693,34 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             mManualHostWrapper.setError("Not a valid ip address");
             passes = false;
         }
-        if(Integer.parseInt(mManualPort.getText().toString()) < PORT_MIN || Integer.parseInt(mManualPort.getText().toString()) > PORT_MAX)
+        Integer port = null;
+        try
+        {
+            port = Integer.parseInt(mManualPort.getText().toString());
+        }
+        catch(NumberFormatException e)
+        {
+            LogHelper.i(TAG, e.toString());
+        }
+        if(port == null)
         {
             mManualPortWrapper.setErrorEnabled(true);
-            mManualPortWrapper.setError("Port hast to be in range 1-65535");
+            mManualPortWrapper.setError("This field is required");
             passes = false;
         }
         else
         {
-            mManualPortWrapper.setErrorEnabled(false);
+            if(port < PORT_MIN || port > PORT_MAX)
+            {
+                mManualPortWrapper.setErrorEnabled(true);
+                mManualPortWrapper.setError("Port hast to be in range 1-65535");
+                passes = false;
+            }
+            else
+            {
+                mManualPortWrapper.setErrorEnabled(false);
+            }
         }
-        TransitionManager.beginDelayedTransition(root);
         return passes;
     }
 
@@ -693,10 +741,26 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         setTitleSearchingWifi();
     }
 
+    private void askForBarcodeScan()
+    {
+        /*IntentIntegrator integrator = new IntentIntegrator(getActivity());
+        integrator.initiateScan();*/
+        Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+        intent.setPackage("com.google.zxing.client.android");
+        intent.putExtra("com.google.zxing.client.android.SCAN.SCAN_MODE", "QR_CODE_MODE");
+        startActivityForResult(intent, IntentIntegrator.REQUEST_CODE);
+    }
+
+    public void onBarcodeReceived(String result)
+    {
+        LogHelper.i(TAG, result);
+        Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
+    }
+
     public void cancelConnectingProcess()
     {
         connectingToServer = false;
-        reverseAnimateAutoConnecting();
+        reverseAnimateConnecting();
         //TODO: Kill a Process handling connection;
     }
 

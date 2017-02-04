@@ -17,6 +17,7 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Objects;
 
@@ -53,7 +54,7 @@ public class ServerDiscoveryThread extends Thread implements Runnable
 
             listener.onSocketOpened();
 
-            byte[] sendData = DISCOVERY_MESSAGE.getBytes();
+            byte[] sendData = DISCOVERY_MESSAGE.getBytes(Charset.defaultCharset());
 
             //Try the 255.255.255.255 first
             try
@@ -117,7 +118,7 @@ public class ServerDiscoveryThread extends Thread implements Runnable
                 LogHelper.i(TAG, "Broadcast response from " + receivePacket.getAddress().getHostName() + ": " + receivePacket.getAddress().getHostAddress() + ":" + receivePacket.getPort());
 
                 //Check if the message is correct
-                String message = new String(receivePacket.getData()).trim();
+                String message = new String(receivePacket.getData(), Charset.defaultCharset()).trim();
 
                 LogHelper.i(TAG, "Message: " + message);
                 try

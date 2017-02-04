@@ -7,9 +7,18 @@
     android:padding="16dp">
 
     <ProgressBar
+        android:id="@+id/setup_server_connection_bar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:theme="@style/PrimaryAccent"/>
+
+    <ImageView
+        android:id="@+id/setup_server_connection_success"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/green_success_circle"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/setup_server_connection_status"

@@ -65,7 +65,7 @@ public class LogHelper
 
     public static String getLogs()
     {
-        String string = "";
+        StringBuilder builder = new StringBuilder();
 
         for(Log log : logs)
         {
@@ -76,9 +76,9 @@ public class LogHelper
                     log.tag,
                     log.content
             );
-            string += line + "\n";
+            builder.append(line + "\n");
         }
-        return string;
+        return builder.toString();
     }
 
     private static class Log

@@ -35,7 +35,6 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
     public static final String TAG = "NoWifiSlide";
 
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
-    private int layoutResId;
 
     private Button mTurnWifiButton;
     private Button mOpenWifiSettingsButton;

@@ -21,7 +21,12 @@ android {
 
 repositories {
     mavenCentral()
-    maven { url "https://jitpack.io" }
+    maven {
+        url "https://jitpack.io"
+    }
+    maven {
+        url "http://dl.bintray.com/journeyapps/maven"
+    }
 }
 
 dependencies {
@@ -35,7 +40,14 @@ dependencies {
     compile 'com.android.support:cardview-v7:25.1.0'
     compile 'com.android.support:recyclerview-v7:25.1.0'
 
+    compile 'com.journeyapps:zxing-android-integration:2.0.1@aar'
+    compile 'com.journeyapps:zxing-android-embedded:2.0.1@aar'
+    compile 'com.google.zxing:core:3.0.1'
+    compile 'com.journeyapps:zxing-android-legacy:2.0.1@aar'
+
     compile 'com.github.paolorotolo:appintro:4.1.0'
+
+    compile "com.andkulikov:transitionseverywhere:1.7.0"
 
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
 
