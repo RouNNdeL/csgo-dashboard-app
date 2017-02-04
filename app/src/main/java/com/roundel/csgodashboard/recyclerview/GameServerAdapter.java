@@ -23,10 +23,9 @@ import java.util.Locale;
 public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.ViewHolder>
 {
     private static final String TAG = GameServerAdapter.class.getSimpleName();
+    private static final int TYPE_EXPANDED = 3;
     private static final int TYPE_ITEM = 1;
     private static final int TYPE_REFRESH = 2;
-    private static final int TYPE_EXPANDED = 3;
-
     private List<GameServer> mDataSet = new ArrayList<>();
     private boolean refreshing;
     private View.OnClickListener mListener;

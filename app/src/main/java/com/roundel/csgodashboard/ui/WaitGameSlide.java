@@ -10,18 +10,12 @@ import com.roundel.csgodashboard.SlideAction;
  */
 public class WaitGameSlide extends SlideBase
 {
-    private static final String TAG = WaitGameSlide.class.getSimpleName();
-
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
+    private static final String TAG = WaitGameSlide.class.getSimpleName();
     private int layoutResId;
     private SlideAction mSlideActionInterface;
 
     private ViewGroup root;
-
-    public void attachSlideActionInterface(SlideAction slideAction)
-    {
-        this.mSlideActionInterface = slideAction;
-    }
 
     public static WaitGameSlide newInstance(int layoutResId)
     {
@@ -32,5 +26,10 @@ public class WaitGameSlide extends SlideBase
         sampleSlide.setArguments(args);
 
         return sampleSlide;
+    }
+
+    public void attachSlideActionInterface(SlideAction slideAction)
+    {
+        this.mSlideActionInterface = slideAction;
     }
 }

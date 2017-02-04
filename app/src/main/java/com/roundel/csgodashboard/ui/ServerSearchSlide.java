@@ -65,13 +65,12 @@ import butterknife.ButterKnife;
  */
 public class ServerSearchSlide extends SlideBase implements View.OnClickListener, ISlidePolicy, ServerDiscoveryThread.ServerDiscoveryListener
 {
-    public static final String TAG = "ServerSearchSlide";
-
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
     private static final Pattern HOST_PATTERN = Pattern.compile("([\\d]){1,3}\\.([\\d]){1,3}\\.([\\d]){1,3}\\.([\\d]){1,3}");
     private static final Pattern LOCAL_HOST_PATTERN = Pattern.compile("(^127\\..*)|(^10\\..*)|(^172\\.1[6-9]\\..*)|(^172\\.2[0-9]\\..*)|(^172\\.3[0-1]\\..*)|(^192\\.168\\..*)");
     private static final int PORT_MAX = (1 << 16) - 1;
     private static final int PORT_MIN = 0;
+    private static final String TAG = ServerSearchSlide.class.getSimpleName();
     //<editor-fold desc="private variables">
     @BindView(R.id.setup_server_connection_container) RelativeLayout mConnectionContainer;
     @BindView(R.id.setup_server_search_manual_connect) LinearLayout mManualConnectButton;

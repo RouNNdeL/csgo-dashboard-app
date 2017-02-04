@@ -32,10 +32,8 @@ import static android.view.View.VISIBLE;
  */
 public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePolicy
 {
-    public static final String TAG = "NoWifiSlide";
-
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
-
+    private static final String TAG = NoWifiSlide.class.getSimpleName();
     private Button mTurnWifiButton;
     private Button mOpenWifiSettingsButton;
     private ProgressBar mWifiProgress;
@@ -52,11 +50,6 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
         sampleSlide.setArguments(args);
 
         return sampleSlide;
-    }
-
-    public void attachWifiConnectionListener(WifiConnectionListener listener)
-    {
-        this.mWifiConnectionListener = listener;
     }
 
     @Nullable
@@ -160,6 +153,11 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
     public void onUserIllegallyRequestedNextPage()
     {
         Toast.makeText(getContext(), R.string.setup_wifi_connect_hint, Toast.LENGTH_SHORT).show();
+    }
+
+    public void attachWifiConnectionListener(WifiConnectionListener listener)
+    {
+        this.mWifiConnectionListener = listener;
     }
 
     public interface WifiConnectionListener

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <android.support.design.widget.CoordinatorLayout
-    android:id="@+id/add_nade_coordinator"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/add_nade_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
@@ -28,22 +28,22 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:id="@+id/nestedScrollView">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.FloatingActionButton
-        android:layout_height="wrap_content"
+        android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
         android:layout_margin="@dimen/activity_horizontal_margin"
         android:src="@drawable/ic_add_a_photo_white_24dp"
         app:fabSize="normal"
         app:layout_anchor="@+id/nestedScrollView"
-        app:layout_anchorGravity="bottom|right"
-        android:layout_gravity="center_vertical|center_horizontal"
-        android:id="@+id/floatingActionButton"/>
+        app:layout_anchorGravity="bottom|right"/>
 </android.support.design.widget.CoordinatorLayout>

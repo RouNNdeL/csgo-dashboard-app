@@ -102,8 +102,8 @@
                     android:layout_marginTop="6dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/bomb_ticking"
-                    android:visibility="gone"
-                    android:tint="@color/bombPlantedInactive"/>
+                    android:tint="@color/bombPlantedInactive"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <!--Away-->

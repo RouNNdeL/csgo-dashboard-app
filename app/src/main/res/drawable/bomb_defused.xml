@@ -2,8 +2,8 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="197.41dp"
         android:height="180.02dp"
-        android:viewportWidth="197.41"
-        android:viewportHeight="180.02">
+        android:viewportHeight="180.02"
+        android:viewportWidth="197.41">
 
     <!--TODO: Fix the path (c in c4 not showing properly)-->
 
@@ -60,5 +60,5 @@ L91.72,27.5 L90.83,29.03 L93.3,30.16 L90.83,31.24 L91.72,32.77 L93.93,31.19
 L93.68,33.91 L95.52,33.91 Z M105.17,31.24 L107.38,32.82 L108.26,31.29
 L105.8,30.16 L108.26,29.03 L107.38,27.5 L105.17,29.08 L105.42,26.36
 L103.58,26.36 L103.83,29.08 L101.62,27.5 L100.73,29.03 L103.2,30.16
-L100.73,31.24 L101.62,32.77 L103.83,31.19 L103.58,33.91 L105.42,33.91 Z" />
+L100.73,31.24 L101.62,32.77 L103.83,31.19 L103.58,33.91 L105.42,33.91 Z"/>
 </vector>

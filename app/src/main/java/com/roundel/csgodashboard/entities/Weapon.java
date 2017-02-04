@@ -9,8 +9,6 @@ import com.roundel.csgodashboard.R;
  */
 public class Weapon
 {
-    public static final String TAG = "Weapon";
-
     public static final String WEAPON_AK47 = "weapon_ak47";
     public static final String WEAPON_AUG = "weapon_aug";
     public static final String WEAPON_AWP = "weapon_awp";
@@ -28,11 +26,11 @@ public class Weapon
     public static final String WEAPON_GLOCK = "weapon_glock";
     public static final String WEAPON_HEALTHSHOT = "weapon_healthshot";
     public static final String WEAPON_HEGRENADE = "weapon_hegrenade";
-    public static final String WEAPON_INCGRENADE = "weapon_incgrenade";
     public static final String WEAPON_HKP2000 = "weapon_hkp2000";
+    public static final String WEAPON_INCGRENADE = "weapon_incgrenade";
     public static final String WEAPON_KNIFE = "weapon_knife";
-    public static final String WEAPON_KNIFE_T = "weapon_knife_t";
     public static final String WEAPON_KNIFE_CT = "weapon_knife_ct";
+    public static final String WEAPON_KNIFE_T = "weapon_knife_t";
     public static final String WEAPON_M249 = "weapon_m249";
     public static final String WEAPON_M4A1 = "weapon_m4a1";
     public static final String WEAPON_M4A1_SILENCER = "weapon_m4a1_silencer";
@@ -45,19 +43,19 @@ public class Weapon
     public static final String WEAPON_NOVA = "weapon_nova";
     public static final String WEAPON_P250 = "weapon_p250";
     public static final String WEAPON_P90 = "weapon_p90";
+    public static final String WEAPON_REVOLVER = "weapon_revolver";
     public static final String WEAPON_SAWEDOFF = "weapon_sawedoff";
     public static final String WEAPON_SCAR20 = "weapon_scar20";
     public static final String WEAPON_SG556 = "weapon_sg556";
-    public static final String WEAPON_SSG08 = "weapon_ssg08";
     public static final String WEAPON_SMOKEGRENADE = "weapon_smokegrenade";
+    public static final String WEAPON_SSG08 = "weapon_ssg08";
     public static final String WEAPON_TAGRENADE = "weapon_tagrenade";
     public static final String WEAPON_TASER = "weapon_taser";
     public static final String WEAPON_TEC9 = "weapon_tec9";
     public static final String WEAPON_UMP45 = "weapon_ump45";
     public static final String WEAPON_USP_SILENCER = "weapon_usp_silencer";
     public static final String WEAPON_XM1014 = "weapon_xm1014";
-    public static final String WEAPON_REVOLVER = "weapon_revolver";
-
+    private static final String TAG = Weapon.class.getSimpleName();
     private String name;
     private String codeName;
 

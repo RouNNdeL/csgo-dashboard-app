@@ -15,7 +15,7 @@ import com.roundel.csgodashboard.SlideAction;
  */
 public class ServerSetupActivity extends AppIntro implements SlideAction, ServerSearchSlide.ServerConnectionInfo, NoWifiSlide.WifiConnectionListener
 {
-    public static final String TAG = "ServerSetupActivity";
+    private static final String TAG = ServerSetupActivity.class.getSimpleName();
 
     private NoWifiSlide noWifiSlide;
     private ServerSearchSlide serverSearchSlide;
