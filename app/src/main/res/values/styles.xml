@@ -22,7 +22,7 @@
     </style>
 
     <style name="TextAppearance" parent="TextAppearance.AppCompat"/>
-    
+
     <style name="TextAppearance.ListSubHeader" parent="TextAppearance">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/colorMaterialLight50</item>
@@ -34,7 +34,7 @@
         <item name="android:textSize">32sp</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
-    
+
     <style name="TextAppearance.TeamTitle" parent="TextAppearance">
         <item name="android:textAllCaps">true</item>
         <item name="android:textAlignment">gravity</item>
@@ -42,7 +42,7 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textColor">@color/colorMaterialLight54</item>
     </style>
-    
+
     <style name="TextAppearance.Score" parent="TextAppearance">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">44sp</item>
@@ -54,7 +54,7 @@
         <item name="android:textAlignment">gravity</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
-    
+
     <style name="TextAppearance.StatsName" parent="TextAppearance">
         <item name="android:textAlignment">gravity</item>
         <item name="android:textAllCaps">false</item>
@@ -62,37 +62,37 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/colorMaterialLight54</item>
     </style>
-    
+
     <style name="TextAppearance.StatsAmount" parent="TextAppearance">
         <item name="android:textAlignment">gravity</item>
         <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
-    
+
     <style name="TextAppearance.ServerRowName" parent="TextAppearance">
         <item name="android:maxLines">1</item>
         <item name="android:textColor">@color/colorMaterialDark87</item>
         <item name="android:textSize">16sp</item>
     </style>
-    
+
     <style name="TextAppearance.ServerRowHost" parent="TextAppearance">
         <item name="android:textColor">@color/colorMaterialDark50</item>
         <item name="android:textSize">14sp</item>
         <item name="android:maxLines">1</item>
     </style>
-    
+
     <style name="TextAppearance.RoundTime" parent="TextAppearance">
         <item name="android:textSize">20sp</item>
         <item name="android:textAlignment">gravity</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
-    
+
     <style name="TextAppearance.RoundTimeTitle" parent="TextAppearance">
         <item name="android:textSize">14sp</item>
         <item name="android:textAlignment">gravity</item>
     </style>
-    
+
     <style name="TextAppearance.RoundNo" parent="TextAppearance">
         <item name="android:textSize">14sp</item>
         <item name="android:textAlignment">gravity</item>

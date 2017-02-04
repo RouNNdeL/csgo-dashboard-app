@@ -17,12 +17,22 @@ import com.roundel.csgodashboard.SlideAction;
  */
 public class SlideBase extends Fragment implements OnBackPressedListener
 {
-    private static final String TAG = SlideBase.class.getSimpleName();
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
-
+    private static final String TAG = SlideBase.class.getSimpleName();
     private ViewGroup root;
     private int layoutResId;
     private SlideAction mSlideActionInterface;
+
+    public static SlideBase newInstance(int layoutResId)
+    {
+        SlideBase sampleSlide = new SlideBase();
+
+        Bundle args = new Bundle();
+        args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
+        sampleSlide.setArguments(args);
+
+        return sampleSlide;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
@@ -43,15 +53,10 @@ public class SlideBase extends Fragment implements OnBackPressedListener
         return root;
     }
 
-    public static SlideBase newInstance(int layoutResId)
+    @Override
+    public boolean onBackPressed()
     {
-        SlideBase sampleSlide = new SlideBase();
-
-        Bundle args = new Bundle();
-        args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
-        sampleSlide.setArguments(args);
-
-        return sampleSlide;
+        return true;
     }
 
     public void attachSlideActionInterface(SlideAction slideAction)
@@ -73,11 +78,5 @@ public class SlideBase extends Fragment implements OnBackPressedListener
     public SlideAction getSlideActionInterface()
     {
         return mSlideActionInterface;
-    }
-
-    @Override
-    public boolean onBackPressed()
-    {
-        return true;
     }
 }
