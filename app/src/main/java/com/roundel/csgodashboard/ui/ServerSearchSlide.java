@@ -24,6 +24,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -576,28 +577,35 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
         final String title = String.format(Locale.getDefault(), getString(R.string.setup_server_searching), ssid);
 
-        int start;
-        int end;
-        if(ssid.charAt(0) == '"' && ssid.charAt(ssid.length() - 1) == '"')
+        if(TextUtils.isEmpty(ssid))
         {
-            start = title.indexOf(ssid) + 1;
-            end = title.indexOf(ssid) + ssid.length() - 1;
+            int start;
+            int end;
+            if(ssid.charAt(0) == '"' && ssid.charAt(ssid.length() - 1) == '"')
+            {
+                start = title.indexOf(ssid) + 1;
+                end = title.indexOf(ssid) + ssid.length() - 1;
+            }
+            else
+            {
+                start = title.indexOf(ssid);
+                end = title.indexOf(ssid) + ssid.length();
+            }
+            Spannable spannableTitle = new SpannableString(title);
+            spannableTitle.setSpan(
+                    new StyleSpan(Typeface.BOLD),
+                    start,                        //Start
+                    end,         //End
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+            mTitle.setText(spannableTitle);
         }
         else
         {
-            start = title.indexOf(ssid);
-            end = title.indexOf(ssid) + ssid.length();
+            mTitle.setText(R.string.setup_server_no_wifi);
         }
-        Spannable spannableTitle = new SpannableString(title);
-        spannableTitle.setSpan(
-                new StyleSpan(Typeface.BOLD),
-                start,                        //Start
-                end,         //End
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        );
 
         mTitle.setVisibility(View.VISIBLE);
-        mTitle.setText(spannableTitle);
     }
 
     private void setTitleConnecting()
