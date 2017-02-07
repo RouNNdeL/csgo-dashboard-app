@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportWidth="24"
+        android:viewportHeight="24">
+
+    <!--   Boxing
+    <path
+        android:fillColor="#5389a4"
+        android:fillAlpha="0.5"
+        android:pathData="M0,0 L24,0 L24,24 L0,24 Z M2,2 L2,22 L22,22 L22,2 Z" />-->
+    <path
+        android:fillColor="#fff"
+        android:pathData="M13.87,3.92 L13.87,4.19 L14,4.19 L15.92,8.86 L15.92,18.62 L15.69,18.85
+L15.3,18.85 L15.3,18.45 L15.45,18.32 L15.45,9 L14.45,7.61 L14.45,19.91
+C11.35,20.58,11.35,20.58,8.1,19.91 L8.1,7.1 L10,6.82 L10,6.47 L10,6.34
+L10.08,6.24 L10.08,5.13 L10.08,5.13 L9.8,5.13 L9.45,5.13 L9.45,4.75 L9.52,4.75
+L9.52,4.5 L9.62,4.25 L9.88,4 L12.88,4 A4.11,4.11,0,0,0,13.38,3.62 L13.38,3.59
+L13.73,3.59 L13.73,3.91 L13.88,3.91 M14.23,16.47 L14.23,16.4 L11.38,16.7
+L8.38,16.4 L8.38,17.33 L11.38,17.7 L14.23,17.35 L14.23,16.47"/>
+</vector>

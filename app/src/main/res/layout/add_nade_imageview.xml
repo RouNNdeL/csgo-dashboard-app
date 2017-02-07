@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/add_nade_imageview"
+    android:layout_width="256dp"
+    android:layout_height="match_parent"
+    android:src="@drawable/ic_add_a_photo_white_24dp"
+    android:tint="@color/colorMaterialLight54"
+    android:padding="32dp">
+
+</ImageView>
