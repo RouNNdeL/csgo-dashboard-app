@@ -7,8 +7,9 @@ import android.widget.TextView;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.util.LogHelper;
 
-public class LogActivity extends AppCompatActivity
+public class LogActivity extends AppCompatActivity implements LogHelper.LogListener
 {
+    private TextView content;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -16,7 +17,19 @@ public class LogActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log);
 
-        TextView content = (TextView) findViewById(R.id.activity_log_content);
+        content = (TextView) findViewById(R.id.activity_log_content);
+
+        updateLogs();
+    }
+
+    @Override
+    public void onLogAdded(LogHelper.Log log)
+    {
+        updateLogs();
+    }
+
+    private void updateLogs()
+    {
         content.setText(LogHelper.getLogs());
     }
 }

@@ -7,4 +7,11 @@
         <item>Running</item>
         <item>Walking</item>
     </string-array>
+    <string-array name="add_nade_stance_descriptions">
+        <item>Not moving at all</item>
+        <item>Holding Ctrl and not moving</item>
+        <item>Moving forward while holding Ctrl</item>
+        <item>Holding W</item>
+        <item>Moving forward while holding Shift</item>
+    </string-array>
 </resources>

@@ -42,10 +42,11 @@ import android.widget.Toast;
 import com.github.paolorotolo.appintro.ISlidePolicy;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.ServerCommunicationThread;
-import com.roundel.csgodashboard.ServerDiscoveryThread;
 import com.roundel.csgodashboard.SlideAction;
 import com.roundel.csgodashboard.entities.GameServer;
+import com.roundel.csgodashboard.net.ServerConnectionThread;
+import com.roundel.csgodashboard.net.ServerDiscoveryThread;
+import com.roundel.csgodashboard.net.ServerPingingThread;
 import com.roundel.csgodashboard.recyclerview.GameServerAdapter;
 import com.roundel.csgodashboard.util.LogHelper;
 import com.transitionseverywhere.extra.Scale;
@@ -54,6 +55,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,6 +117,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private ServerConnectionInfo mServerConnectionInfoInterface;
     private ViewGroup root;
     private GameServer currentGameServer;
+
+    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    ;
     //</editor-fold>
 
     public static ServerSearchSlide newInstance(int layoutResId)
@@ -369,19 +376,19 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void attemptConnection(GameServer server)
     {
-        ServerCommunicationThread sendingThread = new ServerCommunicationThread(server, ServerCommunicationThread.MODE_CONNECT, "6000");
-        sendingThread.setConnectionListener(new ServerCommunicationThread.ServerConnectionListener()
+        ServerConnectionThread sendingThread = new ServerConnectionThread(server, 6000);
+        sendingThread.setConnectionListener(new ServerConnectionThread.ServerConnectionListener()
         {
             @Override
-            public void onAccessGranted()
+            public void onAccessGranted(GameServer gameServer)
             {
-                onConnectionSuccessful();
+                onConnectionSuccessful(gameServer);
             }
 
             @Override
-            public void onAccessDenied()
+            public void onAccessDenied(GameServer gameServer)
             {
-                onConnectionRefused();
+                onConnectionRefused(gameServer);
             }
 
             @Override
@@ -406,7 +413,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     }
 
     //<editor-fold desc="Connection interface">
-    private void onConnectionSuccessful()
+    private void onConnectionSuccessful(final GameServer gameServer)
     {
         //Remember to run UI operations with Activity.runOnUiThread();
         getActivity().runOnUiThread(new Runnable()
@@ -417,11 +424,15 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 setStatusIconSuccess();
 
                 setStatusConnectedSuccessfully();
+
+                //TODO: Create separate methods
+                ServerPingingThread serverPingingThread = new ServerPingingThread(gameServer);
+                executorService.scheduleAtFixedRate(serverPingingThread, 0, 5, TimeUnit.SECONDS);
             }
         });
     }
 
-    private void onConnectionRefused()
+    private void onConnectionRefused(GameServer gameServer)
     {
         //connectingToServer = false;
         //Remember to run UI operations with Activity.runOnUiThread();

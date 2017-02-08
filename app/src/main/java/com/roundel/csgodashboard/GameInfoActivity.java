@@ -11,14 +11,11 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
 import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -31,30 +28,25 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.roundel.csgodashboard.ui.LogActivity;
 import com.roundel.csgodashboard.ui.ServerSetupActivity;
+import com.roundel.csgodashboard.util.LogHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class Server extends AppCompatActivity implements View.OnClickListener
+public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener
 {
 
     public static final int SERVER_PORT = 6000;
-    Handler updateConversationHandler;
-    Thread serverThread = null;
+    private static final String TAG = GameInfoActivity.class.getSimpleName();
     @BindView(R.id.chart) LineChart mLineChart;
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
@@ -128,7 +120,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
 
                 Bitmap backdropContent = BitmapFactory.decodeResource(getResources(), R.drawable.map_de_mirage);
                 int newHeight = (int) (Double.valueOf(backdropContent.getHeight()) * (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())));
-                Log.d("BitmapScale", backdropContent.getHeight() + " " + backdropWidth + " " + backdropContent.getWidth() + " " + (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())));
+                LogHelper.d(TAG, backdropContent.getHeight() + " " + backdropWidth + " " + backdropContent.getWidth() + " " + (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())));
                 Bitmap scaled = Bitmap.createScaledBitmap(backdropContent, backdropWidth, newHeight, true);
                 backdrop.setImageBitmap(scaled);
 
@@ -136,12 +128,8 @@ public class Server extends AppCompatActivity implements View.OnClickListener
             }
         });
 
-        updateConversationHandler = new Handler();
-
         /*this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();*/
-
-        Log.d("Name", Build.MANUFACTURER + " " + Build.MODEL);
 
         findViewById(R.id.testButton).setOnClickListener(this);
         findViewById(R.id.testBomb).setOnClickListener(this);
@@ -187,7 +175,7 @@ public class Server extends AppCompatActivity implements View.OnClickListener
         {
             case R.id.testButton:
             {
-                Intent intent = new Intent(Server.this, ServerSetupActivity.class);
+                Intent intent = new Intent(GameInfoActivity.this, ServerSetupActivity.class);
                 startActivity(intent);
                 break;
             }
@@ -249,146 +237,10 @@ public class Server extends AppCompatActivity implements View.OnClickListener
             }
             case R.id.viewLogs:
             {
-                Intent intent = new Intent(Server.this, LogActivity.class);
+                Intent intent = new Intent(GameInfoActivity.this, LogActivity.class);
                 startActivity(intent);
                 break;
             }
-        }
-    }
-
-    class ServerThread implements Runnable
-    {
-
-        public void run()
-        {
-            Socket socket = null;
-            try
-            {
-                serverSocket = new ServerSocket(SERVER_PORT);
-                Log.d("Server", "Started socket on port: " + SERVER_PORT);
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-            while(!Thread.currentThread().isInterrupted())
-            {
-
-                try
-                {
-                    socket = serverSocket.accept();
-
-                    CommunicationThread commThread = new CommunicationThread(socket);
-                    new Thread(commThread).start();
-
-                }
-                catch(IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    class CommunicationThread implements Runnable
-    {
-
-        private Socket clientSocket;
-
-        private BufferedReader input;
-
-        public CommunicationThread(Socket clientSocket)
-        {
-
-            this.clientSocket = clientSocket;
-
-            try
-            {
-
-                this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream(), Charset.defaultCharset()));
-
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void run()
-        {
-
-            while(!Thread.currentThread().isInterrupted())
-            {
-
-                try
-                {
-
-                    String read = input.readLine();
-                    if(read == null)
-                        break;
-                    JSONObject response = new JSONObject(read);
-                    gameState = merge(gameState, response);
-                    Log.d("GameState", gameState.toString());
-                    updateConversationHandler.post(new updateUIThread(gameState));
-
-                }
-                catch(IOException e)
-                {
-                    e.printStackTrace();
-                }
-                catch(JSONException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
-
-    class updateUIThread implements Runnable
-    {
-        private JSONObject state;
-
-        public updateUIThread(JSONObject state)
-        {
-            this.state = state;
-        }
-
-        @Override
-        public void run()
-        {
-            String weapon_name = "none";
-            boolean reloading = false;
-            int weapon_ammo_clip = -1;
-            int weapon_ammo_reserve = -1;
-            try
-            {
-                final JSONObject weapons = state.getJSONObject("player").getJSONObject("weapons");
-                Iterator it = weapons.keys();
-                {
-                    String key = (String) it.next();
-                    final JSONObject weapon = weapons.getJSONObject(key);
-                    if(Objects.equals(weapon.getString("state"), "active"))
-                    {
-                        weapon_name = weapon.getString("name");
-                        weapon_ammo_clip = weapon.getInt("ammo_clip");
-                        weapon_ammo_reserve = weapon.getInt("ammo_reserve");
-                    }
-                    else if(Objects.equals(weapon.getString("state"), "reloading"))
-                    {
-                        weapon_name = weapon.getString("name");
-                        weapon_ammo_clip = weapon.getInt("ammo_clip");
-                        weapon_ammo_reserve = weapon.getInt("ammo_reserve");
-                        reloading = true;
-                    }
-                }
-            }
-            catch(JSONException e)
-            {
-                e.printStackTrace();
-            }
-            text.setText(weapon_name + " " + weapon_ammo_clip + "/" + weapon_ammo_reserve + (reloading ? " (reloading)" : ""));
         }
     }
 }

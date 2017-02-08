@@ -13,9 +13,9 @@ import java.util.Locale;
  */
 public class LogHelper
 {
-    public static final int TYPE_DEBUG = 0;
-    public static final int TYPE_ERROR = 1;
-    public static final int TYPE_INFO = 2;
+    private static final int TYPE_DEBUG = 0;
+    private static final int TYPE_ERROR = 1;
+    private static final int TYPE_INFO = 2;
 
     private static final String TAG = LogHelper.class.getSimpleName();
 
@@ -23,9 +23,16 @@ public class LogHelper
 
     private static DateFormat logFormat = new SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault());
 
+    private static LogListener listener;
+
+    private static boolean logToLogcat = true;
+
     private static void log(Date date, int type, String tag, String message)
     {
-        logs.add(new Log(date, type, tag, message));
+        Log log = new Log(date, type, tag, message);
+        if(listener != null)
+            listener.onLogAdded(log);
+        logs.add(log);
     }
 
     private static void log(int type, String tag, String message)
@@ -35,17 +42,28 @@ public class LogHelper
 
     public static void d(String tag, String message)
     {
+        if(logToLogcat)
+            android.util.Log.d(tag, message);
         log(TYPE_DEBUG, tag, message);
     }
 
     public static void e(String tag, String message)
     {
+        if(logToLogcat)
+            android.util.Log.e(tag, message);
         log(TYPE_ERROR, tag, message);
     }
 
     public static void i(String tag, String message)
     {
+        if(logToLogcat)
+            android.util.Log.i(tag, message);
         log(TYPE_INFO, tag, message);
+    }
+
+    public static void setLogToLogcat(boolean logToLogcat)
+    {
+        LogHelper.logToLogcat = logToLogcat;
     }
 
     private static String getLetter(int type)
@@ -81,7 +99,12 @@ public class LogHelper
         return builder.toString();
     }
 
-    private static class Log
+    public static void setLogListener(LogListener listener)
+    {
+        LogHelper.listener = listener;
+    }
+
+    public static class Log
     {
         protected Date date;
         protected int type;
@@ -95,5 +118,10 @@ public class LogHelper
             this.tag = tag;
             this.content = content;
         }
+    }
+
+    public interface LogListener
+    {
+        void onLogAdded(Log log);
     }
 }
