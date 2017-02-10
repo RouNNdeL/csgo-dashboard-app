@@ -14,10 +14,10 @@ import android.view.ViewGroup;
  */
 public class ScaleUpDownTransition extends Transition
 {
+    private static final String TAG = ScaleUpDownTransition.class.getSimpleName();
     private static final String PROPERTY_HEIGHT = "com.roundel.csgodashboard:scaleupdown:height";
     private static final String PROPERTY_VISIBILITY = "com.roundel.csgodashboard:scaleupdown:visibility";
     private static final String PROPERTY_WIDTH = "com.roundel.csgodashboard:scaleupdown:width";
-    private static final String TAG = ScaleUpDownTransition.class.getSimpleName();
 
     @Override
     public void captureStartValues(@NonNull TransitionValues transitionValues)

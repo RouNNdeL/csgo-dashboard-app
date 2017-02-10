@@ -26,9 +26,9 @@ import java.util.Objects;
  */
 public class ServerDiscoveryThread extends Thread implements Runnable
 {
+    private static final String TAG = ServerDiscoveryThread.class.getSimpleName();
     private static final String DISCOVERY_MESSAGE = "CSGO_DASHBOARD_DISCOVERY_REQUEST";
     private static final String DISCOVERY_RESPONSE = "CSGO_DASHBOARD_DISCOVERY_RESPONSE";
-    private static final String TAG = ServerDiscoveryThread.class.getSimpleName();
     private DatagramSocket socket;
     private ServerDiscoveryListener listener;
 

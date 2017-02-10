@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard;
+package com.roundel.csgodashboard.ui;
 
 /**
  * Created by Krzysiek on 2017-01-20.
@@ -9,32 +9,27 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.roundel.csgodashboard.ui.LogActivity;
-import com.roundel.csgodashboard.ui.ServerSetupActivity;
-import com.roundel.csgodashboard.util.LogHelper;
+import com.roundel.csgodashboard.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,21 +39,17 @@ import butterknife.ButterKnife;
 
 public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener
 {
-
-    public static final int SERVER_PORT = 6000;
     private static final String TAG = GameInfoActivity.class.getSimpleName();
+
     @BindView(R.id.chart) LineChart mLineChart;
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
     @BindView(R.id.game_info_bomb) ImageView mBombView;
     @BindView(R.id.game_info_section_round) LinearLayout mSectionRoundInfo;
-    private ServerSocket serverSocket;
     private TextView text;
-    private TextView title;
     private ImageView backdrop;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
-    private JSONObject gameState = new JSONObject();
 
     public static boolean isInteger(String s, int radix)
     {
@@ -108,25 +99,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Mirage");
 
-        ViewTreeObserver observer = backdrop.getViewTreeObserver();
-        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
-        {
-            @Override
-            public boolean onPreDraw()
-            {
-                backdrop.getViewTreeObserver().removeOnPreDrawListener(this);
-                //int backdropHeight = backdrop.getMeasuredHeight();
-                int backdropWidth = backdrop.getMeasuredWidth();
-
-                Bitmap backdropContent = BitmapFactory.decodeResource(getResources(), R.drawable.map_de_mirage);
-                int newHeight = (int) (Double.valueOf(backdropContent.getHeight()) * (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())));
-                LogHelper.d(TAG, backdropContent.getHeight() + " " + backdropWidth + " " + backdropContent.getWidth() + " " + (Double.valueOf(backdropWidth) / Double.valueOf(backdropContent.getWidth())));
-                Bitmap scaled = Bitmap.createScaledBitmap(backdropContent, backdropWidth, newHeight, true);
-                backdrop.setImageBitmap(scaled);
-
-                return true;
-            }
-        });
+        Glide.with(this).load(Uri.parse("file:///android_asset/maps/de_mirage.jpg")).into(backdrop);
 
         /*this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();*/
@@ -134,6 +107,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.testButton).setOnClickListener(this);
         findViewById(R.id.testBomb).setOnClickListener(this);
         findViewById(R.id.viewLogs).setOnClickListener(this);
+        findViewById(R.id.testAddNade).setOnClickListener(this);
 
         List<Entry> entries = new ArrayList<>();
         entries.add(new Entry(1, 800));
@@ -152,20 +126,6 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mLineChart.setDrawGridBackground(false);
         mLineChart.invalidate(); // refresh
 
-    }
-
-    @Override
-    protected void onStop()
-    {
-        super.onStop();
-        try
-        {
-            serverSocket.close();
-        }
-        catch(IOException | NullPointerException e)
-        {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -238,6 +198,12 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             case R.id.viewLogs:
             {
                 Intent intent = new Intent(GameInfoActivity.this, LogActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case R.id.testAddNade:
+            {
+                Intent intent = new Intent(GameInfoActivity.this, AddNadeActivity.class);
                 startActivity(intent);
                 break;
             }

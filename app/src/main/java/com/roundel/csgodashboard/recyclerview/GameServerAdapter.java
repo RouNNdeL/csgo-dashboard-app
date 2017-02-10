@@ -135,25 +135,6 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
         mRecyclerView = recyclerView;
     }
 
-    public void expandWhenConnecting(int position)
-    {
-        mConnectingPosition = position;
-        notifyDataSetChanged();
-        setRefreshing(false);
-    }
-
-    public void collapseWhenConnecting()
-    {
-        mConnectingPosition = -1;
-        notifyDataSetChanged();
-        setRefreshing(false);
-    }
-
-    public boolean isRefreshing()
-    {
-        return refreshing;
-    }
-
     public void setRefreshing(boolean refreshing)
     {
         this.refreshing = refreshing;

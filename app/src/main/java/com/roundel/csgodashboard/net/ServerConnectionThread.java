@@ -25,18 +25,15 @@ import java.util.Objects;
 
 public class ServerConnectionThread extends Thread implements Runnable
 {
+    private static final String TAG = ServerConnectionThread.class.getSimpleName();
     public static final int MODE_CONNECT = 0;
     public static final int MODE_PING = 1;
-
     private static final String CONNECTION_DEVICE_NAME = "CSGO_DASHBOARD_CONNECTION_DEVICE_NAME";                                   //JSON params: "device_name"
     private static final String CONNECTION_GAME_INFO_PORT = "CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT";                             //JSON params: "game_info_port"
     private static final String CONNECTION_GAME_INFO_PORT_RESPONSE = "CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE";           //JSON params: none
     private static final String CONNECTION_REQUEST = "CSGO_DASHBOARD_CONNECTION_REQUEST";                                           //json params: none
     private static final String CONNECTION_RESPONSE = "CSGO_DASHBOARD_CONNECTION_RESPONSE";                                         //JSON params: none
     private static final String CONNECTION_USER_AGREEMENT = "CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT";                             //JSON params: "user_allowed"
-
-    private static final String TAG = ServerConnectionThread.class.getSimpleName();
-
     private GameServer gameServer;
     private Socket gameServerSocket;
 

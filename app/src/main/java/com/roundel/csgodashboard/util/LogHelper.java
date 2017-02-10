@@ -13,12 +13,10 @@ import java.util.Locale;
  */
 public class LogHelper
 {
+    private static final String TAG = LogHelper.class.getSimpleName();
     private static final int TYPE_DEBUG = 0;
     private static final int TYPE_ERROR = 1;
     private static final int TYPE_INFO = 2;
-
-    private static final String TAG = LogHelper.class.getSimpleName();
-
     private static List<Log> logs = new ArrayList<>();
 
     private static DateFormat logFormat = new SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault());
@@ -104,6 +102,11 @@ public class LogHelper
         LogHelper.listener = listener;
     }
 
+    public interface LogListener
+    {
+        void onLogAdded(Log log);
+    }
+
     public static class Log
     {
         protected Date date;
@@ -118,10 +121,5 @@ public class LogHelper
             this.tag = tag;
             this.content = content;
         }
-    }
-
-    public interface LogListener
-    {
-        void onLogAdded(Log log);
     }
 }

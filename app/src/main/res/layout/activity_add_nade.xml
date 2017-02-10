@@ -43,73 +43,30 @@
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:orientation="vertical">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/add_nade_image_recyclerview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            </android.support.v7.widget.RecyclerView>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/add_nade_input_name_container"
+            <!--<android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/add_nade_input_name"
+                    android:id="@+id/add_nade_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Name"/>
-            </android.support.design.widget.TextInputLayout>
+                    android:hint="Title"/>
+            </android.support.design.widget.TextInputLayout>-->
 
-            <TextView
+            <Spinner
+                android:id="@+id/add_nade_spinner_stance"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:text="Options"
-                android:gravity="center_vertical"
-                android:textAppearance="@style/TextAppearance.ListSubHeader"/>
+                android:background="@null"/>
 
-            <CheckBox
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Jump throw"/>
-
-            <TextView
+            <Spinner
+                android:id="@+id/add_nade_spinner_grenade"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:text="Stance"
-                android:gravity="center_vertical"
-                android:textAppearance="@style/TextAppearance.ListSubHeader"/>
+                android:background="@null"/>
 
-            <RadioGroup
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
 
-                <RadioButton
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Standing still"/>
-
-                <RadioButton
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Crouching"/>
-
-                <RadioButton
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Crab walking (moving while crouched)"/>
-
-                <RadioButton
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Running"/>
-
-                <RadioButton
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Walking"/>
-            </RadioGroup>
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>

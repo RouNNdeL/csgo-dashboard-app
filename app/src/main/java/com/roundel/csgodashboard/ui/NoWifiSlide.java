@@ -32,8 +32,8 @@ import static android.view.View.VISIBLE;
  */
 public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePolicy
 {
-    private static final String ARG_LAYOUT_RES_ID = "layoutResId";
     private static final String TAG = NoWifiSlide.class.getSimpleName();
+    private static final String ARG_LAYOUT_RES_ID = "layoutResId";
     private Button mTurnWifiButton;
     private Button mOpenWifiSettingsButton;
     private ProgressBar mWifiProgress;

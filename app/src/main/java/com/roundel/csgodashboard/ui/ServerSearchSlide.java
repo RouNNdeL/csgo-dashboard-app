@@ -2,7 +2,6 @@ package com.roundel.csgodashboard.ui;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -37,10 +36,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.paolorotolo.appintro.ISlidePolicy;
-import com.google.zxing.integration.android.IntentIntegrator;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.SlideAction;
 import com.roundel.csgodashboard.entities.GameServer;
@@ -70,12 +67,13 @@ import butterknife.ButterKnife;
  */
 public class ServerSearchSlide extends SlideBase implements View.OnClickListener, ISlidePolicy, ServerDiscoveryThread.ServerDiscoveryListener
 {
+    private static final String TAG = ServerSearchSlide.class.getSimpleName();
+
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
     private static final Pattern HOST_PATTERN = Pattern.compile("([\\d]){1,3}\\.([\\d]){1,3}\\.([\\d]){1,3}\\.([\\d]){1,3}");
     private static final Pattern LOCAL_HOST_PATTERN = Pattern.compile("(^127\\..*)|(^10\\..*)|(^172\\.1[6-9]\\..*)|(^172\\.2[0-9]\\..*)|(^172\\.3[0-1]\\..*)|(^192\\.168\\..*)");
     private static final int PORT_MAX = (1 << 16) - 1;
     private static final int PORT_MIN = 0;
-    private static final String TAG = ServerSearchSlide.class.getSimpleName();
     //<editor-fold desc="private variables">
     @BindView(R.id.setup_server_connection_container) RelativeLayout mConnectionContainer;
     @BindView(R.id.setup_server_search_manual_connect) LinearLayout mManualConnectButton;
@@ -759,10 +757,10 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         setTitleSearchingWifi();
     }
 
-    private void askForBarcodeScan()
+    /*private void askForBarcodeScan()
     {
-        /*IntentIntegrator integrator = new IntentIntegrator(getActivity());
-        integrator.initiateScan();*/
+        *//*IntentIntegrator integrator = new IntentIntegrator(getActivity());
+        integrator.initiateScan();*//*
         Intent intent = new Intent("com.google.zxing.client.android.SCAN");
         intent.setPackage("com.google.zxing.client.android");
         intent.putExtra("com.google.zxing.client.android.SCAN.SCAN_MODE", "QR_CODE_MODE");
@@ -773,7 +771,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         LogHelper.i(TAG, result);
         Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
-    }
+    }*/
 
     public void cancelConnectingProcess()
     {

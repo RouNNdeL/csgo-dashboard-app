@@ -14,4 +14,10 @@
         <item>Holding W</item>
         <item>Moving forward while holding Shift</item>
     </string-array>
+    <string-array name="add_nade_grenade_names">
+        <item>Smoke</item>
+        <item>Flashbang</item>
+        <item>Molotov</item>
+        <item>HE Grenade</item>
+    </string-array>
 </resources>

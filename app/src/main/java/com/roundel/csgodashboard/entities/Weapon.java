@@ -9,6 +9,7 @@ import com.roundel.csgodashboard.R;
  */
 public class Weapon
 {
+    private static final String TAG = Weapon.class.getSimpleName();
     public static final String WEAPON_AK47 = "weapon_ak47";
     public static final String WEAPON_AUG = "weapon_aug";
     public static final String WEAPON_AWP = "weapon_awp";
@@ -55,7 +56,6 @@ public class Weapon
     public static final String WEAPON_UMP45 = "weapon_ump45";
     public static final String WEAPON_USP_SILENCER = "weapon_usp_silencer";
     public static final String WEAPON_XM1014 = "weapon_xm1014";
-    private static final String TAG = Weapon.class.getSimpleName();
     private String name;
     private String codeName;
 

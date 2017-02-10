@@ -20,9 +20,9 @@ import java.nio.charset.Charset;
  */
 public class ServerPingingThread extends Thread implements Runnable
 {
+    private static final String TAG = ServerPingingThread.class.getSimpleName();
     private static final String PING_REQUEST = "CSGO_DASHBOARD_PING_REQUEST";
     private static final String PING_RESPONSE = "CSGO_DASHBOARD_PING_RESPONSE";
-    private static final String TAG = ServerPingingThread.class.getSimpleName();
     private GameServer gameServer;
     private ServerStatusListener listener;
 
