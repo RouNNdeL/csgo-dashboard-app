@@ -24,4 +24,14 @@
     <string name="game_info_home_name">Your team</string>
     <string name="game_info_away_name">Opponents</string>
     <string name="setup_server_search_allow_connection">On you PC allow this device (%s) to connect</string>
+    <string name="setup_server_no_wifi">Not connected to a WiFi network</string>
+    <string name="map_name_dust">Dust</string>
+    <string name="map_name_dust2">Dust 2</string>
+    <string name="map_name_inferno">Inferno</string>
+    <string name="map_name_nuke">Nuke</string>
+    <string name="map_name_mirage">Mirage</string>
+    <string name="map_name_cache">Cache</string>
+    <string name="map_name_overpass">Overpass</string>
+    <string name="map_name_train">Train</string>
+    <string name="map_name_cbble">Cobblestone</string>
 </resources>

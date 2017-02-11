@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Server">
+        <activity android:name=".ui.GameInfoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -26,6 +26,10 @@
         <activity android:name=".ui.ServerSetupActivity">
         </activity>
         <activity android:name=".ui.LogActivity">
+        </activity>
+        <activity
+            android:name=".ui.AddNadeActivity"
+            android:windowSoftInputMode="stateHidden">
         </activity>
     </application>
 

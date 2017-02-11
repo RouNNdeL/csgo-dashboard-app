@@ -23,7 +23,7 @@ import java.util.Locale;
 public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.ViewHolder>
 {
     private static final String TAG = GameServerAdapter.class.getSimpleName();
-    private static final int TYPE_EXPANDED = 3;
+
     private static final int TYPE_ITEM = 1;
     private static final int TYPE_REFRESH = 2;
     private List<GameServer> mDataSet = new ArrayList<>();
@@ -52,9 +52,6 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
                 break;
             case TYPE_REFRESH:
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.progress_48dp, parent, false);
-                break;
-            case TYPE_EXPANDED:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.setup_server_connecting_progress, parent, false);
                 break;
             default:
                 throw new IllegalArgumentException("viewType has to be either TYPE_REFRESH or TYPE_ITEM");
@@ -94,18 +91,11 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
                 }
             });
         }
-        else if(holder.getItemViewType() == TYPE_EXPANDED)
-        {
-            View content = holder.getContent();
-            final TextView status = (TextView) content.findViewById(R.id.setup_server_connection_status);
-            status.setText(connectingStatusText);
-        }
     }
 
     @Override
     public int getItemCount()
     {
-        //return mDataSet.size() + (refreshing ? 1 : 0);
         if(mConnectingPosition == -1)
             return mDataSet.size() + (refreshing ? 1 : 0);
         else
@@ -115,8 +105,6 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
     @Override
     public int getItemViewType(int position)
     {
-        if(mConnectingPosition != -1)
-            return TYPE_EXPANDED;
         if(position > mDataSet.size() - 1)
         {
             return TYPE_REFRESH;
@@ -133,25 +121,6 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
         super.onAttachedToRecyclerView(recyclerView);
 
         mRecyclerView = recyclerView;
-    }
-
-    public void expandWhenConnecting(int position)
-    {
-        mConnectingPosition = position;
-        notifyDataSetChanged();
-        setRefreshing(false);
-    }
-
-    public void collapseWhenConnecting()
-    {
-        mConnectingPosition = -1;
-        notifyDataSetChanged();
-        setRefreshing(false);
-    }
-
-    public boolean isRefreshing()
-    {
-        return refreshing;
     }
 
     public void setRefreshing(boolean refreshing)

@@ -387,4 +387,10 @@
         android:layout_height="wrap_content"
         android:text="View logs"/>
 
+    <Button
+        android:id="@+id/testAddNade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test AddNadeActivity"/>
+
 </LinearLayout>

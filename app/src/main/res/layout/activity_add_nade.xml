@@ -2,7 +2,6 @@
 
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/add_nade_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,29 +20,57 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/add_nade_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_collapseMode="pin"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            android:layout_height="?attr/actionBarSize">
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/add_nade_recyclerview_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </android.support.v7.widget.RecyclerView>
+
+            <!--<android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/add_nade_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Title"/>
+            </android.support.design.widget.TextInputLayout>-->
+
+            <Spinner
+                android:id="@+id/add_nade_spinner_stance"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@null"/>
+
+            <Spinner
+                android:id="@+id/add_nade_spinner_grenade"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@null"/>
+
+
+        </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|center_horizontal"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:src="@drawable/ic_add_a_photo_white_24dp"
-        app:fabSize="normal"
-        app:layout_anchor="@+id/nestedScrollView"
-        app:layout_anchorGravity="bottom|right"/>
 </android.support.design.widget.CoordinatorLayout>

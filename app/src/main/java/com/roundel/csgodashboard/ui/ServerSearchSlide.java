@@ -2,7 +2,6 @@ package com.roundel.csgodashboard.ui;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -24,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,15 +36,14 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.paolorotolo.appintro.ISlidePolicy;
-import com.google.zxing.integration.android.IntentIntegrator;
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.ServerCommunicationThread;
-import com.roundel.csgodashboard.ServerDiscoveryThread;
 import com.roundel.csgodashboard.SlideAction;
 import com.roundel.csgodashboard.entities.GameServer;
+import com.roundel.csgodashboard.net.ServerConnectionThread;
+import com.roundel.csgodashboard.net.ServerDiscoveryThread;
+import com.roundel.csgodashboard.net.ServerPingingThread;
 import com.roundel.csgodashboard.recyclerview.GameServerAdapter;
 import com.roundel.csgodashboard.util.LogHelper;
 import com.transitionseverywhere.extra.Scale;
@@ -53,6 +52,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,12 +67,13 @@ import butterknife.ButterKnife;
  */
 public class ServerSearchSlide extends SlideBase implements View.OnClickListener, ISlidePolicy, ServerDiscoveryThread.ServerDiscoveryListener
 {
+    private static final String TAG = ServerSearchSlide.class.getSimpleName();
+
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
     private static final Pattern HOST_PATTERN = Pattern.compile("([\\d]){1,3}\\.([\\d]){1,3}\\.([\\d]){1,3}\\.([\\d]){1,3}");
     private static final Pattern LOCAL_HOST_PATTERN = Pattern.compile("(^127\\..*)|(^10\\..*)|(^172\\.1[6-9]\\..*)|(^172\\.2[0-9]\\..*)|(^172\\.3[0-1]\\..*)|(^192\\.168\\..*)");
     private static final int PORT_MAX = (1 << 16) - 1;
     private static final int PORT_MIN = 0;
-    private static final String TAG = ServerSearchSlide.class.getSimpleName();
     //<editor-fold desc="private variables">
     @BindView(R.id.setup_server_connection_container) RelativeLayout mConnectionContainer;
     @BindView(R.id.setup_server_search_manual_connect) LinearLayout mManualConnectButton;
@@ -112,6 +115,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private ServerConnectionInfo mServerConnectionInfoInterface;
     private ViewGroup root;
     private GameServer currentGameServer;
+
+    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    ;
     //</editor-fold>
 
     public static ServerSearchSlide newInstance(int layoutResId)
@@ -308,6 +314,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         }
         else if(isInManualMode && !connectingToServer)
         {
+            //TODo: Change title back to SearchingWifi when exiting connecting state
             animateToAutoConnection();
             return false;
         }
@@ -368,19 +375,19 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void attemptConnection(GameServer server)
     {
-        ServerCommunicationThread sendingThread = new ServerCommunicationThread(server, ServerCommunicationThread.MODE_CONNECT, "6000");
-        sendingThread.setConnectionListener(new ServerCommunicationThread.ServerConnectionListener()
+        ServerConnectionThread sendingThread = new ServerConnectionThread(server, 6000);
+        sendingThread.setConnectionListener(new ServerConnectionThread.ServerConnectionListener()
         {
             @Override
-            public void onAccessGranted()
+            public void onAccessGranted(GameServer gameServer)
             {
-                onConnectionSuccessful();
+                onConnectionSuccessful(gameServer);
             }
 
             @Override
-            public void onAccessDenied()
+            public void onAccessDenied(GameServer gameServer)
             {
-                onConnectionRefused();
+                onConnectionRefused(gameServer);
             }
 
             @Override
@@ -405,7 +412,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     }
 
     //<editor-fold desc="Connection interface">
-    private void onConnectionSuccessful()
+    private void onConnectionSuccessful(final GameServer gameServer)
     {
         //Remember to run UI operations with Activity.runOnUiThread();
         getActivity().runOnUiThread(new Runnable()
@@ -416,11 +423,15 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 setStatusIconSuccess();
 
                 setStatusConnectedSuccessfully();
+
+                //TODO: Create separate methods
+                ServerPingingThread serverPingingThread = new ServerPingingThread(gameServer);
+                executorService.scheduleAtFixedRate(serverPingingThread, 0, 5, TimeUnit.SECONDS);
             }
         });
     }
 
-    private void onConnectionRefused()
+    private void onConnectionRefused(GameServer gameServer)
     {
         //connectingToServer = false;
         //Remember to run UI operations with Activity.runOnUiThread();
@@ -576,28 +587,35 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
         final String title = String.format(Locale.getDefault(), getString(R.string.setup_server_searching), ssid);
 
-        int start;
-        int end;
-        if(ssid.charAt(0) == '"' && ssid.charAt(ssid.length() - 1) == '"')
+        if(TextUtils.isEmpty(ssid))
         {
-            start = title.indexOf(ssid) + 1;
-            end = title.indexOf(ssid) + ssid.length() - 1;
+            int start;
+            int end;
+            if(ssid.charAt(0) == '"' && ssid.charAt(ssid.length() - 1) == '"')
+            {
+                start = title.indexOf(ssid) + 1;
+                end = title.indexOf(ssid) + ssid.length() - 1;
+            }
+            else
+            {
+                start = title.indexOf(ssid);
+                end = title.indexOf(ssid) + ssid.length();
+            }
+            Spannable spannableTitle = new SpannableString(title);
+            spannableTitle.setSpan(
+                    new StyleSpan(Typeface.BOLD),
+                    start,                        //Start
+                    end,         //End
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+            mTitle.setText(spannableTitle);
         }
         else
         {
-            start = title.indexOf(ssid);
-            end = title.indexOf(ssid) + ssid.length();
+            mTitle.setText(R.string.setup_server_no_wifi);
         }
-        Spannable spannableTitle = new SpannableString(title);
-        spannableTitle.setSpan(
-                new StyleSpan(Typeface.BOLD),
-                start,                        //Start
-                end,         //End
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        );
 
         mTitle.setVisibility(View.VISIBLE);
-        mTitle.setText(spannableTitle);
     }
 
     private void setTitleConnecting()
@@ -740,10 +758,10 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         setTitleSearchingWifi();
     }
 
-    private void askForBarcodeScan()
+    /*private void askForBarcodeScan()
     {
-        /*IntentIntegrator integrator = new IntentIntegrator(getActivity());
-        integrator.initiateScan();*/
+        *//*IntentIntegrator integrator = new IntentIntegrator(getActivity());
+        integrator.initiateScan();*//*
         Intent intent = new Intent("com.google.zxing.client.android.SCAN");
         intent.setPackage("com.google.zxing.client.android");
         intent.putExtra("com.google.zxing.client.android.SCAN.SCAN_MODE", "QR_CODE_MODE");
@@ -754,7 +772,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         LogHelper.i(TAG, result);
         Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
-    }
+    }*/
 
     public void cancelConnectingProcess()
     {

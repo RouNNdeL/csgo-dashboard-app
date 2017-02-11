@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard;
+package com.roundel.csgodashboard.net;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -26,13 +26,13 @@ import java.util.Objects;
  */
 public class ServerDiscoveryThread extends Thread implements Runnable
 {
+    private static final String TAG = ServerDiscoveryThread.class.getSimpleName();
     private static final String DISCOVERY_MESSAGE = "CSGO_DASHBOARD_DISCOVERY_REQUEST";
     private static final String DISCOVERY_RESPONSE = "CSGO_DASHBOARD_DISCOVERY_RESPONSE";
-    private static final String TAG = ServerDiscoveryThread.class.getSimpleName();
     private DatagramSocket socket;
     private ServerDiscoveryListener listener;
-    private int discoveryTimeout = 500;
 
+    private int discoveryTimeout = 500;
 
     /**
      * This thread is used to send a UDP broadcast and detect servers running on the local network
@@ -102,7 +102,6 @@ public class ServerDiscoveryThread extends Thread implements Runnable
                 public void run()
                 {
                     socket.close();
-                    Log.d(TAG, "Closing the socket");
                 }
             }, discoveryTimeout);
 

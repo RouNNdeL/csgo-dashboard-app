@@ -17,8 +17,8 @@ import com.roundel.csgodashboard.SlideAction;
  */
 public class SlideBase extends Fragment implements OnBackPressedListener
 {
-    private static final String ARG_LAYOUT_RES_ID = "layoutResId";
     private static final String TAG = SlideBase.class.getSimpleName();
+    private static final String ARG_LAYOUT_RES_ID = "layoutResId";
     private ViewGroup root;
     private int layoutResId;
     private SlideAction mSlideActionInterface;

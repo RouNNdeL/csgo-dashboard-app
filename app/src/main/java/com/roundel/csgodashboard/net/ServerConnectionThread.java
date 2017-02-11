@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard;
+package com.roundel.csgodashboard.net;
 
 import android.os.Build;
 
@@ -23,24 +23,23 @@ import java.util.Objects;
  * Created by Krzysiek on 2017-01-31.
  */
 
-public class ServerCommunicationThread extends Thread implements Runnable
+public class ServerConnectionThread extends Thread implements Runnable
 {
+    private static final String TAG = ServerConnectionThread.class.getSimpleName();
     public static final int MODE_CONNECT = 0;
-
+    public static final int MODE_PING = 1;
     private static final String CONNECTION_DEVICE_NAME = "CSGO_DASHBOARD_CONNECTION_DEVICE_NAME";                                   //JSON params: "device_name"
     private static final String CONNECTION_GAME_INFO_PORT = "CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT";                             //JSON params: "game_info_port"
     private static final String CONNECTION_GAME_INFO_PORT_RESPONSE = "CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE";           //JSON params: none
     private static final String CONNECTION_REQUEST = "CSGO_DASHBOARD_CONNECTION_REQUEST";                                           //json params: none
     private static final String CONNECTION_RESPONSE = "CSGO_DASHBOARD_CONNECTION_RESPONSE";                                         //JSON params: none
     private static final String CONNECTION_USER_AGREEMENT = "CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT";                             //JSON params: "user_allowed"
-
-    private static final String TAG = ServerCommunicationThread.class.getSimpleName();
-
     private GameServer gameServer;
     private Socket gameServerSocket;
-    private int communicationMode;
+
     private int connectionTimeout = 5000;
-    private int receiveTimeout = 15000;
+    private int receiveTimeout = 5000;
+    private int userResponseTimeout = 90000;
 
     private ServerConnectionListener connectionListener;
 
@@ -49,127 +48,108 @@ public class ServerCommunicationThread extends Thread implements Runnable
 
     /**
      * @param gameServer        A game server to communicate with
-     * @param communicationMode A communication protocol Has to be {@link #MODE_CONNECT}
-     * @param args              Arguments depend on the {@param communicationMode}
-     *
-     * @throws IllegalArgumentException if the {@param communicationMode} is invalid or arguments
-     *                                  don't match the mode
+     * @param gameListeningPort A port that the server is going to send the CS:GO data to
      */
-    public ServerCommunicationThread(GameServer gameServer, int communicationMode, String... args)
+    public ServerConnectionThread(GameServer gameServer, int gameListeningPort)
     {
         this.gameServer = gameServer;
-        this.communicationMode = communicationMode;
-        switch(communicationMode)
-        {
-            case MODE_CONNECT:
-                if(args.length < 1)
-                    throw new IllegalArgumentException("You have to supply a port that the app is going to send game info to, when using MODE_CONNECT.");
-                gameListeningPort = Integer.parseInt(args[0]);
-                break;
-            default:
-                throw new IllegalArgumentException("Mode has to be one of [MODE_CONNECT]");
-        }
+        this.gameListeningPort = gameListeningPort;
     }
 
     @Override
     public void run()
     {
-        switch(communicationMode)
+        try
         {
-            case MODE_CONNECT:
+            gameServerSocket = new Socket();
+            gameServerSocket.connect(new InetSocketAddress(gameServer.getHost(), gameServer.getPort()), connectionTimeout);
+            gameServerSocket.setSoTimeout(receiveTimeout);
+            JSONObject json = new JSONObject();
+            json.put("code", CONNECTION_REQUEST);
+            sendBytes(gameServerSocket, json.toString().getBytes(Charset.defaultCharset()));
+            LogHelper.i(TAG, "Sending " + json.toString());
+
+            JSONObject response = jsonFromByteArr(receiveBytes(gameServerSocket));
+            LogHelper.i(TAG, "Received: " + response.toString());
+
+            if(Objects.equals(response.getString("code"), CONNECTION_RESPONSE))
             {
-                try
+                gameServerSocket.setSoTimeout(userResponseTimeout);
+
+                json = new JSONObject();
+                json.put("code", CONNECTION_DEVICE_NAME);
+                json.put("device_name", Build.MANUFACTURER + " " + Build.MODEL);
+
+                sendBytes(gameServerSocket, json.toString().getBytes(Charset.defaultCharset()));
+                LogHelper.i(TAG, "Sending " + json.toString());
+
+                if(connectionListener != null)
+                    connectionListener.onAllowConnection();
+
+                response = jsonFromByteArr(receiveBytes(gameServerSocket));
+                LogHelper.i(TAG, "Received: " + response.toString());
+
+                if(Objects.equals(response.getString("code"), CONNECTION_USER_AGREEMENT))
                 {
-                    gameServerSocket = new Socket();
-                    gameServerSocket.connect(new InetSocketAddress(gameServer.getHost(), gameServer.getPort()), connectionTimeout);
-                    gameServerSocket.setSoTimeout(receiveTimeout);
-                    JSONObject json = new JSONObject();
-                    json.put("code", CONNECTION_REQUEST);
-                    sendBytes(gameServerSocket, json.toString().getBytes(Charset.defaultCharset()));
-                    LogHelper.i(TAG, "Sending " + json.toString());
-
-                    JSONObject response = jsonFromByteArr(receiveBytes(gameServerSocket));
-                    LogHelper.i(TAG, "Received: " + response.toString());
-
-                    if(Objects.equals(response.getString("code"), CONNECTION_RESPONSE))
+                    if(response.getBoolean("user_allowed"))
                     {
+                        gameServerSocket.setSoTimeout(receiveTimeout);
+
                         json = new JSONObject();
-                        json.put("code", CONNECTION_DEVICE_NAME);
-                        json.put("device_name", Build.MANUFACTURER + " " + Build.MODEL);
+                        json.put("code", CONNECTION_GAME_INFO_PORT);
+                        json.put("game_info_port", gameListeningPort);
 
-                        sendBytes(gameServerSocket, json.toString().getBytes(Charset.defaultCharset()));
+                        sendBytes(gameServerSocket, json.toString().getBytes());
                         LogHelper.i(TAG, "Sending " + json.toString());
-
-                        if(connectionListener != null)
-                            connectionListener.onAllowConnection();
 
                         response = jsonFromByteArr(receiveBytes(gameServerSocket));
                         LogHelper.i(TAG, "Received: " + response.toString());
 
-                        if(Objects.equals(response.getString("code"), CONNECTION_USER_AGREEMENT))
+                        if(Objects.equals(response.getString("code"), CONNECTION_GAME_INFO_PORT_RESPONSE))
                         {
-                            if(response.getBoolean("user_allowed"))
-                            {
-                                json = new JSONObject();
-                                json.put("code", CONNECTION_GAME_INFO_PORT);
-                                json.put("game_info_port", gameListeningPort);
-
-                                sendBytes(gameServerSocket, json.toString().getBytes());
-                                LogHelper.i(TAG, "Sending " + json.toString());
-
-                                response = jsonFromByteArr(receiveBytes(gameServerSocket));
-                                LogHelper.i(TAG, "Received: " + response.toString());
-
-                                if(Objects.equals(response.getString("code"), CONNECTION_GAME_INFO_PORT_RESPONSE))
-                                {
-                                    if(connectionListener != null)
-                                        connectionListener.onAccessGranted();
-                                    LogHelper.i(TAG, "Access granted");
-                                }
-                                else
-                                {
-                                    if(connectionListener != null)
-                                        connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE");
-                                }
-                            }
-                            else if(!response.getBoolean("user_allowed"))
-                            {
-                                if(connectionListener != null)
-                                    connectionListener.onAccessDenied();
-                                LogHelper.i(TAG, "Access denied");
-                            }
+                            if(connectionListener != null)
+                                connectionListener.onAccessGranted(gameServer);
+                            LogHelper.i(TAG, "Access granted");
                         }
                         else
                         {
                             if(connectionListener != null)
-                                connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
-                            LogHelper.e(TAG, "Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
+                                connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE");
                         }
                     }
-                    else
+                    else if(!response.getBoolean("user_allowed"))
                     {
                         if(connectionListener != null)
-                            connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
-                        LogHelper.e(TAG, "Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
+                            connectionListener.onAccessDenied(gameServer);
+                        LogHelper.i(TAG, "Access denied");
                     }
                 }
-                catch(SocketTimeoutException e)
+                else
                 {
                     if(connectionListener != null)
-                        connectionListener.onServerTimedOut();
-                    LogHelper.e(TAG, e.toString());
-                }
-                catch(IOException | JSONException e)
-                {
-                    if(connectionListener != null)
-                        connectionListener.onServerNotResponded("Didn't send a proper JSON");
-                    LogHelper.e(TAG, e.toString());
-                    e.printStackTrace();
+                        connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
+                    LogHelper.e(TAG, "Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
                 }
             }
-            default:
-                LogHelper.e(TAG, "Unknown communicationMode");
-                break;
+            else
+            {
+                if(connectionListener != null)
+                    connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
+                LogHelper.e(TAG, "Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
+            }
+        }
+        catch(SocketTimeoutException e)
+        {
+            if(connectionListener != null)
+                connectionListener.onServerTimedOut();
+            LogHelper.e(TAG, e.toString());
+        }
+        catch(IOException | JSONException e)
+        {
+            if(connectionListener != null)
+                connectionListener.onServerNotResponded("Didn't send a proper JSON");
+            LogHelper.e(TAG, e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -256,12 +236,12 @@ public class ServerCommunicationThread extends Thread implements Runnable
         /**
          * Called when user allows for the connection
          */
-        void onAccessGranted();
+        void onAccessGranted(GameServer server);
 
         /**
          * Called when user denies the connection
          */
-        void onAccessDenied();
+        void onAccessDenied(GameServer server);
 
         /**
          * Called when server response was not understood
