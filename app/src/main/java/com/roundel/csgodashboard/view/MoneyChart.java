@@ -218,11 +218,15 @@ public class MoneyChart extends View
         if(event.getAction() == MotionEvent.ACTION_UP)
         {
             final Pair<MoneyInfo.Entry, Float> closestPair = findClosest(event.getX(), event.getY());
+
+            //final Pair<MoneyInfo.Entry, Float> closestPairNew = findClosest(event.getX(), event.getY(), mActivationAreaSize);
+
             MoneyInfo.Entry closest = closestPair.first;
             float distance = closestPair.second;
             LogHelper.d(TAG, "Closest entry: Round " + closest.getRound() + ", Money " + closest.getMoney() + " Distance: " + distance);
             if(distance <= mActivationAreaSize)
             {
+                //TODO: Show a rectangle with more detailed information about he Entry
                 Toast.makeText(getContext(), "Clicked on round " + closest.getRound(), Toast.LENGTH_SHORT).show();
                 selectedEntry = closest;
                 invalidate();
@@ -310,6 +314,27 @@ public class MoneyChart extends View
         return new Pair<>(closest, closestDistance);
     }
 
+    private Pair<MoneyInfo.Entry, Float> findClosest(float x, float y, float max_distance)
+    {
+        MoneyInfo.Entry closest = new MoneyInfo.Entry(-1, -1);
+        float closestDistance = -1;
+        double sqrt2 = Math.sqrt(2);
+        for(MoneyInfo.Entry entry : values)
+        {
+            if(Math.max(Math.abs(x - entry.getX()), Math.abs(y - entry.getY())) * sqrt2 > max_distance)
+                continue;
+            final float distance = measureDistance(entry.getX(), entry.getY(), x, y);
+            if(closestDistance == -1 || distance < closestDistance)
+            {
+                closest = entry;
+                closestDistance = distance;
+            }
+        }
+        if(closestDistance == -1)
+            return null;
+        return new Pair<>(closest, closestDistance);
+    }
+
     private void init()
     {
         values.add(new MoneyInfo.Entry(1, 800));
@@ -333,7 +358,36 @@ public class MoneyChart extends View
         values.add(new MoneyInfo.Entry(19, 10250));
         values.add(new MoneyInfo.Entry(20, 13500));
         values.add(new MoneyInfo.Entry(21, 16000));
-        values.add(new MoneyInfo.Entry(22, 16000));
+        values.add(new MoneyInfo.Entry(22, 13123));
+        values.add(new MoneyInfo.Entry(23, 3237));
+        values.add(new MoneyInfo.Entry(24, 2313));
+        values.add(new MoneyInfo.Entry(25, 8123));
+        values.add(new MoneyInfo.Entry(26, 1233));
+        values.add(new MoneyInfo.Entry(27, 1300));
+        values.add(new MoneyInfo.Entry(28, 12312));
+        values.add(new MoneyInfo.Entry(29, 13233));
+        values.add(new MoneyInfo.Entry(30, 8248));
+        values.add(new MoneyInfo.Entry(31, 2834));
+        values.add(new MoneyInfo.Entry(32, 1238));
+        values.add(new MoneyInfo.Entry(33, 1773));
+        values.add(new MoneyInfo.Entry(34, 2344));
+        values.add(new MoneyInfo.Entry(35, 6845));
+        values.add(new MoneyInfo.Entry(36, 800));
+        values.add(new MoneyInfo.Entry(37, 9242));
+        values.add(new MoneyInfo.Entry(38, 16000));
+        values.add(new MoneyInfo.Entry(39, 7342));
+        values.add(new MoneyInfo.Entry(40, 12383));
+        values.add(new MoneyInfo.Entry(41, 10123));
+        values.add(new MoneyInfo.Entry(42, 13238));
+        values.add(new MoneyInfo.Entry(43, 12737));
+        values.add(new MoneyInfo.Entry(44, 12311));
+        values.add(new MoneyInfo.Entry(45, 81381));
+        values.add(new MoneyInfo.Entry(46, 12638));
+        values.add(new MoneyInfo.Entry(47, 8123));
+        values.add(new MoneyInfo.Entry(48, 8247));
+        values.add(new MoneyInfo.Entry(49, 6123));
+        values.add(new MoneyInfo.Entry(50, 7234));
+        values.add(new MoneyInfo.Entry(51, 1623));
 
         values.setHalfGameRound(15);
     }
