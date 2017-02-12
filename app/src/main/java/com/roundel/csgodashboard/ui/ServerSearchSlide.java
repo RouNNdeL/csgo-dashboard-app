@@ -44,12 +44,12 @@ import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.net.GameInfoListeningThread;
 import com.roundel.csgodashboard.net.ServerConnectionThread;
 import com.roundel.csgodashboard.net.ServerDiscoveryThread;
+import com.roundel.csgodashboard.net.ServerGameInfoPortThread;
 import com.roundel.csgodashboard.net.ServerPingingThread;
 import com.roundel.csgodashboard.recyclerview.GameServerAdapter;
 import com.roundel.csgodashboard.util.LogHelper;
 import com.transitionseverywhere.extra.Scale;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -382,27 +382,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void attemptConnection(GameServer server)
     {
-        ServerConnectionThread sendingThread = new ServerConnectionThread(server, new ServerConnectionThread.OnStartGameInfoServerListener()
-        {
-            @Override
-            public int onStartGameInfoServer()
-            {
-                try
-                {
-                    LogHelper.d(TAG, "Attempting to start the GameInfoListeningThread");
-                    //TODO: Move that to the GameInfoActivity
-                    GameInfoListeningThread gameInfoListeningThread = new GameInfoListeningThread();
-                    gameInfoListeningThread.start();
-                    return gameInfoListeningThread.getPort();
-                }
-                catch(IOException e)
-                {
-                    e.printStackTrace();
-                    LogHelper.e(TAG, e.toString());
-                    return -1;
-                }
-            }
-        });
+        ServerConnectionThread sendingThread = new ServerConnectionThread(server);
         sendingThread.setConnectionListener(new ServerConnectionThread.ServerConnectionListener()
         {
             @Override
@@ -514,6 +494,27 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 setStatusAllow();
             }
         });
+        startGameInfoListener();
+    }
+
+    private void startGameInfoListener()
+    {
+        GameInfoListeningThread listeningThread = new GameInfoListeningThread();
+        listeningThread.setOnServerStartedListener(new GameInfoListeningThread.OnServerStartedListener()
+        {
+            @Override
+            public void onServerStarted(int port)
+            {
+                sendPortToGameServer(port);
+            }
+        });
+        listeningThread.start();
+    }
+
+    private void sendPortToGameServer(int port)
+    {
+        ServerGameInfoPortThread portThread = new ServerGameInfoPortThread(currentGameServer, port);
+        portThread.start();
     }
 
     //<editor-fold desc="Connecting animation">

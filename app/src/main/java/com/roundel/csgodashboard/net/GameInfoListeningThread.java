@@ -23,10 +23,8 @@ public class GameInfoListeningThread extends Thread implements Runnable
     private OnServerStartedListener onServerStartedListener;
     //</editor-fold>
 
-    public GameInfoListeningThread() throws IOException
+    public GameInfoListeningThread()
     {
-        gameInfoListeningSocket = new ServerSocket(0);
-        port = gameInfoListeningSocket.getLocalPort();
     }
 
     @Override
@@ -34,6 +32,9 @@ public class GameInfoListeningThread extends Thread implements Runnable
     {
         try
         {
+            gameInfoListeningSocket = new ServerSocket(0);
+            port = gameInfoListeningSocket.getLocalPort();
+
             if(onServerStartedListener != null)
                 onServerStartedListener.onServerStarted(port);
 
@@ -70,11 +71,6 @@ public class GameInfoListeningThread extends Thread implements Runnable
     public void setOnServerStartedListener(OnServerStartedListener onServerStartedListener)
     {
         this.onServerStartedListener = onServerStartedListener;
-    }
-
-    public int getPort()
-    {
-        return port;
     }
 
     public interface OnServerStartedListener

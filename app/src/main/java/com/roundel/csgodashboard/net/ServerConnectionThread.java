@@ -36,19 +36,15 @@ public class ServerConnectionThread extends ServerCommunicationThreadBase
     private int userResponseTimeout = 90000;
 
     private ServerConnectionListener connectionListener;
-    private OnStartGameInfoServerListener startServerListener;
-
-    private int gameListeningPort = -1;
     //</editor-fold>
 
 
     /**
      * @param gameServer A game server to communicate with
      */
-    public ServerConnectionThread(GameServer gameServer, OnStartGameInfoServerListener startServerListener)
+    public ServerConnectionThread(GameServer gameServer)
     {
         this.gameServer = gameServer;
-        this.startServerListener = startServerListener;
     }
 
     @Override
@@ -84,31 +80,10 @@ public class ServerConnectionThread extends ServerCommunicationThreadBase
                 {
                     if(response.getBoolean("user_allowed"))
                     {
-                        gameListeningPort = startServerListener.onStartGameInfoServer();
-
-                        gameServerSocket.setSoTimeout(receiveTimeout);
-
-                        json = new JSONObject();
-                        json.put("code", CONNECTION_GAME_INFO_PORT);
-                        json.put("game_info_port", gameListeningPort);
-
-                        sendJSON(gameServerSocket, json);
-
-                        response = receiveJSON(gameServerSocket);
-
-                        if(Objects.equals(response.getString("code"), CONNECTION_GAME_INFO_PORT_RESPONSE))
-                        {
-                            if(connectionListener != null)
-                                connectionListener.onAccessGranted(gameServer);
-                            LogHelper.i(TAG, "Access granted");
-                            gameServerSocket.close();
-                        }
-                        else
-                        {
-                            if(connectionListener != null)
-                                connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE");
-                            gameServerSocket.close();
-                        }
+                        if(connectionListener != null)
+                            connectionListener.onAccessGranted(gameServer);
+                        LogHelper.i(TAG, "Access granted");
+                        gameServerSocket.close();
                     }
                     else if(!response.getBoolean("user_allowed"))
                     {

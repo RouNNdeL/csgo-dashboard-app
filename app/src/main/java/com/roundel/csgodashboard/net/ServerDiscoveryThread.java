@@ -24,15 +24,17 @@ import java.util.Objects;
 /**
  * Created by Krzysiek on 2017-01-29.
  */
-public class ServerDiscoveryThread extends Thread implements Runnable
+public class ServerDiscoveryThread extends Thread
 {
     private static final String TAG = ServerDiscoveryThread.class.getSimpleName();
     private static final String DISCOVERY_MESSAGE = "CSGO_DASHBOARD_DISCOVERY_REQUEST";
     private static final String DISCOVERY_RESPONSE = "CSGO_DASHBOARD_DISCOVERY_RESPONSE";
+    //<editor-fold desc="private variables">
     private DatagramSocket socket;
     private ServerDiscoveryListener listener;
 
     private int discoveryTimeout = 500;
+//</editor-fold>
 
     /**
      * This thread is used to send a UDP broadcast and detect servers running on the local network
