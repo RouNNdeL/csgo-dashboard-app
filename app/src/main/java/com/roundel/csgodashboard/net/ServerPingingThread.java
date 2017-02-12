@@ -70,7 +70,8 @@ public class ServerPingingThread extends Thread implements Runnable
         }
         catch(SocketTimeoutException e)
         {
-            listener.onDisconnected();
+            if(listener != null)
+                listener.onDisconnected();
             LogHelper.e(TAG, e.toString());
             try
             {

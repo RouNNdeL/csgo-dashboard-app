@@ -43,19 +43,19 @@ public class ServerConnectionThread extends Thread implements Runnable
     private int userResponseTimeout = 90000;
 
     private ServerConnectionListener connectionListener;
+    private OnStartGameInfoServerListener startServerListener;
 
     private int gameListeningPort = -1;
-//</editor-fold>
+    //</editor-fold>
 
 
     /**
-     * @param gameServer        A game server to communicate with
-     * @param gameListeningPort A port that the server is going to send the CS:GO data to
+     * @param gameServer A game server to communicate with
      */
-    public ServerConnectionThread(GameServer gameServer, int gameListeningPort)
+    public ServerConnectionThread(GameServer gameServer, OnStartGameInfoServerListener startServerListener)
     {
         this.gameServer = gameServer;
-        this.gameListeningPort = gameListeningPort;
+        this.startServerListener = startServerListener;
     }
 
     @Override
@@ -95,6 +95,8 @@ public class ServerConnectionThread extends Thread implements Runnable
                 {
                     if(response.getBoolean("user_allowed"))
                     {
+                        gameListeningPort = startServerListener.onStartGameInfoServer();
+
                         gameServerSocket.setSoTimeout(receiveTimeout);
 
                         json = new JSONObject();
@@ -245,6 +247,14 @@ public class ServerConnectionThread extends Thread implements Runnable
     public void setReceiveTimeout(int receiveTimeout)
     {
         this.receiveTimeout = receiveTimeout;
+    }
+
+    public interface OnStartGameInfoServerListener
+    {
+        /**
+         * @return a port that the server has started on
+         */
+        int onStartGameInfoServer();
     }
 
     public interface ServerConnectionListener

@@ -1,7 +1,5 @@
 package com.roundel.csgodashboard.entities;
 
-import java.util.Locale;
-
 /**
  * Created by Krzysiek on 2017-01-23.
  */
@@ -9,9 +7,11 @@ public class GameServer
 {
     public static final String TAG = GameServer.class.getSimpleName();
 
+    //<editor-fold desc="private variables">
     private String name;
     private String host;
     private int port;
+//</editor-fold>
 
     public GameServer(String name, String host, int port)
     {
@@ -23,7 +23,11 @@ public class GameServer
     @Override
     public String toString()
     {
-        return String.format(Locale.getDefault(), "%s - %s:%d", name, host, port);
+        return "GameServer{" +
+                "name='" + name + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                '}';
     }
 
     public String getName()
