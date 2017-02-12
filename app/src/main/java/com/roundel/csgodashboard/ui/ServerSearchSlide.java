@@ -108,9 +108,11 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private CardView mCardView;
     private Button mActionButton;
     private boolean canContinue = false;
-    private boolean connectingToServer = false;
+    private boolean isConnectingToServer = false;
+    private boolean isRefreshing = false;
     private boolean isInManualMode = false;
     private SlideAction mSlideActionInterface;
+
     private ServerConnectionInfo mServerConnectionInfoInterface;
     private ViewGroup root;
     private GameServer currentGameServer;
@@ -181,7 +183,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                     currentGameServer = getManualGameServer();
                     connect();
                 }
-                else
+                else if(!isRefreshing)
                     startDiscovery();
                 break;
             }
@@ -259,6 +261,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 @Override
                 public void run()
                 {
+                    isRefreshing = true;
                     mAdapter.setRefreshing(true);
                 }
             });
@@ -271,7 +274,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
    /* private void autoConnect()
     {
-        connectingToServer = true;
+        isConnectingToServer = true;
 
         setStatusConnecting();
         animateAutoConnecting();
@@ -288,6 +291,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 @Override
                 public void run()
                 {
+                    isRefreshing = false;
                     mAdapter.setRefreshing(false);
                 }
             });
@@ -313,13 +317,13 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     @Override
     public boolean onBackPressed()
     {
-        if(connectingToServer)
+        if(isConnectingToServer)
         {
             reverseAnimateConnecting();
-            connectingToServer = false;
+            isConnectingToServer = false;
             return false;
         }
-        else if(isInManualMode && !connectingToServer)
+        else if(isInManualMode && !isConnectingToServer)
         {
             //TODo: Change title back to SearchingWifi when exiting connecting state
             animateToAutoConnection();
@@ -341,9 +345,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
      */
     private void connect()
     {
-        if(connectingToServer)
+        if(isConnectingToServer)
             return;
-        connectingToServer = true;
+        isConnectingToServer = true;
 
         setStatusConnecting();
         setTitleConnecting();
@@ -464,7 +468,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void onConnectionRefused(GameServer gameServer)
     {
-        //connectingToServer = false;
+        //isConnectingToServer = false;
         //Remember to run UI operations with Activity.runOnUiThread();
         getActivity().runOnUiThread(new Runnable()
         {
@@ -480,7 +484,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void onConnectionFailed()
     {
-        //connectingToServer = false;
+        //isConnectingToServer = false;
         getActivity().runOnUiThread(new Runnable()
         {
             @Override
@@ -776,7 +780,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     public boolean isConnectingToServer()
     {
-        return connectingToServer;
+        return isConnectingToServer;
     }
 
     /*private void askForBarcodeScan()
@@ -802,7 +806,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     public void cancelConnectingProcess()
     {
-        connectingToServer = false;
+        isConnectingToServer = false;
         reverseAnimateConnecting();
         //TODO: Kill a Process handling connection;
     }

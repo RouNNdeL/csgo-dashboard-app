@@ -8,22 +8,17 @@ import com.roundel.csgodashboard.util.LogHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
  * Created by Krzysiek on 2017-01-31.
  */
 
-public class ServerConnectionThread extends Thread implements Runnable
+public class ServerConnectionThread extends ServerCommunicationThreadBase
 {
     private static final String TAG = ServerConnectionThread.class.getSimpleName();
     public static final int MODE_CONNECT = 0;
@@ -38,8 +33,6 @@ public class ServerConnectionThread extends Thread implements Runnable
     private GameServer gameServer;
     private Socket gameServerSocket;
 
-    private int connectionTimeout = 5000;
-    private int receiveTimeout = 5000;
     private int userResponseTimeout = 90000;
 
     private ServerConnectionListener connectionListener;
@@ -68,11 +61,9 @@ public class ServerConnectionThread extends Thread implements Runnable
             gameServerSocket.setSoTimeout(receiveTimeout);
             JSONObject json = new JSONObject();
             json.put("code", CONNECTION_REQUEST);
-            sendBytes(gameServerSocket, json.toString().getBytes(Charset.defaultCharset()));
-            LogHelper.i(TAG, "Sending " + json.toString());
+            sendJSON(gameServerSocket, json);
 
-            JSONObject response = jsonFromByteArr(receiveBytes(gameServerSocket));
-            LogHelper.i(TAG, "Received: " + response.toString());
+            JSONObject response = receiveJSON(gameServerSocket);
 
             if(Objects.equals(response.getString("code"), CONNECTION_RESPONSE))
             {
@@ -82,14 +73,12 @@ public class ServerConnectionThread extends Thread implements Runnable
                 json.put("code", CONNECTION_DEVICE_NAME);
                 json.put("device_name", Build.MANUFACTURER + " " + Build.MODEL);
 
-                sendBytes(gameServerSocket, json.toString().getBytes(Charset.defaultCharset()));
-                LogHelper.i(TAG, "Sending " + json.toString());
+                sendJSON(gameServerSocket, json);
 
                 if(connectionListener != null)
                     connectionListener.onAllowConnection();
 
-                response = jsonFromByteArr(receiveBytes(gameServerSocket));
-                LogHelper.i(TAG, "Received: " + response.toString());
+                response = receiveJSON(gameServerSocket);
 
                 if(Objects.equals(response.getString("code"), CONNECTION_USER_AGREEMENT))
                 {
@@ -103,11 +92,9 @@ public class ServerConnectionThread extends Thread implements Runnable
                         json.put("code", CONNECTION_GAME_INFO_PORT);
                         json.put("game_info_port", gameListeningPort);
 
-                        sendBytes(gameServerSocket, json.toString().getBytes());
-                        LogHelper.i(TAG, "Sending " + json.toString());
+                        sendJSON(gameServerSocket, json);
 
-                        response = jsonFromByteArr(receiveBytes(gameServerSocket));
-                        LogHelper.i(TAG, "Received: " + response.toString());
+                        response = receiveJSON(gameServerSocket);
 
                         if(Objects.equals(response.getString("code"), CONNECTION_GAME_INFO_PORT_RESPONSE))
                         {
@@ -171,82 +158,10 @@ public class ServerConnectionThread extends Thread implements Runnable
         }
     }
 
-    /**
-     * @param socket socket to send the bytes on
-     * @param bytes  bytes to send
-     *
-     * @throws IOException
-     */
-    private void sendBytes(Socket socket, byte[] bytes) throws IOException
-    {
-        sendBytes(socket, bytes, 0, bytes.length);
-    }
-
-
-    /**
-     * @param socket      socket to send the bytes to
-     * @param myByteArray bytes to send
-     * @param start       offset for the bytes
-     * @param len         length of the message
-     *
-     * @throws IOException
-     * @throws IllegalArgumentException  when length is negative
-     * @throws IndexOutOfBoundsException when start is negative or exceeds the array
-     */
-    private void sendBytes(Socket socket, byte[] myByteArray, int start, int len) throws IOException
-    {
-        if(len < 0)
-            throw new IllegalArgumentException("Negative length not allowed");
-        if(start < 0 || start >= myByteArray.length)
-            throw new IndexOutOfBoundsException("Out of bounds: " + start);
-        // Other checks if needed.
-
-        // May be better to save the streams in the support class;
-        // just like the socket variable.
-        OutputStream out = socket.getOutputStream();
-        DataOutputStream dos = new DataOutputStream(out);
-
-        //dos.writeInt(len);
-        if(len > 0)
-        {
-            dos.write(myByteArray);
-        }
-        dos.flush();
-    }
-
-    private byte[] receiveBytes(Socket socket) throws IOException
-    {
-        InputStream inputStream = socket.getInputStream();
-        DataInputStream dataInputStream = new DataInputStream(inputStream);
-        final byte[] b = new byte[1024];
-        dataInputStream.read(b);
-        return b;
-    }
-
-    /**
-     * @param array array of bytes to be parsed
-     *
-     * @return parsed {@link JSONObject}
-     * @throws JSONException
-     */
-    private JSONObject jsonFromByteArr(byte[] array) throws JSONException
-    {
-        return new JSONObject(new String(array, Charset.defaultCharset()).trim());
-    }
 
     public void setConnectionListener(ServerConnectionListener listener)
     {
         this.connectionListener = listener;
-    }
-
-    public void setConnectionTimeout(int connectionTimeout)
-    {
-        this.connectionTimeout = connectionTimeout;
-    }
-
-    public void setReceiveTimeout(int receiveTimeout)
-    {
-        this.receiveTimeout = receiveTimeout;
     }
 
     public interface OnStartGameInfoServerListener

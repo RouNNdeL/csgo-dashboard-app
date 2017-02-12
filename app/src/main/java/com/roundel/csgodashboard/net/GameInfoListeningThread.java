@@ -37,7 +37,7 @@ public class GameInfoListeningThread extends Thread implements Runnable
             if(onServerStartedListener != null)
                 onServerStartedListener.onServerStarted(port);
 
-            LogHelper.i(TAG, "Started ServerSocket on port :" + port);
+            LogHelper.i(TAG, "Started ServerSocket on port: " + port);
             while(listen)
             {
                 Socket socket = gameInfoListeningSocket.accept();
