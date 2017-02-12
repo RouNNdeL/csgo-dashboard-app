@@ -17,8 +17,8 @@ import java.net.SocketTimeoutException;
 public class ServerPingingThread extends ServerCommunicationThreadBase
 {
     private static final String TAG = ServerPingingThread.class.getSimpleName();
-    private static final String PING_REQUEST = "CSGO_DASHBOARD_PING_REQUEST";
-    private static final String PING_RESPONSE = "CSGO_DASHBOARD_PING_RESPONSE";
+    private static final String PING_REQUEST = "CSGO_DASHBOARD_PING_REQUEST";       //JSON params: none
+    private static final String PING_RESPONSE = "CSGO_DASHBOARD_PING_RESPONSE";     //JSON params: none
     //<editor-fold desc="private variables">
     private GameServer gameServer;
     private ServerStatusListener listener;

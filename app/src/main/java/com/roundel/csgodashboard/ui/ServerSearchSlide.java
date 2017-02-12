@@ -441,9 +441,12 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                         serverPingingThread.start();
                     }
                 };
+                if(pingingHandler != null)
+                    pingingHandler.cancel(false);
                 pingingHandler = pingingScheduler.scheduleAtFixedRate(threadRunnable, 5, 5, TimeUnit.SECONDS);
             }
         });
+        startGameInfoListener();
     }
 
     private void onConnectionRefused(GameServer gameServer)
@@ -494,7 +497,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 setStatusAllow();
             }
         });
-        startGameInfoListener();
     }
 
     private void startGameInfoListener()
