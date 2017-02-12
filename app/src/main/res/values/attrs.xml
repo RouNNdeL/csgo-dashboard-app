@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MoneyChart">
+        <attr name="lineColor" format="color"/>
+        <attr name="circleColor" format="color"/>
+        <attr name="circleHoleColor" format="color"/>
+        <attr name="circleSize" format="dimension"/>
+        <attr name="circleHoleSize" format="dimension"/>
+        <attr name="lineWidth" format="dimension"/>
+        <attr name="useHole" format="boolean"/>
+        <attr name="autoSizeHole" format="boolean"/>
+        <attr name="halfLineWidth" format="dimension"/>
+        <attr name="halfLineColor" format="color"/>
+        <attr name="showHalfLine" format="boolean"/>
+        <attr name="textSize" format="dimension"/>
+        <attr name="textColor" format="color"/>
+        <attr name="activationArea" format="dimension"/>
+        <attr name="showActivationArea" format="boolean"/>
+        <attr name="selectedCircleColor" format="color"/>
+        <attr name="selectedCircleSize" format="dimension"/>
+    </declare-styleable>
+</resources>

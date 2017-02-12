@@ -21,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -41,7 +40,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 {
     private static final String TAG = GameInfoActivity.class.getSimpleName();
 
-    @BindView(R.id.chart) LineChart mLineChart;
+    //<editor-fold desc="private variables">
+    //@BindView(R.id.chart) LineChart mLineChart;
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
     @BindView(R.id.game_info_bomb) ImageView mBombView;
@@ -50,6 +50,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private ImageView backdrop;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
+//</editor-fold>
 
     public static boolean isInteger(String s, int radix)
     {
@@ -122,9 +123,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         dataSet.setCircleRadius(4);
 
         LineData lineData = new LineData(dataSet);
-        mLineChart.setData(lineData);
+        /*mLineChart.setData(lineData);
         mLineChart.setDrawGridBackground(false);
-        mLineChart.invalidate(); // refresh
+        mLineChart.invalidate(); // refresh*/
 
     }
 
