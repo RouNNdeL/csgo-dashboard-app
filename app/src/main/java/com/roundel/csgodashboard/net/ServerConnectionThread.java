@@ -34,6 +34,7 @@ public class ServerConnectionThread extends Thread implements Runnable
     private static final String CONNECTION_REQUEST = "CSGO_DASHBOARD_CONNECTION_REQUEST";                                           //json params: none
     private static final String CONNECTION_RESPONSE = "CSGO_DASHBOARD_CONNECTION_RESPONSE";                                         //JSON params: none
     private static final String CONNECTION_USER_AGREEMENT = "CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT";                             //JSON params: "user_allowed"
+    //<editor-fold desc="private variables">
     private GameServer gameServer;
     private Socket gameServerSocket;
 
@@ -44,6 +45,7 @@ public class ServerConnectionThread extends Thread implements Runnable
     private ServerConnectionListener connectionListener;
 
     private int gameListeningPort = -1;
+//</editor-fold>
 
 
     /**
@@ -110,11 +112,13 @@ public class ServerConnectionThread extends Thread implements Runnable
                             if(connectionListener != null)
                                 connectionListener.onAccessGranted(gameServer);
                             LogHelper.i(TAG, "Access granted");
+                            gameServerSocket.close();
                         }
                         else
                         {
                             if(connectionListener != null)
                                 connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_GAME_INFO_PORT_RESPONSE");
+                            gameServerSocket.close();
                         }
                     }
                     else if(!response.getBoolean("user_allowed"))
@@ -122,6 +126,7 @@ public class ServerConnectionThread extends Thread implements Runnable
                         if(connectionListener != null)
                             connectionListener.onAccessDenied(gameServer);
                         LogHelper.i(TAG, "Access denied");
+                        gameServerSocket.close();
                     }
                 }
                 else
@@ -129,6 +134,7 @@ public class ServerConnectionThread extends Thread implements Runnable
                     if(connectionListener != null)
                         connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
                     LogHelper.e(TAG, "Didn't send CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT");
+                    gameServerSocket.close();
                 }
             }
             else
@@ -136,6 +142,7 @@ public class ServerConnectionThread extends Thread implements Runnable
                 if(connectionListener != null)
                     connectionListener.onServerNotResponded("Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
                 LogHelper.e(TAG, "Didn't send CSGO_DASHBOARD_CONNECTION_RESPONSE");
+                gameServerSocket.close();
             }
         }
         catch(SocketTimeoutException e)
@@ -150,6 +157,15 @@ public class ServerConnectionThread extends Thread implements Runnable
                 connectionListener.onServerNotResponded("Didn't send a proper JSON");
             LogHelper.e(TAG, e.toString());
             e.printStackTrace();
+
+            try
+            {
+                gameServerSocket.close();
+            }
+            catch(IOException e1)
+            {
+                e1.printStackTrace();
+            }
         }
     }
 

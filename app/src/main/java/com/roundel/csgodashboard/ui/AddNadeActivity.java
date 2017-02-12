@@ -34,6 +34,7 @@ public class AddNadeActivity extends AppCompatActivity
 
     private static int IMAGE_REQUEST_CODE = 1237;
 
+    //<editor-fold desc="private variables">
     @BindView(R.id.add_nade_spinner_grenade) Spinner mGrenadeSpinner;
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
     @BindView(R.id.add_nade_recyclerview_image) RecyclerView mImageRecyclerView;
@@ -47,6 +48,7 @@ public class AddNadeActivity extends AppCompatActivity
     private List<Uri> mImageList = new ArrayList<>();
 
     private RecyclerView.LayoutManager mImageLayoutManager;
+//</editor-fold>
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -64,7 +66,13 @@ public class AddNadeActivity extends AppCompatActivity
         mGrenadeAdapter = new GrenadeAdapter(this, R.layout.list_icon_one_line_no_ripple, R.id.list_text_primary, mGrenadeList);
         mGrenadeSpinner.setAdapter(mGrenadeAdapter);
 
-        //mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
+        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
+        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
+        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
+        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
+        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
+        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
+        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
         //TODO: Find a way to fix the 'GridLayoutManager' and possibly animate height changes
         mImageLayoutManager = new GridLayoutManager(this, 3);
         mImageAdapter = new UtilityImagesAdapter(mImageList, this);

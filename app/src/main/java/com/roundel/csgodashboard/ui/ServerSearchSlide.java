@@ -54,6 +54,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,32 +75,30 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private static final Pattern LOCAL_HOST_PATTERN = Pattern.compile("(^127\\..*)|(^10\\..*)|(^172\\.1[6-9]\\..*)|(^172\\.2[0-9]\\..*)|(^172\\.3[0-1]\\..*)|(^192\\.168\\..*)");
     private static final int PORT_MAX = (1 << 16) - 1;
     private static final int PORT_MIN = 0;
+
+    private final List<GameServer> gameServers = new ArrayList<>();
+    private final ScheduledExecutorService pingingScheduler = Executors.newScheduledThreadPool(1);
+
     //<editor-fold desc="private variables">
     @BindView(R.id.setup_server_connection_container) RelativeLayout mConnectionContainer;
     @BindView(R.id.setup_server_search_manual_connect) LinearLayout mManualConnectButton;
     @BindView(R.id.setup_server_connection_auto) LinearLayout mAutoConnectionContainer;
     @BindView(R.id.setup_server_connection_manual) LinearLayout mManualConnectionContainer;
     @BindView(R.id.setup_server_connection_progress) LinearLayout mConnectionProgressContainer;
-
     /**
      * Button o the bottom of the screen, either used to refresh (auto mode) or connect (manual
      * mode)
      */
     @BindView(R.id.setup_server_back_to_auto) ImageView mBackToAutoButton;
-
     @BindView(R.id.setup_server_manual_host) TextInputEditText mManualHost;
     @BindView(R.id.setup_server_manual_host_wrapper) TextInputLayout mManualHostWrapper;
     @BindView(R.id.setup_server_manual_port) TextInputEditText mManualPort;
     @BindView(R.id.setup_server_manual_port_wrapper) TextInputLayout mManualPortWrapper;
-
     @BindView(R.id.setup_server_connection_status) TextView mConnectionStatus;
-
     @BindView(R.id.setup_server_connection_bar) ProgressBar mConnectionIconProgress;
     @BindView(R.id.setup_server_connection_success) ImageView mConnectionIconSuccess;
     @BindView(R.id.setup_server_connection_failure) ImageView mConnectionIconFailure;
-
     @BindInt(R.integer.default_transition_duration) int defaultTransitionDuration;
-
     private GameServerAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -109,15 +108,11 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private boolean canContinue = false;
     private boolean connectingToServer = false;
     private boolean isInManualMode = false;
-
-    private List<GameServer> gameServers = new ArrayList<>();
     private SlideAction mSlideActionInterface;
     private ServerConnectionInfo mServerConnectionInfoInterface;
     private ViewGroup root;
     private GameServer currentGameServer;
-
-    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    ;
+    private ScheduledFuture<?> pingingHandler;
     //</editor-fold>
 
     public static ServerSearchSlide newInstance(int layoutResId)
@@ -250,6 +245,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         }
     }
 
+    //<editor-fold desc="Main connection methods">
+
     @Override
     public void onSocketOpened()
     {
@@ -270,6 +267,15 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         }
     }
 
+   /* private void autoConnect()
+    {
+        connectingToServer = true;
+
+        setStatusConnecting();
+        animateAutoConnecting();
+      attemptConnection(currentGameServer);
+    }*/
+
     @Override
     public void onSocketClosed()
     {
@@ -289,7 +295,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             e.printStackTrace();
         }
     }
-    //</editor-fold>
 
     @Override
     public boolean isPolicyRespected()
@@ -321,7 +326,12 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         return true;
     }
 
-    //<editor-fold desc="Main connection methods">
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        pingingHandler.cancel(true);
+    }
 
     /**
      * Remember to always set the {@link #currentGameServer} before calling this method
@@ -338,16 +348,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         animateConnecting();
         attemptConnection(currentGameServer);
     }
-
-   /* private void autoConnect()
-    {
-        connectingToServer = true;
-
-        setStatusConnecting();
-        animateAutoConnecting();
-      attemptConnection(currentGameServer);
-    }*/
-    //</editor-fold>
 
     public void attachServerConnectionInfoInterface(ServerConnectionInfo serverConnectionInfo)
     {
@@ -425,8 +425,16 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 setStatusConnectedSuccessfully();
 
                 //TODO: Create separate methods
-                ServerPingingThread serverPingingThread = new ServerPingingThread(gameServer);
-                executorService.scheduleAtFixedRate(serverPingingThread, 0, 5, TimeUnit.SECONDS);
+                Runnable threadRunnable = new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ServerPingingThread serverPingingThread = new ServerPingingThread(gameServer);
+                        serverPingingThread.start();
+                    }
+                };
+                pingingHandler = pingingScheduler.scheduleAtFixedRate(threadRunnable, 5, 5, TimeUnit.SECONDS);
             }
         });
     }
@@ -480,7 +488,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             }
         });
     }
-    //</editor-fold>
 
     //<editor-fold desc="Connecting animation">
     private void animateConnecting()
@@ -508,7 +515,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
         mActionButton.setVisibility(View.VISIBLE);
     }
-    //</editor-fold>
 
     //<editor-fold desc="Change connection mode animation">
     private void animateToManualConnection()
@@ -539,8 +545,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         setTitleSearchingWifi();
     }
 
-    //</editor-fold>
-
     //<editor-fold desc="Status icon changes">
     private void setStatusIconSuccess()
     {
@@ -569,7 +573,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         mConnectionIconSuccess.setVisibility(View.GONE);
         mConnectionIconFailure.setVisibility(View.GONE);
     }
-    //</editor-fold>
 
     //<editor-fold desc="Title modifications">
     private void setTitleInvisible()
@@ -617,6 +620,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
         mTitle.setVisibility(View.VISIBLE);
     }
+    //</editor-fold>
 
     private void setTitleConnecting()
     {
@@ -636,7 +640,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         mTitle.setVisibility(View.VISIBLE);
         mTitle.setText(spannableTitle);
     }
-    //</editor-fold>
 
     //<editor-fold desc="Connection status modifications">
     private void setStatusConnecting()
@@ -658,6 +661,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         mConnectionStatus.setText("Connection denied by the server");
     }
+    //</editor-fold>
 
     private void setStatusAllow()
     {
@@ -676,7 +680,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             mAdapter.notifyDataSetChanged();
         }
     }
-    //</editor-fold>
 
     private boolean validateManualForm()
     {
@@ -753,11 +756,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         return connectingToServer;
     }
 
-    public void updateTitleWifi()
-    {
-        setTitleSearchingWifi();
-    }
-
     /*private void askForBarcodeScan()
     {
         *//*IntentIntegrator integrator = new IntentIntegrator(getActivity());
@@ -773,6 +771,11 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         LogHelper.i(TAG, result);
         Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
     }*/
+
+    public void updateTitleWifi()
+    {
+        setTitleSearchingWifi();
+    }
 
     public void cancelConnectingProcess()
     {

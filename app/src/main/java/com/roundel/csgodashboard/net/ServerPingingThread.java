@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 
 /**
@@ -23,6 +24,7 @@ public class ServerPingingThread extends Thread implements Runnable
     private static final String TAG = ServerPingingThread.class.getSimpleName();
     private static final String PING_REQUEST = "CSGO_DASHBOARD_PING_REQUEST";
     private static final String PING_RESPONSE = "CSGO_DASHBOARD_PING_RESPONSE";
+    //<editor-fold desc="private variables">
     private GameServer gameServer;
     private ServerStatusListener listener;
 
@@ -30,6 +32,7 @@ public class ServerPingingThread extends Thread implements Runnable
 
     private int connectionTimeout = 5000;
     private int receiveTimeout = 5000;
+//</editor-fold>
 
     public ServerPingingThread(GameServer gameServer)
     {
@@ -39,10 +42,12 @@ public class ServerPingingThread extends Thread implements Runnable
     @Override
     public void run()
     {
-        gameServerSocket = new Socket();
+        LogHelper.d(TAG, "Starting the thread");
         try
         {
+            gameServerSocket = new Socket();
             gameServerSocket.connect(new InetSocketAddress(gameServer.getHost(), gameServer.getPort()), connectionTimeout);
+            gameServerSocket.setSoTimeout(receiveTimeout);
 
             JSONObject json = new JSONObject();
             json.put("code", PING_REQUEST);
@@ -54,18 +59,42 @@ public class ServerPingingThread extends Thread implements Runnable
 
             LogHelper.i(TAG, "Got response: " + response.toString());
 
-            if(response.get("code") == PING_RESPONSE)
-                listener.onConnected();
-            else
-                listener.onDisconnected();
+            if(listener != null)
+            {
+                if(response.get("code") == PING_RESPONSE)
+                    listener.onConnected();
+                else
+                    listener.onDisconnected();
+            }
+            gameServerSocket.close();
+        }
+        catch(SocketTimeoutException e)
+        {
+            listener.onDisconnected();
+            LogHelper.e(TAG, e.toString());
+            try
+            {
+                gameServerSocket.close();
+            }
+            catch(IOException ignored)
+            {
+
+            }
         }
         catch(IOException | JSONException e)
         {
             listener.onDisconnected();
             LogHelper.e(TAG, e.toString());
             e.printStackTrace();
-        }
+            try
+            {
+                gameServerSocket.close();
+            }
+            catch(IOException ignored)
+            {
 
+            }
+        }
     }
 
     /**
