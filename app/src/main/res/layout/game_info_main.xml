@@ -364,24 +364,28 @@
 
             <com.roundel.csgodashboard.view.MoneyChart
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:paddingBottom="24dp"
-                android:paddingEnd="24dp"
-                android:paddingStart="24dp"
-                android:paddingTop="24dp"
+                android:layout_height="175dp"
+                android:paddingBottom="16dp"
+                android:paddingEnd="16dp"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
                 app:activationArea="25dp"
                 app:circleColor="@color/greenMoney"
                 app:circleHoleColor="@color/grey900"
-                app:circleSize="6dp"
+                app:circleSize="5dp"
                 app:halfLineColor="@color/colorMaterialLight50"
                 app:halfLineWidth="1.5dp"
                 app:lineColor="@color/greenMoney"
-                app:lineWidth="4dp"
+                app:lineWidth="3dp"
+                app:popupColor="@android:color/white"
+                app:popupCornerRadius="2dp"
                 app:selectedCircleColor="@color/greenMoneyDark"
-                app:selectedCircleSize="10dp"
                 app:showActivationArea="false"
                 app:showHalfLine="true"
-                app:useHole="false"/>
+                app:showHoleSelected="false"
+                app:textColor="@color/colorMaterialDark50"
+                app:textSize="14sp"
+                app:useHole="true"/>
 
         </LinearLayout>
     </android.support.v7.widget.CardView>

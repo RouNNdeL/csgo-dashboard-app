@@ -18,5 +18,8 @@
         <attr name="showActivationArea" format="boolean"/>
         <attr name="selectedCircleColor" format="color"/>
         <attr name="selectedCircleSize" format="dimension"/>
+        <attr name="popupColor" format="color"/>
+        <attr name="showHoleSelected" format="boolean"/>
+        <attr name="popupCornerRadius" format="dimension"/>
     </declare-styleable>
 </resources>
