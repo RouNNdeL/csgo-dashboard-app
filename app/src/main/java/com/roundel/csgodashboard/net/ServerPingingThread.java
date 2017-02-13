@@ -34,7 +34,6 @@ public class ServerPingingThread extends ServerCommunicationThreadBase
     @Override
     public void run()
     {
-        LogHelper.d(TAG, "Starting the thread");
         try
         {
             gameServerSocket = new Socket();
@@ -44,12 +43,9 @@ public class ServerPingingThread extends ServerCommunicationThreadBase
             JSONObject json = new JSONObject();
             json.put("code", PING_REQUEST);
 
-            LogHelper.i(TAG, "Sending ping request: " + json.toString());
             sendJSON(gameServerSocket, json);
 
             JSONObject response = receiveJSON(gameServerSocket);
-
-            LogHelper.i(TAG, "Got response: " + response.toString());
 
             if(listener != null)
             {

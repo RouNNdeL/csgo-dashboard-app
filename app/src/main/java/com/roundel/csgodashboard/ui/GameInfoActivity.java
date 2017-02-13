@@ -21,66 +21,50 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.roundel.csgodashboard.R;
+import com.roundel.csgodashboard.entities.GameServer;
+import com.roundel.csgodashboard.entities.GameState;
+import com.roundel.csgodashboard.net.GameInfoListeningThread;
+import com.roundel.csgodashboard.net.ServerGameInfoPortThread;
+import com.roundel.csgodashboard.net.ServerPingingThread;
+import com.roundel.csgodashboard.util.LogHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener
+public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener
 {
     private static final String TAG = GameInfoActivity.class.getSimpleName();
-
-    //<editor-fold desc="private variables">
+    public static final String EXTRA_GAME_SERVER_HOST = "EXTRA_GAME_SERVER_HOST";
+    public static final String EXTRA_GAME_SERVER_NAME = "EXTRA_GAME_SERVER_NAME";
+    public static final String EXTRA_GAME_SERVER_PORT = "EXTRA_GAME_SERVER_PORT";
+    private final ScheduledExecutorService pingingScheduler = Executors.newScheduledThreadPool(1);
     //@BindView(R.id.chart) LineChart mLineChart;
+    //<editor-fold desc="private variables">
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
     @BindView(R.id.game_info_bomb) ImageView mBombView;
     @BindView(R.id.game_info_section_round) LinearLayout mSectionRoundInfo;
+    @BindView(R.id.game_info_score_home) TextView mScoreHome;
+    @BindView(R.id.game_info_score_away) TextView mScoreAway;
     private TextView text;
     private ImageView backdrop;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
-//</editor-fold>
+    private GameState gameState;
+    private GameServer gameServer;
+    private ScheduledFuture<?> pingingHandler;
 
-    public static boolean isInteger(String s, int radix)
-    {
-        if(s.isEmpty()) return false;
-        for(int i = 0; i < s.length(); i++)
-        {
-            if(i == 0 && s.charAt(i) == '-')
-            {
-                if(s.length() == 1) return false;
-                else continue;
-            }
-            if(Character.digit(s.charAt(i), radix) < 0) return false;
-        }
-        return true;
-    }
-
-    public static JSONObject merge(JSONObject... params) throws JSONException
-    {
-        JSONObject merged = new JSONObject();
-        for(JSONObject obj : params)
-        {
-            Iterator it = obj.keys();
-            while(it.hasNext())
-            {
-                String key = (String) it.next();
-                merged.put(key, obj.get(key));
-            }
-        }
-        return merged;
-    }
+    //</editor-fold>
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -110,24 +94,21 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.viewLogs).setOnClickListener(this);
         findViewById(R.id.testAddNade).setOnClickListener(this);
 
-        List<Entry> entries = new ArrayList<>();
-        entries.add(new Entry(1, 800));
-        entries.add(new Entry(2, 3400));
-        entries.add(new Entry(3, 2000));
-
-        LineDataSet dataSet = new LineDataSet(entries, "Money"); // add entries to dataset
-        dataSet.setColor(getColor(R.color.greenMoney));
-        dataSet.setCircleColor(getColor(R.color.greenMoney));
-        dataSet.setCircleColorHole(getColor(R.color.grey900));
-        dataSet.setLineWidth(2.5f);
-        dataSet.setCircleRadius(4);
-
-        LineData lineData = new LineData(dataSet);
-        /*mLineChart.setData(lineData);
-        mLineChart.setDrawGridBackground(false);
-        mLineChart.invalidate(); // refresh*/
-
+        final Intent intent = getIntent();
+        if(intent.hasExtra(EXTRA_GAME_SERVER_NAME) &&
+                intent.hasExtra(EXTRA_GAME_SERVER_HOST) &&
+                intent.hasExtra(EXTRA_GAME_SERVER_PORT))
+        {
+            gameServer = new GameServer(
+                    intent.getStringExtra(EXTRA_GAME_SERVER_NAME),
+                    intent.getStringExtra(EXTRA_GAME_SERVER_HOST),
+                    intent.getIntExtra(EXTRA_GAME_SERVER_PORT, -1)
+            );
+            startGameInfoListener();
+            startPinging();
+        }
     }
+
 
     @Override
     public void onClick(View v)
@@ -210,4 +191,86 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
         }
     }
+
+    @Override
+    public void onDataReceived(String data)
+    {
+        try
+        {
+            if(gameState == null)
+                gameState = GameState.fromJSON(new JSONObject(data));
+            else
+                gameState.update(new JSONObject(data));
+            LogHelper.d(TAG, "Updated gameState: " + gameState.toString());
+            updateViews();
+        }
+        catch(JSONException e)
+        {
+            LogHelper.e(TAG, e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        if(pingingHandler != null)
+            pingingHandler.cancel(true);
+    }
+
+    private void startGameInfoListener()
+    {
+        GameInfoListeningThread listeningThread = new GameInfoListeningThread();
+        listeningThread.setOnServerStartedListener(new GameInfoListeningThread.OnServerStartedListener()
+        {
+            @Override
+            public void onServerStarted(int port)
+            {
+                sendPortToGameServer(port);
+            }
+        });
+        listeningThread.setOnDataListener(this);
+        listeningThread.start();
+    }
+
+    private void startPinging()
+    {
+        Runnable threadRunnable = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                ServerPingingThread serverPingingThread = new ServerPingingThread(gameServer);
+                serverPingingThread.start();
+            }
+        };
+        if(pingingHandler != null)
+            pingingHandler.cancel(false);
+        pingingHandler = pingingScheduler.scheduleAtFixedRate(threadRunnable, 5, 5, TimeUnit.SECONDS);
+    }
+
+    private void sendPortToGameServer(int port)
+    {
+        ServerGameInfoPortThread portThread = new ServerGameInfoPortThread(gameServer, port);
+        portThread.start();
+    }
+
+    private void updateViews()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if(gameState == null)
+                    return;
+                mRoundNumber.setText(String.format(Locale.getDefault(), "Round %d", gameState.getRound()));
+                mScoreHome.setText(Integer.toString(gameState.getScoreHome()));
+                mScoreAway.setText(Integer.toString(gameState.getScoreAway()));
+            }
+        });
+    }
+
+
 }

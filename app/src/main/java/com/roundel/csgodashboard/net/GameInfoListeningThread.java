@@ -21,6 +21,7 @@ public class GameInfoListeningThread extends Thread implements Runnable
     private boolean listen = true;
 
     private OnServerStartedListener onServerStartedListener;
+    private OnDataListener onDataListener;
     //</editor-fold>
 
     public GameInfoListeningThread()
@@ -54,6 +55,8 @@ public class GameInfoListeningThread extends Thread implements Runnable
 
                 String data = stringBuilder.toString();
                 LogHelper.i(TAG, "Received data: " + data);
+                if(onDataListener != null)
+                    onDataListener.onDataReceived(data);
             }
         }
         catch(IOException e)
@@ -73,8 +76,18 @@ public class GameInfoListeningThread extends Thread implements Runnable
         this.onServerStartedListener = onServerStartedListener;
     }
 
+    public void setOnDataListener(OnDataListener onDataListener)
+    {
+        this.onDataListener = onDataListener;
+    }
+
     public interface OnServerStartedListener
     {
         void onServerStarted(int port);
+    }
+
+    public interface OnDataListener
+    {
+        void onDataReceived(String data);
     }
 }

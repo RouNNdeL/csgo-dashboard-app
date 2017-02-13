@@ -2,6 +2,7 @@ package com.roundel.csgodashboard.ui;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -41,11 +42,8 @@ import com.github.paolorotolo.appintro.ISlidePolicy;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.SlideAction;
 import com.roundel.csgodashboard.entities.GameServer;
-import com.roundel.csgodashboard.net.GameInfoListeningThread;
 import com.roundel.csgodashboard.net.ServerConnectionThread;
 import com.roundel.csgodashboard.net.ServerDiscoveryThread;
-import com.roundel.csgodashboard.net.ServerGameInfoPortThread;
-import com.roundel.csgodashboard.net.ServerPingingThread;
 import com.roundel.csgodashboard.recyclerview.GameServerAdapter;
 import com.roundel.csgodashboard.util.LogHelper;
 import com.transitionseverywhere.extra.Scale;
@@ -54,10 +52,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,7 +73,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private static final int PORT_MIN = 0;
 
     private final List<GameServer> gameServers = new ArrayList<>();
-    private final ScheduledExecutorService pingingScheduler = Executors.newScheduledThreadPool(1);
 
     //<editor-fold desc="private variables">
     @BindView(R.id.setup_server_connection_container) RelativeLayout mConnectionContainer;
@@ -116,7 +109,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private ServerConnectionInfo mServerConnectionInfoInterface;
     private ViewGroup root;
     private GameServer currentGameServer;
-    private ScheduledFuture<?> pingingHandler;
     //</editor-fold>
 
     public static ServerSearchSlide newInstance(int layoutResId)
@@ -332,14 +324,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         return true;
     }
 
-    @Override
-    public void onStop()
-    {
-        super.onStop();
-        if(pingingHandler != null)
-            pingingHandler.cancel(true);
-    }
-
     /**
      * Remember to always set the {@link #currentGameServer} before calling this method
      */
@@ -432,21 +416,13 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 setStatusConnectedSuccessfully();
 
                 //TODO: Create separate methods
-                Runnable threadRunnable = new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        ServerPingingThread serverPingingThread = new ServerPingingThread(gameServer);
-                        serverPingingThread.start();
-                    }
-                };
-                if(pingingHandler != null)
-                    pingingHandler.cancel(false);
-                pingingHandler = pingingScheduler.scheduleAtFixedRate(threadRunnable, 5, 5, TimeUnit.SECONDS);
             }
         });
-        startGameInfoListener();
+        Intent intent = new Intent(getContext(), GameInfoActivity.class);
+        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_NAME, gameServer.getName());
+        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_HOST, gameServer.getHost());
+        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_PORT, gameServer.getPort());
+        getContext().startActivity(intent);
     }
 
     private void onConnectionRefused(GameServer gameServer)
@@ -497,26 +473,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 setStatusAllow();
             }
         });
-    }
-
-    private void startGameInfoListener()
-    {
-        GameInfoListeningThread listeningThread = new GameInfoListeningThread();
-        listeningThread.setOnServerStartedListener(new GameInfoListeningThread.OnServerStartedListener()
-        {
-            @Override
-            public void onServerStarted(int port)
-            {
-                sendPortToGameServer(port);
-            }
-        });
-        listeningThread.start();
-    }
-
-    private void sendPortToGameServer(int port)
-    {
-        ServerGameInfoPortThread portThread = new ServerGameInfoPortThread(currentGameServer, port);
-        portThread.start();
     }
 
     //<editor-fold desc="Connecting animation">
