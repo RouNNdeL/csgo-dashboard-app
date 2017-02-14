@@ -1,6 +1,7 @@
 package com.roundel.csgodashboard.entities;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Krzysiek on 2017-02-12.
@@ -10,8 +11,8 @@ public class MoneyInfo extends ArrayList<MoneyInfo.Entry>
     private static final String TAG = MoneyInfo.class.getSimpleName();
 
     //<editor-fold desc="private variables">
-    private int mHalfGameRound = Integer.MAX_VALUE;
-//</editor-fold>
+    private List<Integer> mHalfGameRounds = new ArrayList<>();
+    //</editor-fold>
 
     @Override
     public boolean add(Entry entry)
@@ -47,14 +48,14 @@ public class MoneyInfo extends ArrayList<MoneyInfo.Entry>
         return max;
     }
 
-    public int getHalfGameRound()
+    public List<Integer> getHalfGameRounds()
     {
-        return mHalfGameRound;
+        return mHalfGameRounds;
     }
 
-    public void setHalfGameRound(int halfGameRound)
+    public void addHalfGameRound(int halfGameRound)
     {
-        this.mHalfGameRound = halfGameRound;
+        mHalfGameRounds.add(halfGameRound);
     }
 
     private boolean hasRound(int round)

@@ -167,8 +167,22 @@ public class GameState
         JSONObject home = team == Team.T ? map.getJSONObject("team_t") : map.getJSONObject("team_ct");
         JSONObject away = team == Team.T ? map.getJSONObject("team_ct") : map.getJSONObject("team_t");
 
-        this.nameHome = home.getString("name");
-        this.nameAway = away.getString("name");
+        try
+        {
+            this.nameHome = home.getString("name");
+        }
+        catch(JSONException e)
+        {
+            this.nameHome = null;
+        }
+        try
+        {
+            this.nameAway = away.getString("name");
+        }
+        catch(JSONException e)
+        {
+            this.nameAway = null;
+        }
 
         this.scoreHome = home.getInt("score");
         this.scoreAway = away.getInt("score");

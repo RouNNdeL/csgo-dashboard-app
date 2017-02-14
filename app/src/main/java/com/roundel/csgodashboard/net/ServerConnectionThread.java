@@ -31,7 +31,6 @@ public class ServerConnectionThread extends ServerCommunicationThreadBase
     private static final String CONNECTION_USER_AGREEMENT = "CSGO_DASHBOARD_CONNECTION_USER_AGREEMENT";                             //JSON params: "user_allowed"
     //<editor-fold desc="private variables">
     private GameServer gameServer;
-    private Socket gameServerSocket;
 
     private int userResponseTimeout = 90000;
 

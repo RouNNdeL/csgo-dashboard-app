@@ -26,8 +26,7 @@ public class ServerGameInfoPortThread extends ServerCommunicationThreadBase
     //<editor-fold desc="private variables">
     private GameServer gameServer;
     private int port;
-    private Socket gameServerSocket;
-//</editor-fold>
+    //</editor-fold>
 
     public ServerGameInfoPortThread(GameServer gameServer, int port)
     {

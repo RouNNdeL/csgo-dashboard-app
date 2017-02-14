@@ -23,7 +23,8 @@ class ServerCommunicationThreadBase extends Thread
     //<editor-fold desc="private variables">
     int connectionTimeout = 5000;
     int receiveTimeout = 5000;
-//</editor-fold>
+    Socket gameServerSocket;
+    //</editor-fold>
 
     void sendJSON(Socket socket, JSONObject json) throws IOException
     {
@@ -110,5 +111,17 @@ class ServerCommunicationThreadBase extends Thread
     public void setReceiveTimeout(int receiveTimeout)
     {
         this.receiveTimeout = receiveTimeout;
+    }
+
+    public void stopThread()
+    {
+        try
+        {
+            gameServerSocket.close();
+        }
+        catch(IOException ignored)
+        {
+
+        }
     }
 }

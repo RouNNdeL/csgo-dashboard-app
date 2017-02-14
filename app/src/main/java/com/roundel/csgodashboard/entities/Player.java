@@ -30,10 +30,11 @@ public class Player
     private int score;
 
     private Activity activity;
+    private android.app.Activity activity1;
     //</editor-fold>
 
 
-    public Player(String name, String steamId, boolean hasHelmet, int health, int armor, int round_kills, int round_kills_hs, int money, int kills, int assists, int deaths, int mvp, int score, Activity activity)
+    private Player(String name, String steamId, boolean hasHelmet, int health, int armor, int round_kills, int round_kills_hs, int money, int kills, int assists, int deaths, int mvp, int score, Activity activity)
     {
         this.name = name;
         this.steamId = steamId;
@@ -64,22 +65,9 @@ public class Player
         return new Player(null, null, true, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Activity.PLAYING);
     }
 
-    private void update(String name, String steamId, boolean hasHelmet, int health, int armor, int round_kills, int round_kills_hs, int money, int kills, int assists, int deaths, int mvp, int score, Activity activity)
+    private void update(JSONObject jsonObject) throws JSONException
     {
-        this.name = name;
-        this.steamId = steamId;
-        this.hasHelmet = hasHelmet;
-        this.health = health;
-        this.armor = armor;
-        this.round_kills = round_kills;
-        this.round_kills_hs = round_kills_hs;
-        this.money = money;
-        this.kills = kills;
-        this.assists = assists;
-        this.deaths = deaths;
-        this.mvp = mvp;
-        this.score = score;
-        this.activity = activity;
+
     }
 
     /**

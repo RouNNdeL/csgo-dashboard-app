@@ -23,6 +23,12 @@
 
     <style name="TextAppearance" parent="TextAppearance.AppCompat"/>
 
+    <style name="TextAppearance.ArmorHealthValues" parent="TextAppearance">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textAlignment">gravity</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
     <style name="TextAppearance.ListSubHeader" parent="TextAppearance">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/colorMaterialLight50</item>

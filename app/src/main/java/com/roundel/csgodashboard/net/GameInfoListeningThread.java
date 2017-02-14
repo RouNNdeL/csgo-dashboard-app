@@ -17,7 +17,7 @@ public class GameInfoListeningThread extends Thread implements Runnable
 
     //<editor-fold desc="private variables">
     private int port;
-    private ServerSocket gameInfoListeningSocket;
+    private ServerSocket serverSocket;
     private boolean listen = true;
 
     private OnServerStartedListener onServerStartedListener;
@@ -33,8 +33,8 @@ public class GameInfoListeningThread extends Thread implements Runnable
     {
         try
         {
-            gameInfoListeningSocket = new ServerSocket(0);
-            port = gameInfoListeningSocket.getLocalPort();
+            serverSocket = new ServerSocket(0);
+            port = serverSocket.getLocalPort();
 
             if(onServerStartedListener != null)
                 onServerStartedListener.onServerStarted(port);
@@ -42,7 +42,7 @@ public class GameInfoListeningThread extends Thread implements Runnable
             LogHelper.i(TAG, "Started ServerSocket on port: " + port);
             while(listen)
             {
-                Socket socket = gameInfoListeningSocket.accept();
+                Socket socket = serverSocket.accept();
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 StringBuilder stringBuilder = new StringBuilder();
@@ -69,6 +69,15 @@ public class GameInfoListeningThread extends Thread implements Runnable
     public void stopListening()
     {
         this.listen = false;
+        try
+        {
+            if(serverSocket != null)
+                serverSocket.close();
+        }
+        catch(IOException ignored)
+        {
+
+        }
     }
 
     public void setOnServerStartedListener(OnServerStartedListener onServerStartedListener)

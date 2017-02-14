@@ -28,6 +28,7 @@ import com.roundel.csgodashboard.net.GameInfoListeningThread;
 import com.roundel.csgodashboard.net.ServerGameInfoPortThread;
 import com.roundel.csgodashboard.net.ServerPingingThread;
 import com.roundel.csgodashboard.util.LogHelper;
+import com.roundel.csgodashboard.view.ValueFillingIcon;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,6 +57,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.game_info_section_round) LinearLayout mSectionRoundInfo;
     @BindView(R.id.game_info_score_home) TextView mScoreHome;
     @BindView(R.id.game_info_score_away) TextView mScoreAway;
+    @BindView(R.id.game_info_health_icon) ValueFillingIcon mHealthIcon;
+    @BindView(R.id.game_info_armor_icon) ValueFillingIcon mArmorIcon;
     private TextView text;
     private ImageView backdrop;
     private Toolbar toolbar;
@@ -63,6 +66,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private GameState gameState;
     private GameServer gameServer;
     private ScheduledFuture<?> pingingHandler;
+    private GameInfoListeningThread mGameInfoServerThread;
 
     //</editor-fold>
 
@@ -94,6 +98,15 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.viewLogs).setOnClickListener(this);
         findViewById(R.id.testAddNade).setOnClickListener(this);
 
+        mHealthIcon.setFillValue(1.0f);
+        mArmorIcon.setFillValue(0.87f);
+
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
         final Intent intent = getIntent();
         if(intent.hasExtra(EXTRA_GAME_SERVER_NAME) &&
                 intent.hasExtra(EXTRA_GAME_SERVER_HOST) &&
@@ -106,9 +119,25 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             );
             startGameInfoListener();
             startPinging();
+
         }
     }
 
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        if(pingingHandler != null)
+        {
+            pingingHandler.cancel(true);
+            LogHelper.i(TAG, "Stopping the pingingHandler");
+        }
+        if(mGameInfoServerThread != null)
+        {
+            mGameInfoServerThread.stopListening();
+            LogHelper.i(TAG, "Stopping the GameInfoListeningThread");
+        }
+    }
 
     @Override
     public void onClick(View v)
@@ -211,18 +240,10 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    @Override
-    public void onStop()
-    {
-        super.onStop();
-        if(pingingHandler != null)
-            pingingHandler.cancel(true);
-    }
-
     private void startGameInfoListener()
     {
-        GameInfoListeningThread listeningThread = new GameInfoListeningThread();
-        listeningThread.setOnServerStartedListener(new GameInfoListeningThread.OnServerStartedListener()
+        mGameInfoServerThread = new GameInfoListeningThread();
+        mGameInfoServerThread.setOnServerStartedListener(new GameInfoListeningThread.OnServerStartedListener()
         {
             @Override
             public void onServerStarted(int port)
@@ -230,8 +251,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
                 sendPortToGameServer(port);
             }
         });
-        listeningThread.setOnDataListener(this);
-        listeningThread.start();
+        mGameInfoServerThread.setOnDataListener(this);
+        mGameInfoServerThread.start();
+        LogHelper.i(TAG, "Starting the GameInfoListeningThread");
     }
 
     private void startPinging()
@@ -248,6 +270,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         if(pingingHandler != null)
             pingingHandler.cancel(false);
         pingingHandler = pingingScheduler.scheduleAtFixedRate(threadRunnable, 5, 5, TimeUnit.SECONDS);
+        LogHelper.i(TAG, "Scheduled the pingingHandler for 5s");
     }
 
     private void sendPortToGameServer(int port)
