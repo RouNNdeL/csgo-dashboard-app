@@ -11,7 +11,7 @@ public class GameServer
     private String name;
     private String host;
     private int port;
-//</editor-fold>
+    //</editor-fold>
 
     public GameServer(String name, String host, int port)
     {
@@ -43,5 +43,10 @@ public class GameServer
     public int getPort()
     {
         return port;
+    }
+
+    public void setPort(int port)
+    {
+        this.port = port;
     }
 }

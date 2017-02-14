@@ -350,6 +350,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         for(GameServer gameServer : gameServers)
         {
             if(Objects.equals(gameServer.getHost(), server.getHost()))
+                gameServer.setPort(server.getPort());
                 return;
         }
         gameServers.add(server);
