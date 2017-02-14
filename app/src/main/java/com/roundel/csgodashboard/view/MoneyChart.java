@@ -212,13 +212,14 @@ public class MoneyChart extends View
         mDebugPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mDebugPaint.setColor(getContext().getColor(R.color.redFailure));
         mDebugPaint.setStyle(Paint.Style.STROKE);
-        mDebugPaint.setStrokeWidth(4);
+        mDebugPaint.setStrokeWidth(10);
 
 
         this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         this.setClickable(true);
 
-        init();
+        if(isInEditMode())
+            preview();
     }
 
     @Override
@@ -231,7 +232,7 @@ public class MoneyChart extends View
         float previousY = -1;
         for(MoneyInfo.Entry entry : values)
         {
-            if(previousX != -1 && previousY != -1 && entry.getRound() != values.getHalfGameRound() + 1)
+            if(previousX != -1 && previousY != -1 && !values.getHalfGameRounds().contains(entry.getRound() - 1))
                 canvas.drawLine(previousX, previousY, entry.getX(), entry.getY(), mLinePaint);
 
             previousX = entry.getX();
@@ -267,11 +268,11 @@ public class MoneyChart extends View
 
 
         //Half game line
-        if(values.size() > values.getHalfGameRound() && mShowHalfLine)
+        for(int halfRound : values.getHalfGameRounds())
             canvas.drawLine(
-                    ((values.getHalfGameRound() - 0.5f) * scaleX + mGraphBounds.left),
+                    ((halfRound - 0.5f) * scaleX + mGraphBounds.left),
                     mViewBounds.top,
-                    ((values.getHalfGameRound() - 0.5f) * scaleX + mGraphBounds.left),
+                    ((halfRound - 0.5f) * scaleX + mGraphBounds.left),
                     mViewBounds.bottom,
                     mLineHalfPaint
             );
@@ -354,7 +355,8 @@ public class MoneyChart extends View
             entry.setY(getCenterY(entry.getMoney()));
         }
 
-        selectedEntry = values.get((int) (Math.random() * values.size()));
+        if(values.size() > 0 && isInEditMode())
+            selectedEntry = values.get((int) (Math.random() * values.size()));
     }
 
     private float getCenterX(int round)
@@ -493,7 +495,7 @@ public class MoneyChart extends View
         source.bottom += y;
     }
 
-    private void init()
+    private void preview()
     {
         values.add(new MoneyInfo.Entry(1, 800));
         values.add(new MoneyInfo.Entry(2, 2400));
@@ -525,12 +527,16 @@ public class MoneyChart extends View
         values.add(new MoneyInfo.Entry(28, 12312));
         values.add(new MoneyInfo.Entry(29, 13233));
         values.add(new MoneyInfo.Entry(30, 8248));
-        values.add(new MoneyInfo.Entry(31, 2834));
-        values.add(new MoneyInfo.Entry(32, 1238));
-        values.add(new MoneyInfo.Entry(33, 1773));
-        values.add(new MoneyInfo.Entry(34, 2344));
+        values.add(new MoneyInfo.Entry(31, 16000));
+        values.add(new MoneyInfo.Entry(32, 11000));
+        values.add(new MoneyInfo.Entry(33, 4600));
+        values.add(new MoneyInfo.Entry(34, 6000));
         values.add(new MoneyInfo.Entry(35, 6845));
+        values.add(new MoneyInfo.Entry(36, 16000));
+        values.add(new MoneyInfo.Entry(37, 12700));
 
-        values.setHalfGameRound(15);
+        values.addHalfGameRound(15);
+        values.addHalfGameRound(30);
+        values.addHalfGameRound(35);
     }
 }

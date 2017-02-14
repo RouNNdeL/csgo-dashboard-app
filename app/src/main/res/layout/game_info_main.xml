@@ -22,6 +22,7 @@
             android:id="@+id/game_info_scores"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:paddingBottom="16dp"
             android:paddingTop="16dp">
@@ -167,6 +168,7 @@
             android:id="@+id/game_info_stats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:paddingBottom="@dimen/game_info_stats_card_padding"
             android:paddingTop="@dimen/game_info_stats_card_padding">
@@ -282,61 +284,68 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="2dp"
-        android:visibility="gone"
         app:cardBackgroundColor="@color/grey900"
         app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:baselineAligned="false">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:orientation="vertical"
                 android:paddingBottom="24dp"
                 android:paddingTop="24dp">
 
-                <ImageView
+                <com.roundel.csgodashboard.view.FillingIcon
+                    android:id="@+id/game_info_health_icon"
                     android:layout_width="match_parent"
-                    android:layout_height="96dp"
-                    android:src="@drawable/health_2dp"/>
+                    android:layout_height="150dp"
+                    android:padding="8dp"
+                    app:backgroundColor="@color/colorMaterialLight12"
+                    app:pathData="@string/path_data_health"
+                    app:strokeWidth="4dp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
                     android:gravity="center"
                     android:text="100"
-                    android:textAlignment="gravity"
-                    android:textColor="@android:color/white"
-                    android:textSize="28sp"/>
-
-            </RelativeLayout>
+                    android:textAppearance="@style/TextAppearance.ArmorHealthValues"/>
 
 
-            <RelativeLayout
+            </LinearLayout>
+
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:orientation="vertical"
                 android:paddingBottom="24dp"
                 android:paddingTop="24dp">
 
-                <ImageView
+                <com.roundel.csgodashboard.view.FillingIcon
+                    android:id="@+id/game_info_armor_icon"
                     android:layout_width="match_parent"
-                    android:layout_height="96dp"
-                    android:src="@drawable/armor_2dp"/>
+                    android:layout_height="150dp"
+                    android:padding="8dp"
+                    app:backgroundColor="@color/colorMaterialLight12"
+                    app:direction="bottom_top"
+                    app:pathData="@string/path_data_armor"
+                    app:strokeWidth="4dp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:text="97"
-                    android:textAlignment="gravity"
-                    android:textColor="@android:color/white"
-                    android:textSize="28sp"/>
-            </RelativeLayout>
+                    android:text="87"
+                    android:textAppearance="@style/TextAppearance.ArmorHealthValues"/>
+
+            </LinearLayout>
 
         </LinearLayout>
     </android.support.v7.widget.CardView>
@@ -374,7 +383,7 @@
                 app:circleHoleColor="@color/grey900"
                 app:circleSize="5dp"
                 app:halfLineColor="@color/colorMaterialLight50"
-                app:halfLineWidth="1.5dp"
+                app:halfLineWidth="1dp"
                 app:lineColor="@color/greenMoney"
                 app:lineWidth="3dp"
                 app:popupColor="@android:color/white"
@@ -413,5 +422,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Test AddNadeActivity"/>
+
 
 </LinearLayout>

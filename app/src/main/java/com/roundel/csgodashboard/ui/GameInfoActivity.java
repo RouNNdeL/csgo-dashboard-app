@@ -28,7 +28,7 @@ import com.roundel.csgodashboard.net.GameInfoListeningThread;
 import com.roundel.csgodashboard.net.ServerGameInfoPortThread;
 import com.roundel.csgodashboard.net.ServerPingingThread;
 import com.roundel.csgodashboard.util.LogHelper;
-import com.roundel.csgodashboard.view.ValueFillingIcon;
+import com.roundel.csgodashboard.view.FillingIcon;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,8 +57,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.game_info_section_round) LinearLayout mSectionRoundInfo;
     @BindView(R.id.game_info_score_home) TextView mScoreHome;
     @BindView(R.id.game_info_score_away) TextView mScoreAway;
-    @BindView(R.id.game_info_health_icon) ValueFillingIcon mHealthIcon;
-    @BindView(R.id.game_info_armor_icon) ValueFillingIcon mArmorIcon;
+    @BindView(R.id.game_info_health_icon) FillingIcon mHealthIcon;
+    @BindView(R.id.game_info_armor_icon) FillingIcon mArmorIcon;
     private TextView text;
     private ImageView backdrop;
     private Toolbar toolbar;

@@ -16,6 +16,7 @@
     <color name="colorMaterialDark70">#B3000000</color>
     <color name="colorMaterialDark87">#DE000000</color>
 
+    <color name="colorMaterialLight12">#1FFFFFFF</color>
     <color name="colorMaterialLight50">#80FFFFFF</color>
     <color name="colorMaterialLight54">#A8FFFFFF</color>
     <color name="colorMaterialLight70">#B3FFFFFF</color>
