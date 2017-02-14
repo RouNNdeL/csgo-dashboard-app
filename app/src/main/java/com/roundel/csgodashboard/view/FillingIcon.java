@@ -224,7 +224,7 @@ public class FillingIcon extends View
     public void setFillValue(float fillValue)
     {
         if(fillValue > 1 || fillValue < 0)
-            throw new IllegalArgumentException("The fillValue has to be between 0 and 1");
+            throw new IllegalArgumentException("The fillValue has to be between 0 and 1, was " + fillValue);
 
         if(mAnimateValueChanges)
         {

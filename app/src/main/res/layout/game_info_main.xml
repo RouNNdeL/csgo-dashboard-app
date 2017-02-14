@@ -58,7 +58,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="T"
+                    android:text="@string/game_info_side_t"
                     android:textAppearance="@style/TextAppearance.Side"
                     android:textColor="@color/yellowT"/>
 
@@ -138,7 +138,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="CT"
+                    android:text="@string/game_info_side_ct"
                     android:textAppearance="@style/TextAppearance.Side"
                     android:textColor="@color/blueCT"/>
 
@@ -180,6 +180,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/game_info_stats_kills"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/game_info_stats_gap"
@@ -204,6 +205,7 @@
 
 
                 <TextView
+                    android:id="@+id/game_info_stats_assists"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/game_info_stats_gap"
@@ -228,6 +230,7 @@
 
 
                 <TextView
+                    android:id="@+id/game_info_stats_deaths"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/game_info_stats_gap"
@@ -251,6 +254,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/game_info_stats_kdr"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/game_info_stats_gap"
@@ -306,10 +310,12 @@
                     android:layout_height="150dp"
                     android:padding="8dp"
                     app:backgroundColor="@color/colorMaterialLight12"
+                    app:direction="bottom_top"
                     app:pathData="@string/path_data_health"
                     app:strokeWidth="4dp"/>
 
                 <TextView
+                    android:id="@+id/game_info_health_stats"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -339,6 +345,7 @@
                     app:strokeWidth="4dp"/>
 
                 <TextView
+                    android:id="@+id/game_info_armor_stats"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"

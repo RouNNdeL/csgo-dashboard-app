@@ -33,12 +33,14 @@ import com.roundel.csgodashboard.view.FillingIcon;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -57,8 +59,20 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.game_info_section_round) LinearLayout mSectionRoundInfo;
     @BindView(R.id.game_info_score_home) TextView mScoreHome;
     @BindView(R.id.game_info_score_away) TextView mScoreAway;
+    @BindView(R.id.game_info_side_home) TextView mSideHome;
+    @BindView(R.id.game_info_side_away) TextView mSideAway;
     @BindView(R.id.game_info_health_icon) FillingIcon mHealthIcon;
     @BindView(R.id.game_info_armor_icon) FillingIcon mArmorIcon;
+    @BindView(R.id.game_info_stats_kills) TextView mStatsKills;
+    @BindView(R.id.game_info_stats_assists) TextView mStatsAssists;
+    @BindView(R.id.game_info_stats_deaths) TextView mStatsDeaths;
+    @BindView(R.id.game_info_stats_kdr) TextView mStatsKDR;
+    @BindView(R.id.game_info_health_stats) TextView mHealthStats;
+    @BindView(R.id.game_info_armor_stats) TextView mArmorStats;
+
+    @BindColor(R.color.yellowT) int mColorYellowT;
+    @BindColor(R.color.blueCT) int mColorBlueCT;
+
     private TextView text;
     private ImageView backdrop;
     private Toolbar toolbar;
@@ -67,7 +81,6 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private GameServer gameServer;
     private ScheduledFuture<?> pingingHandler;
     private GameInfoListeningThread mGameInfoServerThread;
-
     //</editor-fold>
 
     @Override
@@ -279,6 +292,65 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         portThread.start();
     }
 
+    private void updateTeam()
+    {
+        if(gameState != null && gameState.getPlayer() != null && gameState.getPlayer().getTeam() != null)
+        {
+            if(gameState.getPlayer().getTeam() == GameState.Team.T)
+            {
+                mSideHome.setText(getString(R.string.game_info_side_t));
+                mSideHome.setTextColor(mColorYellowT);
+
+                mSideAway.setText(getString(R.string.game_info_side_ct));
+                mSideAway.setTextColor(mColorBlueCT);
+            }
+            else
+            {
+                mSideHome.setText(getString(R.string.game_info_side_ct));
+                mSideHome.setTextColor(mColorBlueCT);
+
+                mSideAway.setText(getString(R.string.game_info_side_t));
+                mSideAway.setTextColor(mColorYellowT);
+
+            }
+        }
+    }
+
+    private void updateStats()
+    {
+        if(gameState != null && gameState.getPlayer() != null)
+        {
+            final GameState.Player player = gameState.getPlayer();
+
+            mStatsKills.setText(String.format(Locale.getDefault(), "%d", player.getKills()));
+            mStatsAssists.setText(String.format(Locale.getDefault(), "%d", player.getAssists()));
+            mStatsDeaths.setText(String.format(Locale.getDefault(), "%d", player.getDeaths()));
+            mStatsKDR.setText(player.getKDRString());
+        }
+    }
+
+    private void updateScores()
+    {
+        mScoreHome.setText(String.format(Locale.getDefault(), "%d", gameState.getScoreHome()));
+        mScoreAway.setText(String.format(Locale.getDefault(), "%d", gameState.getScoreAway()));
+    }
+
+    private void updateHealthArmor()
+    {
+        if(gameState != null && gameState.getPlayer() != null)
+        {
+            final DecimalFormat format = new DecimalFormat("0");
+
+            final float health = gameState.getPlayer().getHealth();
+            mHealthIcon.setFillValue(health / 100 > 1 ? 1 : health / 100);
+            mHealthStats.setText(format.format(health));
+
+            final float armor = gameState.getPlayer().getArmor();
+            mArmorIcon.setFillValue(armor / 100 > 1 ? 1 : armor / 100);
+            mArmorStats.setText(format.format(armor));
+        }
+    }
+
     private void updateViews()
     {
         runOnUiThread(new Runnable()
@@ -289,8 +361,11 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
                 if(gameState == null)
                     return;
                 mRoundNumber.setText(String.format(Locale.getDefault(), "Round %d", gameState.getRound()));
-                mScoreHome.setText(Integer.toString(gameState.getScoreHome()));
-                mScoreAway.setText(Integer.toString(gameState.getScoreAway()));
+
+                updateScores();
+                updateTeam();
+                updateStats();
+                updateHealthArmor();
             }
         });
     }
