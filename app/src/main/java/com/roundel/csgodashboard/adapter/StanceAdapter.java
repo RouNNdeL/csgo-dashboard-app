@@ -56,6 +56,17 @@ public class StanceAdapter extends ArrayAdapter<Stance>
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent)
     {
-        return getDropDownView(position, convertView, parent);
+        View root = mLayoutInflater.inflate(R.layout.list_icon_one_line_no_ripple, parent, false);
+        final Stance stance = getItem(position);
+
+        TextView title = (TextView) root.findViewById(R.id.list_text_primary);
+        ImageView icon = (ImageView) root.findViewById(R.id.list_icon);
+
+        if(stance != null)
+        {
+            title.setText(stance.getTitle());
+            icon.setImageDrawable(getContext().getDrawable(stance.getIcon()));
+        }
+        return root;
     }
 }

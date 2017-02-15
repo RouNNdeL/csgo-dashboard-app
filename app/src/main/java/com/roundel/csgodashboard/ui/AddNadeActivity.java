@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,8 +46,6 @@ public class AddNadeActivity extends AppCompatActivity
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
     private List<Uri> mImageList = new ArrayList<>();
-
-    private GridLayoutManager mImageLayoutManager;
     //</editor-fold>
 
     @Override
@@ -71,19 +68,8 @@ public class AddNadeActivity extends AppCompatActivity
         mGrenadeAdapter = new GrenadeAdapter(this, R.layout.list_icon_one_line_no_ripple, R.id.list_text_primary, mGrenadeList);
         mGrenadeSpinner.setAdapter(mGrenadeAdapter);
 
-        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
-        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
-        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
-        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
-        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
-        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
-        mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
-
-        //TODO: Find a way to fix the 'GridLayoutManager' and possibly animate height changes
-        mImageLayoutManager = new GridLayoutManager(this, 3);
         mImageAdapter = new GridImageAdapter(mImageList, this);
         mImageAdapter.setOnAddPhotoListener(new OnAddPhotoListener());
-
         mImageGrid.setAdapter(mImageAdapter);
     }
 
@@ -120,7 +106,6 @@ public class AddNadeActivity extends AppCompatActivity
 
             mImageList.add(uri);
             mImageAdapter.notifyDataSetChanged();
-            //TransitionManager.beginDelayedTransition((ViewGroup) mImageRecyclerView.getParent());
         }
     }
 
