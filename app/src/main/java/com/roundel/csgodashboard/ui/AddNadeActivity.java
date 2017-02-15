@@ -7,6 +7,7 @@ import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,6 +36,8 @@ public class AddNadeActivity extends AppCompatActivity
     private static int IMAGE_REQUEST_CODE = 1237;
 
     //<editor-fold desc="private variables">
+    @BindView(R.id.add_nade_toolbar) Toolbar mToolbar;
+
     @BindView(R.id.add_nade_spinner_grenade) Spinner mGrenadeSpinner;
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
     @BindView(R.id.add_nade_recyclerview_image) RecyclerView mImageRecyclerView;
@@ -47,8 +50,8 @@ public class AddNadeActivity extends AppCompatActivity
     private List<Grenade> mGrenadeList = new ArrayList<>();
     private List<Uri> mImageList = new ArrayList<>();
 
-    private RecyclerView.LayoutManager mImageLayoutManager;
-//</editor-fold>
+    private GridLayoutManager mImageLayoutManager;
+    //</editor-fold>
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -57,6 +60,10 @@ public class AddNadeActivity extends AppCompatActivity
         setContentView(R.layout.activity_add_nade);
 
         ButterKnife.bind(this);
+
+        setSupportActionBar(mToolbar);
+
+        getSupportActionBar().setTitle("Add nade");
 
         mStanceList = Stance.getDefaultStanceList(this);
         mStanceAdapter = new StanceAdapter(this, R.layout.list_icon_two_line_no_ripple, R.id.list_text_primary, mStanceList);
