@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.spinner;
+package com.roundel.csgodashboard.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -21,7 +21,9 @@ public class StanceAdapter extends ArrayAdapter<Stance>
 {
     private static final String TAG = StanceAdapter.class.getSimpleName();
 
+    //<editor-fold desc="private variables">
     private LayoutInflater mLayoutInflater;
+//</editor-fold>
 
     public StanceAdapter(Context context, int resource, int textViewResourceId, List<Stance> objects)
     {

@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.recyclerview;
+package com.roundel.csgodashboard.adapter;
 
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
@@ -26,6 +26,7 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
 
     private static final int TYPE_ITEM = 1;
     private static final int TYPE_REFRESH = 2;
+    //<editor-fold desc="private variables">
     private List<GameServer> mDataSet = new ArrayList<>();
     private boolean refreshing;
     private View.OnClickListener mListener;
@@ -33,6 +34,7 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
     private int mConnectingPosition = -1;
     private RecyclerView mRecyclerView;
     private String connectingStatusText = "";
+//</editor-fold>
 
     public GameServerAdapter(List<GameServer> data, View.OnClickListener listener)
     {
@@ -139,7 +141,9 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
+        //<editor-fold desc="private variables">
         private View content;
+//</editor-fold>
 
         public ViewHolder(View content)
         {

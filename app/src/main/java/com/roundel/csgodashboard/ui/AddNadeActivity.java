@@ -3,25 +3,23 @@ package com.roundel.csgodashboard.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.roundel.csgodashboard.R;
+import com.roundel.csgodashboard.adapter.GrenadeAdapter;
+import com.roundel.csgodashboard.adapter.GridImageAdapter;
+import com.roundel.csgodashboard.adapter.StanceAdapter;
 import com.roundel.csgodashboard.entities.Grenade;
 import com.roundel.csgodashboard.entities.Stance;
-import com.roundel.csgodashboard.recyclerview.UtilityImagesAdapter;
-import com.roundel.csgodashboard.spinner.GrenadeAdapter;
-import com.roundel.csgodashboard.spinner.StanceAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +38,11 @@ public class AddNadeActivity extends AppCompatActivity
 
     @BindView(R.id.add_nade_spinner_grenade) Spinner mGrenadeSpinner;
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
-    @BindView(R.id.add_nade_recyclerview_image) RecyclerView mImageRecyclerView;
+    @BindView(R.id.add_nade_image_grid) GridView mImageGrid;
 
     private StanceAdapter mStanceAdapter;
     private GrenadeAdapter mGrenadeAdapter;
-    private UtilityImagesAdapter mImageAdapter;
+    private GridImageAdapter mImageAdapter;
 
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
@@ -80,12 +78,13 @@ public class AddNadeActivity extends AppCompatActivity
         mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
         mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
         mImageList.add(Uri.parse("file:///android_asset/maps/de_mirage.jpg"));
+
         //TODO: Find a way to fix the 'GridLayoutManager' and possibly animate height changes
         mImageLayoutManager = new GridLayoutManager(this, 3);
-        mImageAdapter = new UtilityImagesAdapter(mImageList, this);
+        mImageAdapter = new GridImageAdapter(mImageList, this);
         mImageAdapter.setOnAddPhotoListener(new OnAddPhotoListener());
-        mImageRecyclerView.setAdapter(mImageAdapter);
-        mImageRecyclerView.setLayoutManager(mImageLayoutManager);
+
+        mImageGrid.setAdapter(mImageAdapter);
     }
 
     @Override
@@ -121,7 +120,7 @@ public class AddNadeActivity extends AppCompatActivity
 
             mImageList.add(uri);
             mImageAdapter.notifyDataSetChanged();
-            TransitionManager.beginDelayedTransition((ViewGroup) mImageRecyclerView.getParent());
+            //TransitionManager.beginDelayedTransition((ViewGroup) mImageRecyclerView.getParent());
         }
     }
 

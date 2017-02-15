@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.spinner;
+package com.roundel.csgodashboard.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -21,7 +21,9 @@ public class GrenadeAdapter extends ArrayAdapter<Grenade>
 {
     private static final String TAG = GrenadeAdapter.class.getSimpleName();
 
+    //<editor-fold desc="private variables">
     private LayoutInflater inflater;
+//</editor-fold>
 
 
     public GrenadeAdapter(Context context, int resource, int textViewResourceId, List<Grenade> objects)

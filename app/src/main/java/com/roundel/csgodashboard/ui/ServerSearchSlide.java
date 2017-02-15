@@ -41,10 +41,10 @@ import android.widget.TextView;
 import com.github.paolorotolo.appintro.ISlidePolicy;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.SlideAction;
+import com.roundel.csgodashboard.adapter.GameServerAdapter;
 import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.net.ServerConnectionThread;
 import com.roundel.csgodashboard.net.ServerDiscoveryThread;
-import com.roundel.csgodashboard.recyclerview.GameServerAdapter;
 import com.roundel.csgodashboard.util.LogHelper;
 import com.transitionseverywhere.extra.Scale;
 

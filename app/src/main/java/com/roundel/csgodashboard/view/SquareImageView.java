@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.ui;
+package com.roundel.csgodashboard.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
