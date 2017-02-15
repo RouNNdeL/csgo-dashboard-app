@@ -28,6 +28,7 @@ public class GridImageAdapter extends BaseAdapter
     private View.OnClickListener onPhotoSelectedListener;
 
     private LayoutInflater inflater;
+    private int max_size = 50;
     //</editor-fold>
 
     public GridImageAdapter(List<Uri> imageURIs, Context context)
@@ -40,7 +41,7 @@ public class GridImageAdapter extends BaseAdapter
     @Override
     public int getCount()
     {
-        return imageURIs.size() + 1;
+        return Math.min(imageURIs.size() + 1, max_size);
     }
 
     @Override

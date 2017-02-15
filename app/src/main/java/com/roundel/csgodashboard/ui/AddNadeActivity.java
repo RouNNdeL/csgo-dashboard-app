@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -19,9 +18,11 @@ import com.roundel.csgodashboard.adapter.GridImageAdapter;
 import com.roundel.csgodashboard.adapter.StanceAdapter;
 import com.roundel.csgodashboard.entities.Grenade;
 import com.roundel.csgodashboard.entities.Stance;
+import com.roundel.csgodashboard.view.ExpandableHeightGridView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,14 +31,15 @@ public class AddNadeActivity extends AppCompatActivity
 {
     private static final String TAG = AddNadeActivity.class.getSimpleName();
 
-    private static int IMAGE_REQUEST_CODE = 1237;
+    private static final int IMAGE_REQUEST_CODE = 1237;
+    private static final int MAX_IMAGE_COUNT = 50;
 
     //<editor-fold desc="private variables">
     @BindView(R.id.add_nade_toolbar) Toolbar mToolbar;
 
     @BindView(R.id.add_nade_spinner_grenade) Spinner mGrenadeSpinner;
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
-    @BindView(R.id.add_nade_image_grid) GridView mImageGrid;
+    @BindView(R.id.add_nade_image_grid) ExpandableHeightGridView mImageGrid;
 
     private StanceAdapter mStanceAdapter;
     private GrenadeAdapter mGrenadeAdapter;
@@ -71,6 +73,7 @@ public class AddNadeActivity extends AppCompatActivity
         mImageAdapter = new GridImageAdapter(mImageList, this);
         mImageAdapter.setOnAddPhotoListener(new OnAddPhotoListener());
         mImageGrid.setAdapter(mImageAdapter);
+        mImageGrid.setExpanded(true);
     }
 
     @Override
@@ -114,10 +117,17 @@ public class AddNadeActivity extends AppCompatActivity
         @Override
         public void onClick(View v)
         {
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_REQUEST_CODE);
+            if(mImageList.size() < MAX_IMAGE_COUNT)
+            {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_REQUEST_CODE);
+            }
+            else
+            {
+                Toast.makeText(AddNadeActivity.this, String.format(Locale.getDefault(), "You can have at most %d images", MAX_IMAGE_COUNT), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

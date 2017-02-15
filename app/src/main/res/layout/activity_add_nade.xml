@@ -41,7 +41,7 @@
             android:orientation="vertical"
             android:paddingBottom="32dp">
 
-            <com.roundel.csgodashboard.view.MyGridView
+            <com.roundel.csgodashboard.view.ExpandableHeightGridView
                 android:id="@+id/add_nade_image_grid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
                 android:numColumns="auto_fit"
                 android:verticalSpacing="10dp">
 
-            </com.roundel.csgodashboard.view.MyGridView>
+            </com.roundel.csgodashboard.view.ExpandableHeightGridView>
 
             <!--<android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
