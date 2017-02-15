@@ -46,7 +46,7 @@ import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener
+public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener, GameState.RoundEvents
 {
     private static final String TAG = GameInfoActivity.class.getSimpleName();
     public static final String EXTRA_GAME_SERVER_HOST = "EXTRA_GAME_SERVER_HOST";
@@ -94,8 +94,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private ValueAnimator mBombTickScaleAnimator;
     private CountDownTimer mTimer;
 
-    private int mRoundTimeMillis = 115000;
-    private int mBombTimeMillis = 45000;
+    private int mRoundTimeMillis = 116000;
+    private int mBombTimeMillis = 40000;
     //</editor-fold>
 
     @Override
@@ -210,7 +210,10 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         try
         {
             if(gameState == null)
+            {
                 gameState = GameState.fromJSON(new JSONObject(data));
+                gameState.setRoundEventsListener(this);
+            }
             else
                 gameState.update(new JSONObject(data));
             LogHelper.d(TAG, "Updated gameState: " + gameState.toString());
@@ -221,6 +224,66 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             LogHelper.e(TAG, e.toString());
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onBombPlanted()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                plantBomb();
+            }
+        });
+        LogHelper.d("RoundEvents", "onBombPlanted: " + gameState.toString());
+    }
+
+    @Override
+    public void onBombDefused()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                defuseBomb();
+            }
+        });
+        LogHelper.d("RoundEvents", "onBombDefused: " + gameState.toString());
+    }
+
+    @Override
+    public void onRoundStart()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                startRound();
+            }
+        });
+        LogHelper.d("RoundEvents", "onRoundStart: " + gameState.toString());
+    }
+
+    @Override
+    public void onRoundEnd()
+    {
+        LogHelper.d("RoundEvents", "onRoundEnd: " + gameState.toString());
+    }
+
+    @Override
+    public void onMatchStart()
+    {
+        LogHelper.d("RoundEvents", "onMatchStart: " + gameState.toString());
+    }
+
+    @Override
+    public void onMatchEnd()
+    {
+        LogHelper.d("RoundEvents", "onMatchEnd: " + gameState.toString());
     }
 
     private void startGameInfoListener()
@@ -355,6 +418,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
                 updateTeam();
                 updateStats();
                 updateHealthArmor();
+                LogHelper.d(TAG, "Map phase: " + gameState.getMapPhase());
             }
         });
     }

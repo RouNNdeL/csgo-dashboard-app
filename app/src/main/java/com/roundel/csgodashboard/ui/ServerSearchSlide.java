@@ -445,6 +445,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private void onConnectionFailed()
     {
         //isConnectingToServer = false;
+        if(getActivity() != null)
         getActivity().runOnUiThread(new Runnable()
         {
             @Override
