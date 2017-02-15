@@ -96,15 +96,31 @@
                     android:text="0:35"
                     android:textAppearance="@style/TextAppearance.RoundTime"/>
 
-                <ImageView
-                    android:id="@+id/game_info_bomb"
+                <FrameLayout
+                    android:id="@+id/game_info_bomb_container"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="6dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/bomb_ticking"
-                    android:tint="@color/bombPlantedInactive"
-                    android:visibility="gone"/>
+                    android:layout_height="54dp"
+                    android:clipChildren="false"
+                    android:visibility="gone">
+
+
+                    <ImageView
+                        android:id="@+id/game_info_bomb"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/bomb"
+                        android:tint="@color/bombPlantedInactive"/>
+
+                    <ImageView
+                        android:id="@+id/game_info_bomb_ticks"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/bomb_ticking_marks"
+                        android:tint="@color/bombPlantedInactive"/>
+                </FrameLayout>
+
             </LinearLayout>
 
             <!--Away-->
@@ -288,6 +304,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="2dp"
+        android:visibility="gone"
         app:cardBackgroundColor="@color/grey900"
         app:cardElevation="2dp">
 
@@ -371,6 +388,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:elevation="2dp"
+        android:visibility="gone"
         app:cardBackgroundColor="@color/grey900"
         app:cardElevation="2dp">
 
@@ -417,6 +435,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Plant the bomb"/>
+
+    <Button
+        android:id="@+id/testBombD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Defuse the bomb"/>
 
     <Button
         android:id="@+id/viewLogs"

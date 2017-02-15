@@ -4,18 +4,20 @@ package com.roundel.csgodashboard.ui;
  * Created by Krzysiek on 2017-01-20.
  */
 
-import android.animation.Animator;
-import android.animation.ArgbEvaluator;
+import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
 import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,12 +52,15 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     public static final String EXTRA_GAME_SERVER_HOST = "EXTRA_GAME_SERVER_HOST";
     public static final String EXTRA_GAME_SERVER_NAME = "EXTRA_GAME_SERVER_NAME";
     public static final String EXTRA_GAME_SERVER_PORT = "EXTRA_GAME_SERVER_PORT";
+
     private final ScheduledExecutorService pingingScheduler = Executors.newScheduledThreadPool(1);
-    //@BindView(R.id.chart) LineChart mLineChart;
     //<editor-fold desc="private variables">
+
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
+    @BindView(R.id.game_info_bomb_container) FrameLayout mBombFrame;
     @BindView(R.id.game_info_bomb) ImageView mBombView;
+    @BindView(R.id.game_info_bomb_ticks) ImageView mBombTicksView;
     @BindView(R.id.game_info_section_round) LinearLayout mSectionRoundInfo;
     @BindView(R.id.game_info_score_home) TextView mScoreHome;
     @BindView(R.id.game_info_score_away) TextView mScoreAway;
@@ -81,6 +86,16 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private GameServer gameServer;
     private ScheduledFuture<?> pingingHandler;
     private GameInfoListeningThread mGameInfoServerThread;
+
+    private int maxHealthValue = 100;
+    private int maxArmorValue = 100;
+
+    private ValueAnimator mBombTickingAnimator;
+    private ValueAnimator mBombTickScaleAnimator;
+    private CountDownTimer mTimer;
+
+    private int mRoundTimeMillis = 115000;
+    private int mBombTimeMillis = 45000;
     //</editor-fold>
 
     @Override
@@ -108,6 +123,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
         findViewById(R.id.testButton).setOnClickListener(this);
         findViewById(R.id.testBomb).setOnClickListener(this);
+        findViewById(R.id.testBombD).setOnClickListener(this);
         findViewById(R.id.viewLogs).setOnClickListener(this);
         findViewById(R.id.testAddNade).setOnClickListener(this);
 
@@ -165,58 +181,12 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
             case R.id.testBomb:
             {
-                mRoundNumber.setVisibility(View.GONE);
-                mBombView.setVisibility(View.VISIBLE);
-                TransitionManager.beginDelayedTransition(mSectionRoundInfo);
-
-                ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
-
-                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
-                {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation)
-                    {
-                        Integer color = (Integer) animation.getAnimatedValue();
-                        if(color != null)
-                        {
-                            mBombView.setImageTintList(ColorStateList.valueOf(color));
-                        }
-                    }
-                });
-
-                animator.addListener(new Animator.AnimatorListener()
-                {
-                    @Override
-                    public void onAnimationStart(Animator animation)
-                    {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation)
-                    {
-                        //TODO: Add a custom transition that will hide the flashing lights
-                        mBombView.setImageDrawable(getDrawable(R.drawable.bomb_defused));
-                        mBombView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombDefused)));
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation)
-                    {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation)
-                    {
-
-                    }
-                });
-
-                animator.setRepeatMode(ValueAnimator.REVERSE);
-                animator.setDuration(1000);
-                animator.setRepeatCount(10);
-                animator.start();
+                plantBomb();
+                break;
+            }
+            case R.id.testBombD:
+            {
+                defuseBomb();
                 break;
             }
             case R.id.viewLogs:
@@ -244,7 +214,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             else
                 gameState.update(new JSONObject(data));
             LogHelper.d(TAG, "Updated gameState: " + gameState.toString());
-            updateViews();
+            update();
         }
         catch(JSONException e)
         {
@@ -342,16 +312,35 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             final DecimalFormat format = new DecimalFormat("0");
 
             final float health = gameState.getPlayer().getHealth();
-            mHealthIcon.setFillValue(health / 100 > 1 ? 1 : health / 100);
+            mHealthIcon.setFillValue(Math.min(health / maxHealthValue, 1));
             mHealthStats.setText(format.format(health));
 
             final float armor = gameState.getPlayer().getArmor();
-            mArmorIcon.setFillValue(armor / 100 > 1 ? 1 : armor / 100);
+            mArmorIcon.setFillValue(Math.min(armor / maxArmorValue, 1));
             mArmorStats.setText(format.format(armor));
         }
     }
 
-    private void updateViews()
+    private void startRound()
+    {
+        animateRoundStart();
+        startTimer(mRoundTimeMillis);
+    }
+
+    private void plantBomb()
+    {
+        animateBombPlant();
+        startTimer(mBombTimeMillis);
+    }
+
+    private void defuseBomb()
+    {
+        mTimer.cancel();
+        animateBombDefuse();
+        mRoundTime.setText("Defused");
+    }
+
+    private void update()
     {
         runOnUiThread(new Runnable()
         {
@@ -370,5 +359,137 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    private void animateBombPlant()
+    {
+        if(mBombTickingAnimator != null)
+            mBombTickingAnimator.cancel();
+        if(mBombTickScaleAnimator != null)
+            mBombTickScaleAnimator.cancel();
 
+        TransitionManager.beginDelayedTransition(mSectionRoundInfo);
+        mRoundNumber.setVisibility(View.GONE);
+        mBombFrame.setVisibility(View.VISIBLE);
+
+        mBombTickScaleAnimator = ValueAnimator.ofFloat(1.0f, 1.15f);
+        mBombTickingAnimator = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
+
+        mBombTickingAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
+        {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation)
+            {
+                Integer color = (Integer) animation.getAnimatedValue();
+                if(color != null)
+                {
+                    mBombView.setImageTintList(ColorStateList.valueOf(color));
+                    mBombTicksView.setImageTintList(ColorStateList.valueOf(color));
+                }
+            }
+        });
+
+        mBombTickScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
+        {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation)
+            {
+                mBombTicksView.setScaleX((float) animation.getAnimatedValue());
+                mBombTicksView.setScaleY((float) animation.getAnimatedValue());
+            }
+        });
+
+        mBombTickingAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        mBombTickingAnimator.setDuration(1000);
+        mBombTickingAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        mBombTickingAnimator.start();
+
+        mBombTickScaleAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        mBombTickScaleAnimator.setDuration(1000);
+        mBombTickScaleAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        mBombTickScaleAnimator.start();
+    }
+
+    private void animateBombDefuse()
+    {
+        ValueAnimator bombColor = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombDefused));
+        ValueAnimator tickAlpha = ValueAnimator.ofFloat(1.0f, 0.0f);
+
+        bombColor.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
+        {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation)
+            {
+                if(animation.getAnimatedValue() != null)
+                {
+                    mBombView.setImageTintList(ColorStateList.valueOf((int) animation.getAnimatedValue()));
+                    mBombTicksView.setImageTintList(ColorStateList.valueOf((int) animation.getAnimatedValue()));
+                }
+            }
+        });
+
+        tickAlpha.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
+        {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation)
+            {
+                if(animation.getAnimatedValue() != null)
+                {
+                    mBombTicksView.setAlpha((float) animation.getAnimatedValue());
+                }
+            }
+        });
+
+        AnimatorSet set = new AnimatorSet();
+        set.setDuration(500);
+        set.playTogether(tickAlpha, bombColor);
+        set.start();
+
+        if(mBombTickingAnimator != null)
+            mBombTickingAnimator.cancel();
+        if(mBombTickScaleAnimator != null)
+            mBombTickScaleAnimator.cancel();
+    }
+
+    private void animateRoundStart()
+    {
+        TransitionManager.beginDelayedTransition(mSectionRoundInfo);
+        mRoundNumber.setVisibility(View.VISIBLE);
+        mBombFrame.setVisibility(View.GONE);
+
+        new Handler().postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                resetBomb();
+            }
+        }, 1000);
+    }
+
+    private void resetBomb()
+    {
+        mBombTicksView.setAlpha(1.0f);
+        mBombTicksView.setScaleX(1.0f);
+        mBombTicksView.setScaleY(1.0f);
+        mBombTicksView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombPlantedInactive)));
+        mBombView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombPlantedInactive)));
+    }
+
+    private void startTimer(int millis)
+    {
+        if(mTimer != null)
+            mTimer.cancel();
+        mTimer = new CountDownTimer(millis, 1000)
+        {
+
+            public void onTick(long millisUntilFinished)
+            {
+                mRoundTime.setText(String.format(Locale.getDefault(), "%01d:%02d", (int) Math.floor(millisUntilFinished / 60 / 1000), (millisUntilFinished / 1000) % 60));
+            }
+
+            public void onFinish()
+            {
+                mRoundTime.setText(String.format(Locale.getDefault(), "%01d:%02d", 0, 0));
+            }
+        }.start();
+    }
 }
