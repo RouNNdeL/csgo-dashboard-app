@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.entities.GameState;
+import com.roundel.csgodashboard.entities.RoundEvents;
 import com.roundel.csgodashboard.net.GameInfoListeningThread;
 import com.roundel.csgodashboard.net.ServerGameInfoPortThread;
 import com.roundel.csgodashboard.net.ServerPingingThread;
@@ -46,7 +47,7 @@ import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener, GameState.RoundEvents
+public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener, RoundEvents
 {
     private static final String TAG = GameInfoActivity.class.getSimpleName();
     public static final String EXTRA_GAME_SERVER_HOST = "EXTRA_GAME_SERVER_HOST";
@@ -75,6 +76,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.game_info_stats_kdr) TextView mStatsKDR;
     @BindView(R.id.game_info_health_stats) TextView mHealthStats;
     @BindView(R.id.game_info_armor_stats) TextView mArmorStats;
+    @BindView(R.id.game_info_name_home) TextView mNameHome;
+    @BindView(R.id.game_info_name_away) TextView mNameAway;
 
     @BindColor(R.color.yellowT) int mColorYellowT;
     @BindColor(R.color.blueCT) int mColorBlueCT;
@@ -128,10 +131,6 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.testBombD).setOnClickListener(this);
         findViewById(R.id.viewLogs).setOnClickListener(this);
         findViewById(R.id.testAddNade).setOnClickListener(this);
-
-        mHealthIcon.setFillValue(1.0f);
-        mArmorIcon.setFillValue(0.87f);
-
     }
 
     @Override
@@ -240,6 +239,12 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
         });
         LogHelper.d("RoundEvents", "onBombPlanted: " + gameState.toString());
+    }
+
+    @Override
+    public void onBombExploded()
+    {
+        LogHelper.d("RoundEvents", "onBombExploded: " + gameState.toString());
     }
 
     @Override
@@ -401,16 +406,39 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    private void updateTeamNames()
+    {
+        if(gameState != null)
+        {
+            if(gameState.getNameHome() != null)
+                mNameHome.setText(gameState.getNameHome());
+            else
+                mNameHome.setText(getString(R.string.game_info_home_name));
+
+            if(gameState.getNameAway() != null)
+                mNameAway.setText(gameState.getNameAway());
+            else
+                mNameAway.setText(getString(R.string.game_info_away_name));
+        }
+    }
+
     private void startRound()
     {
         startTimer(mRoundTimeMillis);
+        mRoundTimeText.setText(R.string.game_info_time_default);
     }
 
     private void plantBomb()
     {
         animateBombPlant();
         startTimer(mBombTimeMillis);
-        mRoundTimeText.setText("Bomb Planted");
+        mRoundTimeText.setText(R.string.game_info_timer_planted);
+    }
+
+    private void explodeBomb()
+    {
+        mRoundTimeText.setText(R.string.game_info_timer_exploded);
+        mRoundTime.setText(String.format(Locale.getDefault(), "%01d:%02d", 0, 0));
     }
 
     private void defuseBomb()
@@ -418,14 +446,14 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mTimer.cancel();
         animateBombDefuse();
         mRoundTime.setText("");
-        mRoundTimeText.setText("Bomb Defused");
+        mRoundTimeText.setText(R.string.game_info_timer_defused);
     }
 
     private void startFreezeTime()
     {
         animateHideBomb();
         startTimer(mFreezeTimeMillis);
-        mRoundTimeText.setText("Freeze Time");
+        mRoundTimeText.setText(R.string.game_info_timer_freeze);
     }
 
     private void update()
@@ -437,13 +465,13 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             {
                 if(gameState == null)
                     return;
-                mRoundNumber.setText(String.format(Locale.getDefault(), "Round %d", gameState.getRound()));
+                mRoundNumber.setText(String.format(Locale.getDefault(), getString(R.string.game_info_round), gameState.getRound()));
 
                 updateScores();
                 updateTeam();
                 updateStats();
                 updateHealthArmor();
-                LogHelper.d(TAG, "Map phase: " + gameState.getMapPhase());
+                updateTeamNames();
             }
         });
     }

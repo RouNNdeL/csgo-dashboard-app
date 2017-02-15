@@ -315,6 +315,8 @@ public class GameState
                     roundEventsListener.onBombPlanted();
                 if(this.bomb != bomb && bomb == Bomb.DEFUSED)
                     roundEventsListener.onBombDefused();
+                if(this.bomb != bomb && bomb == Bomb.EXPLODED)
+                    roundEventsListener.onBombExploded();
             }
             this.bomb = bomb;
         }
@@ -506,24 +508,6 @@ public class GameState
     public enum Bomb
     {
         NONE, EXPLODED, DEFUSED, PLANTED
-    }
-
-    public interface RoundEvents
-    {
-        void onBombPlanted();
-
-        void onBombDefused();
-
-        void onRoundStart();
-
-        void onRoundEnd();
-
-        void onMatchStart();
-
-        void onMatchEnd();
-
-        void onFreezeTimeStart();
-
     }
 
     /**
