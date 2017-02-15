@@ -57,6 +57,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     //<editor-fold desc="private variables">
 
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
+    @BindView(R.id.game_info_round_time_text) TextView mRoundTimeText;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
     @BindView(R.id.game_info_bomb_container) FrameLayout mBombFrame;
     @BindView(R.id.game_info_bomb) ImageView mBombView;
@@ -96,6 +97,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private int mRoundTimeMillis = 116000;
     private int mBombTimeMillis = 40000;
+    private int mFreezeTimeMillis = 16000;
     //</editor-fold>
 
     @Override
@@ -275,6 +277,20 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    public void onFreezeTimeStart()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                startFreezeTime();
+            }
+        });
+        LogHelper.d("RoundEvents", "onFreezeTimeStart: " + gameState.toString());
+    }
+
+    @Override
     public void onMatchStart()
     {
         LogHelper.d("RoundEvents", "onMatchStart: " + gameState.toString());
@@ -285,6 +301,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     {
         LogHelper.d("RoundEvents", "onMatchEnd: " + gameState.toString());
     }
+
 
     private void startGameInfoListener()
     {
@@ -386,7 +403,6 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void startRound()
     {
-        animateRoundStart();
         startTimer(mRoundTimeMillis);
     }
 
@@ -394,13 +410,22 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     {
         animateBombPlant();
         startTimer(mBombTimeMillis);
+        mRoundTimeText.setText("Bomb Planted");
     }
 
     private void defuseBomb()
     {
         mTimer.cancel();
         animateBombDefuse();
-        mRoundTime.setText("Defused");
+        mRoundTime.setText("");
+        mRoundTimeText.setText("Bomb Defused");
+    }
+
+    private void startFreezeTime()
+    {
+        animateHideBomb();
+        startTimer(mFreezeTimeMillis);
+        mRoundTimeText.setText("Freeze Time");
     }
 
     private void update()
@@ -513,7 +538,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             mBombTickScaleAnimator.cancel();
     }
 
-    private void animateRoundStart()
+    private void animateHideBomb()
     {
         TransitionManager.beginDelayedTransition(mSectionRoundInfo);
         mRoundNumber.setVisibility(View.VISIBLE);

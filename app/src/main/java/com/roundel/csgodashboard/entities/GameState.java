@@ -246,15 +246,17 @@ public class GameState
     public String toString()
     {
         return "GameState{" +
-                ", nameHome='" + nameHome + '\'' +
-                ", nameAway='" + nameAway + '\'' +
-                ", scoreHome=" + scoreHome +
-                ", scoreAway=" + scoreAway +
-                ", round=" + round +
-                ", map=" + map +
-                ", mapPhase=" + mapPhase +
+                "mode=" + mode +
+                ", bomb=" + bomb +
+                ", player=" + player.toString() +
                 ", roundPhase=" + roundPhase +
-                ", player=" + player +
+                ", mapPhase=" + mapPhase +
+                ", map=" + map +
+                ", round=" + round +
+                ", scoreAway=" + scoreAway +
+                ", scoreHome=" + scoreHome +
+                ", nameAway='" + nameAway + '\'' +
+                ", nameHome='" + nameHome + '\'' +
                 '}';
     }
 
@@ -406,6 +408,8 @@ public class GameState
                     roundEventsListener.onRoundStart();
                 if(this.roundPhase != phase && phase == Phase.OVER)
                     roundEventsListener.onRoundEnd();
+                if(this.roundPhase != phase && phase == Phase.FREEZE_TIME)
+                    roundEventsListener.onFreezeTimeStart();
             }
             this.roundPhase = phase;
         }
@@ -517,6 +521,8 @@ public class GameState
         void onMatchStart();
 
         void onMatchEnd();
+
+        void onFreezeTimeStart();
 
     }
 
@@ -761,6 +767,28 @@ public class GameState
                 default:
                     return null;
             }
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Player{" +
+                    "name='" + name + '\'' +
+                    ", steamId='" + steamId + '\'' +
+                    ", hasHelmet=" + hasHelmet +
+                    ", health=" + health +
+                    ", armor=" + armor +
+                    ", round_kills=" + round_kills +
+                    ", round_kills_hs=" + round_kills_hs +
+                    ", money=" + money +
+                    ", kills=" + kills +
+                    ", assists=" + assists +
+                    ", deaths=" + deaths +
+                    ", mvp=" + mvp +
+                    ", score=" + score +
+                    ", activity=" + activity +
+                    ", team=" + team +
+                    '}';
         }
 
         private void update(JSONObject jsonObject)
