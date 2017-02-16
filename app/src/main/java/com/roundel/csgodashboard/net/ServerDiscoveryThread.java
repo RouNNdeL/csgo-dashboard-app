@@ -126,13 +126,10 @@ public class ServerDiscoveryThread extends Thread
                     JSONObject response = new JSONObject(message);
                     if(Objects.equals(response.getString("code"), DISCOVERY_RESPONSE))
                     {
-                        String hostName = receivePacket.getAddress().getHostName();
+                        String hostName = response.getString("server_hostname");
                         final String hostAddress = receivePacket.getAddress().getHostAddress();
                         final int communicationPort = response.getInt("communication_port");
-
-                        if(Objects.equals(hostAddress, hostName))
-                            hostName = response.getString("server_hostname");
-
+                        
                         Log.i(TAG, "New server \"" + hostName + "\"at:" + hostAddress + ":" + communicationPort);
 
                         listener.onServerFound(
