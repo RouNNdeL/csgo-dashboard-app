@@ -210,6 +210,7 @@ public class GameState
             case "exploded":
                 return Bomb.EXPLODED;
             default:
+                LogHelper.d("UnknownProperty", "Bomb: " + bomb);
                 return Bomb.NONE;
         }
     }
@@ -227,6 +228,7 @@ public class GameState
             case "warmup":
                 return Phase.WARMUP;
             default:
+                LogHelper.d("UnknownProperty", "Phase: " + phase);
                 return null;
         }
     }
@@ -242,6 +244,7 @@ public class GameState
             case "deathmatch":
                 return Mode.DEATHMATCH;
             default:
+                LogHelper.d("UnknownProperty", "Mode: " + mode);
                 return null;
         }
     }
@@ -772,6 +775,7 @@ public class GameState
                 case "textinput":
                     return Activity.TEXT_INPUT;
                 default:
+                    LogHelper.d("UnknowProperty", "Activity: " + activity);
                     return null;
             }
         }
@@ -1025,7 +1029,7 @@ public class GameState
 
         public float getKDR()
         {
-            return deaths == 0 ? kills : kills / deaths;
+            return deaths == 0 ? kills : ((float) kills) / ((float) deaths);
         }
 
         public int getScore()

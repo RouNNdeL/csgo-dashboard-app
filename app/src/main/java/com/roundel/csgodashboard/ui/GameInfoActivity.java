@@ -448,6 +448,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void startRound(long timestamp)
     {
+        animateHideBomb();
         startTimer((timestamp - System.currentTimeMillis()) + mRoundTimeMillis);
         mRoundTimeText.setText(R.string.game_info_time_default);
     }
