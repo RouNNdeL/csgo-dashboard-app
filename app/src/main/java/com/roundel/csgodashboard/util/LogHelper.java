@@ -102,9 +102,18 @@ public class LogHelper
         LogHelper.listener = listener;
     }
 
+    public static void clearLogs()
+    {
+        logs.clear();
+        if(listener != null)
+            listener.onLogsCleared();
+    }
+
     public interface LogListener
     {
         void onLogAdded(Log log);
+
+        void onLogsCleared();
     }
 
     public static class Log
