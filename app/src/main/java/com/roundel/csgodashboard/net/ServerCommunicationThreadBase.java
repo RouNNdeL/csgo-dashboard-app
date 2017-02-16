@@ -92,6 +92,15 @@ class ServerCommunicationThreadBase extends Thread
         return b;
     }
 
+    byte[] receiveBytes(Socket socket, int bufferSize) throws IOException
+    {
+        InputStream inputStream = socket.getInputStream();
+        DataInputStream dataInputStream = new DataInputStream(inputStream);
+        final byte[] b = new byte[bufferSize];
+        dataInputStream.read(b);
+        return b;
+    }
+
     /**
      * @param array array of bytes to be parsed
      *

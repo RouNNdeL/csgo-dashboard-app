@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.ui;
+package com.roundel.csgodashboard.ui.slide;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -9,8 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.roundel.csgodashboard.OnBackPressedListener;
-import com.roundel.csgodashboard.SlideAction;
+import com.roundel.csgodashboard.ui.OnBackPressedListener;
 
 /**
  * Created by Krzysiek on 2017-01-25.
@@ -19,9 +18,11 @@ public class SlideBase extends Fragment implements OnBackPressedListener
 {
     private static final String TAG = SlideBase.class.getSimpleName();
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
+    //<editor-fold desc="private variables">
     private ViewGroup root;
     private int layoutResId;
     private SlideAction mSlideActionInterface;
+//</editor-fold>
 
     public static SlideBase newInstance(int layoutResId)
     {

@@ -6,20 +6,20 @@ package com.roundel.csgodashboard.entities;
 
 public interface RoundEvents
 {
-    void onBombPlanted();
+    void onBombPlanted(long serverTimestamp);
 
-    void onBombExploded();
+    void onBombExploded(long serverTimestamp);
 
-    void onBombDefused();
+    void onBombDefused(long serverTimestamp);
 
-    void onFreezeTimeStart();
+    void onFreezeTimeStart(long serverTimestamp);
 
-    void onRoundStart();
+    void onRoundStart(long serverTimestamp);
 
-    void onRoundEnd();
+    void onRoundEnd(long serverTimestamp);
 
-    void onMatchStart();
+    void onMatchStart(long serverTimestamp);
 
-    void onMatchEnd();
+    void onWarmupStart(long serverTimestamp);
 
 }

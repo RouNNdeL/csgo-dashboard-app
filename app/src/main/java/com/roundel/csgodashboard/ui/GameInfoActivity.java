@@ -28,8 +28,8 @@ import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.entities.GameState;
 import com.roundel.csgodashboard.entities.RoundEvents;
 import com.roundel.csgodashboard.net.GameInfoListeningThread;
-import com.roundel.csgodashboard.net.ServerGameInfoPortThread;
 import com.roundel.csgodashboard.net.ServerPingingThread;
+import com.roundel.csgodashboard.net.ServerUpdateThread;
 import com.roundel.csgodashboard.util.LogHelper;
 import com.roundel.csgodashboard.view.FillingIcon;
 
@@ -37,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,7 +48,7 @@ import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener, RoundEvents
+public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener, RoundEvents, ServerUpdateThread.OnOffsetDetermined
 {
     private static final String TAG = GameInfoActivity.class.getSimpleName();
     public static final String EXTRA_GAME_SERVER_HOST = "EXTRA_GAME_SERVER_HOST";
@@ -86,8 +87,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private ImageView backdrop;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
-    private GameState gameState;
-    private GameServer gameServer;
+    private GameState mGameState;
+    private GameServer mGameServer;
     private ScheduledFuture<?> pingingHandler;
     private GameInfoListeningThread mGameInfoServerThread;
 
@@ -101,6 +102,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private int mRoundTimeMillis = 116000;
     private int mBombTimeMillis = 40000;
     private int mFreezeTimeMillis = 16000;
+
+    private long mServerTimeOffset;
     //</editor-fold>
 
     @Override
@@ -142,14 +145,13 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
                 intent.hasExtra(EXTRA_GAME_SERVER_HOST) &&
                 intent.hasExtra(EXTRA_GAME_SERVER_PORT))
         {
-            gameServer = new GameServer(
+            mGameServer = new GameServer(
                     intent.getStringExtra(EXTRA_GAME_SERVER_NAME),
                     intent.getStringExtra(EXTRA_GAME_SERVER_HOST),
                     intent.getIntExtra(EXTRA_GAME_SERVER_PORT, -1)
             );
             startGameInfoListener();
             startPinging();
-
         }
     }
 
@@ -167,6 +169,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             mGameInfoServerThread.stopListening();
             LogHelper.i(TAG, "Stopping the GameInfoListeningThread");
         }
+        mGameState = null;
     }
 
     @Override
@@ -182,7 +185,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
             case R.id.testBomb:
             {
-                plantBomb();
+                plantBomb(System.currentTimeMillis());
                 break;
             }
             case R.id.testBombD:
@@ -210,14 +213,14 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     {
         try
         {
-            if(gameState == null)
+            if(mGameState == null)
             {
-                gameState = GameState.fromJSON(new JSONObject(data));
-                gameState.setRoundEventsListener(this);
+                mGameState = GameState.fromJSON(new JSONObject(data));
+                mGameState.setRoundEventsListener(this);
             }
             else
-                gameState.update(new JSONObject(data));
-            LogHelper.d(TAG, "Updated gameState: " + gameState.toString());
+                mGameState.update(new JSONObject(data));
+            LogHelper.d(TAG, "Updated mGameState: " + mGameState.toString());
             update();
         }
         catch(JSONException e)
@@ -228,27 +231,41 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
-    public void onBombPlanted()
+    public void onBombPlanted(final long serverTimestamp)
     {
         runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
-                plantBomb();
+                plantBomb(serverTimestamp + mServerTimeOffset);
             }
         });
-        LogHelper.d("RoundEvents", "onBombPlanted: " + gameState.toString());
+        LogHelper.d(
+                "UpdateEvents",
+                "onBombPlanted: " +
+                        new java.text.SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(new Date(serverTimestamp + mServerTimeOffset))
+        );
+        LogHelper.d("UpdateEvents", "Server offset" + mServerTimeOffset);
+        LogHelper.d("RoundEvents", "onBombPlanted: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
-    public void onBombExploded()
+    public void onBombExploded(long serverTimestamp)
     {
-        LogHelper.d("RoundEvents", "onBombExploded: " + gameState.toString());
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                explodeBomb();
+            }
+        });
+        LogHelper.d("RoundEvents", "onBombExploded: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
-    public void onBombDefused()
+    public void onBombDefused(long serverTimestamp)
     {
         runOnUiThread(new Runnable()
         {
@@ -258,55 +275,60 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
                 defuseBomb();
             }
         });
-        LogHelper.d("RoundEvents", "onBombDefused: " + gameState.toString());
+        LogHelper.d("RoundEvents", "onBombDefused: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
-    public void onRoundStart()
+    public void onRoundStart(final long serverTimestamp)
     {
         runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
-                startRound();
+                startRound(serverTimestamp + mServerTimeOffset);
             }
         });
-        LogHelper.d("RoundEvents", "onRoundStart: " + gameState.toString());
+        LogHelper.d("RoundEvents", "onRoundStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
-    public void onRoundEnd()
+    public void onRoundEnd(long serverTimestamp)
     {
-        LogHelper.d("RoundEvents", "onRoundEnd: " + gameState.toString());
+        LogHelper.d("RoundEvents", "onRoundEnd: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
-    public void onFreezeTimeStart()
+    public void onFreezeTimeStart(final long serverTimestamp)
     {
         runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
-                startFreezeTime();
+                startFreezeTime(serverTimestamp + mServerTimeOffset);
             }
         });
-        LogHelper.d("RoundEvents", "onFreezeTimeStart: " + gameState.toString());
+        LogHelper.d("RoundEvents", "onFreezeTimeStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
-    public void onMatchStart()
+    public void onMatchStart(long serverTimestamp)
     {
-        LogHelper.d("RoundEvents", "onMatchStart: " + gameState.toString());
+        LogHelper.d("RoundEvents", "onMatchStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
-    public void onMatchEnd()
+    public void onWarmupStart(long serverTimestamp)
     {
-        LogHelper.d("RoundEvents", "onMatchEnd: " + gameState.toString());
+        LogHelper.d("RoundEvents", "onWarmupStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
+    @Override
+    public void onOffsetDetermined(long offset)
+    {
+        mServerTimeOffset = offset;
+    }
 
     private void startGameInfoListener()
     {
@@ -316,7 +338,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onServerStarted(int port)
             {
-                sendPortToGameServer(port);
+                updateServer(port);
             }
         });
         mGameInfoServerThread.setOnDataListener(this);
@@ -331,7 +353,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void run()
             {
-                ServerPingingThread serverPingingThread = new ServerPingingThread(gameServer);
+                ServerPingingThread serverPingingThread = new ServerPingingThread(mGameServer);
                 serverPingingThread.start();
             }
         };
@@ -341,17 +363,19 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         LogHelper.i(TAG, "Scheduled the pingingHandler for 5s");
     }
 
-    private void sendPortToGameServer(int port)
+    private void updateServer(int port)
     {
-        ServerGameInfoPortThread portThread = new ServerGameInfoPortThread(gameServer, port);
-        portThread.start();
+        ServerUpdateThread updateThread = new ServerUpdateThread(mGameServer, port);
+        updateThread.setRoundEventListener(this);
+        updateThread.setOffsetListener(this);
+        updateThread.start();
     }
 
     private void updateTeam()
     {
-        if(gameState != null && gameState.getPlayer() != null && gameState.getPlayer().getTeam() != null)
+        if(mGameState != null && mGameState.getPlayer() != null && mGameState.getPlayer().getTeam() != null)
         {
-            if(gameState.getPlayer().getTeam() == GameState.Team.T)
+            if(mGameState.getPlayer().getTeam() == GameState.Team.T)
             {
                 mSideHome.setText(getString(R.string.game_info_side_t));
                 mSideHome.setTextColor(mColorYellowT);
@@ -373,9 +397,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateStats()
     {
-        if(gameState != null && gameState.getPlayer() != null)
+        if(mGameState != null && mGameState.getPlayer() != null)
         {
-            final GameState.Player player = gameState.getPlayer();
+            final GameState.Player player = mGameState.getPlayer();
 
             mStatsKills.setText(String.format(Locale.getDefault(), "%d", player.getKills()));
             mStatsAssists.setText(String.format(Locale.getDefault(), "%d", player.getAssists()));
@@ -386,21 +410,21 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateScores()
     {
-        mScoreHome.setText(String.format(Locale.getDefault(), "%d", gameState.getScoreHome()));
-        mScoreAway.setText(String.format(Locale.getDefault(), "%d", gameState.getScoreAway()));
+        mScoreHome.setText(String.format(Locale.getDefault(), "%d", mGameState.getScoreHome()));
+        mScoreAway.setText(String.format(Locale.getDefault(), "%d", mGameState.getScoreAway()));
     }
 
     private void updateHealthArmor()
     {
-        if(gameState != null && gameState.getPlayer() != null)
+        if(mGameState != null && mGameState.getPlayer() != null)
         {
             final DecimalFormat format = new DecimalFormat("0");
 
-            final float health = gameState.getPlayer().getHealth();
+            final float health = mGameState.getPlayer().getHealth();
             mHealthIcon.setFillValue(Math.min(health / maxHealthValue, 1));
             mHealthStats.setText(format.format(health));
 
-            final float armor = gameState.getPlayer().getArmor();
+            final float armor = mGameState.getPlayer().getArmor();
             mArmorIcon.setFillValue(Math.min(armor / maxArmorValue, 1));
             mArmorStats.setText(format.format(armor));
         }
@@ -408,35 +432,40 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateTeamNames()
     {
-        if(gameState != null)
+        if(mGameState != null)
         {
-            if(gameState.getNameHome() != null)
-                mNameHome.setText(gameState.getNameHome());
+            if(mGameState.getNameHome() != null)
+                mNameHome.setText(mGameState.getNameHome());
             else
                 mNameHome.setText(getString(R.string.game_info_home_name));
 
-            if(gameState.getNameAway() != null)
-                mNameAway.setText(gameState.getNameAway());
+            if(mGameState.getNameAway() != null)
+                mNameAway.setText(mGameState.getNameAway());
             else
                 mNameAway.setText(getString(R.string.game_info_away_name));
         }
     }
 
-    private void startRound()
+    private void startRound(long timestamp)
     {
-        startTimer(mRoundTimeMillis);
+        startTimer((timestamp - System.currentTimeMillis()) + mRoundTimeMillis);
         mRoundTimeText.setText(R.string.game_info_time_default);
     }
 
-    private void plantBomb()
+    private void plantBomb(long timestamp)
     {
         animateBombPlant();
-        startTimer(mBombTimeMillis);
+        startTimer((timestamp - System.currentTimeMillis()) + mBombTimeMillis);
         mRoundTimeText.setText(R.string.game_info_timer_planted);
     }
 
     private void explodeBomb()
     {
+        if(mBombTickingAnimator != null)
+            mBombTickingAnimator.cancel();
+        if(mBombTickScaleAnimator != null)
+            mBombTickScaleAnimator.cancel();
+
         mRoundTimeText.setText(R.string.game_info_timer_exploded);
         mRoundTime.setText(String.format(Locale.getDefault(), "%01d:%02d", 0, 0));
     }
@@ -449,10 +478,10 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mRoundTimeText.setText(R.string.game_info_timer_defused);
     }
 
-    private void startFreezeTime()
+    private void startFreezeTime(long timestamp)
     {
         animateHideBomb();
-        startTimer(mFreezeTimeMillis);
+        startTimer((timestamp - System.currentTimeMillis()) + mFreezeTimeMillis);
         mRoundTimeText.setText(R.string.game_info_timer_freeze);
     }
 
@@ -463,9 +492,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void run()
             {
-                if(gameState == null)
+                if(mGameState == null)
                     return;
-                mRoundNumber.setText(String.format(Locale.getDefault(), getString(R.string.game_info_round), gameState.getRound()));
+                mRoundNumber.setText(String.format(Locale.getDefault(), getString(R.string.game_info_round), mGameState.getRound()));
 
                 updateScores();
                 updateTeam();
@@ -527,6 +556,12 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void animateBombDefuse()
     {
+
+        if(mBombTickingAnimator != null)
+            mBombTickingAnimator.cancel();
+        if(mBombTickScaleAnimator != null)
+            mBombTickScaleAnimator.cancel();
+
         ValueAnimator bombColor = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombDefused));
         ValueAnimator tickAlpha = ValueAnimator.ofFloat(1.0f, 0.0f);
 
@@ -559,11 +594,6 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         set.setDuration(500);
         set.playTogether(tickAlpha, bombColor);
         set.start();
-
-        if(mBombTickingAnimator != null)
-            mBombTickingAnimator.cancel();
-        if(mBombTickScaleAnimator != null)
-            mBombTickScaleAnimator.cancel();
     }
 
     private void animateHideBomb()
@@ -591,11 +621,11 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mBombView.setImageTintList(ColorStateList.valueOf(getColor(R.color.bombPlantedInactive)));
     }
 
-    private void startTimer(int millis)
+    private void startTimer(long millis)
     {
         if(mTimer != null)
             mTimer.cancel();
-        mTimer = new CountDownTimer(millis, 1000)
+        mTimer = new CountDownTimer(millis, 250)
         {
 
             public void onTick(long millisUntilFinished)

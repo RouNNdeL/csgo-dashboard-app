@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard;
+package com.roundel.csgodashboard.ui;
 
 /**
  * Created by Krzysiek on 2017-02-03.

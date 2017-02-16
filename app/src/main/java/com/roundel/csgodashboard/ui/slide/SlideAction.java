@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard;
+package com.roundel.csgodashboard.ui.slide;
 
 import android.support.v4.app.Fragment;
 

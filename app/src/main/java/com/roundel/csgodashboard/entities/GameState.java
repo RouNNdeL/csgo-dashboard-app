@@ -1,9 +1,13 @@
 package com.roundel.csgodashboard.entities;
 
+import com.roundel.csgodashboard.util.LogHelper;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -289,6 +293,26 @@ public class GameState
         {
             round = new JSONObject();
         }
+        JSONObject provider;
+        try
+        {
+            provider = jsonObject.getJSONObject("provider");
+        }
+        catch(JSONException e)
+        {
+            provider = new JSONObject();
+        }
+        long timestamp;
+        try
+        {
+            timestamp = provider.getLong("timestamp");
+        }
+        catch(JSONException e)
+        {
+            timestamp = System.currentTimeMillis();
+        }
+
+        LogHelper.d(TAG, "Timestamp: " + new java.text.SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(new Date(timestamp)));
 
         Team team;
         try
@@ -307,16 +331,15 @@ public class GameState
 
         try
         {
-
             final Bomb bomb = getBombFromString(round.getString("bomb"));
             if(roundEventsListener != null)
             {
                 if(this.bomb != bomb && bomb == Bomb.PLANTED)
-                    roundEventsListener.onBombPlanted();
+                    roundEventsListener.onBombPlanted(timestamp);
                 if(this.bomb != bomb && bomb == Bomb.DEFUSED)
-                    roundEventsListener.onBombDefused();
+                    roundEventsListener.onBombDefused(timestamp);
                 if(this.bomb != bomb && bomb == Bomb.EXPLODED)
-                    roundEventsListener.onBombExploded();
+                    roundEventsListener.onBombExploded(timestamp);
             }
             this.bomb = bomb;
         }
@@ -407,11 +430,11 @@ public class GameState
             if(roundEventsListener != null)
             {
                 if(this.roundPhase != phase && phase == Phase.LIVE)
-                    roundEventsListener.onRoundStart();
+                    roundEventsListener.onRoundStart(timestamp);
                 if(this.roundPhase != phase && phase == Phase.OVER)
-                    roundEventsListener.onRoundEnd();
+                    roundEventsListener.onRoundEnd(timestamp);
                 if(this.roundPhase != phase && phase == Phase.FREEZE_TIME)
-                    roundEventsListener.onFreezeTimeStart();
+                    roundEventsListener.onFreezeTimeStart(timestamp);
             }
             this.roundPhase = phase;
         }
@@ -426,9 +449,9 @@ public class GameState
             if(roundEventsListener != null)
             {
                 if(this.mapPhase != phase && phase == Phase.LIVE)
-                    roundEventsListener.onMatchStart();
+                    roundEventsListener.onMatchStart(timestamp);
                 if(this.mapPhase != phase && phase == Phase.WARMUP)
-                    roundEventsListener.onMatchEnd();
+                    roundEventsListener.onWarmupStart(timestamp);
             }
             this.mapPhase = phase;
         }

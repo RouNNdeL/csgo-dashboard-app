@@ -8,7 +8,11 @@ import android.view.WindowManager;
 
 import com.github.paolorotolo.appintro.AppIntro;
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.SlideAction;
+import com.roundel.csgodashboard.ui.slide.NoWifiSlide;
+import com.roundel.csgodashboard.ui.slide.ServerSearchSlide;
+import com.roundel.csgodashboard.ui.slide.SlideAction;
+import com.roundel.csgodashboard.ui.slide.SlideBase;
+import com.roundel.csgodashboard.ui.slide.WaitGameSlide;
 
 /**
  * Created by Krzysiek on 2017-01-23.
@@ -17,12 +21,14 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
 {
     private static final String TAG = ServerSetupActivity.class.getSimpleName();
 
+    //<editor-fold desc="private variables">
     private NoWifiSlide noWifiSlide;
     private ServerSearchSlide serverSearchSlide;
     private WaitGameSlide waitGameSlide;
     private SlideBase mCurrentSlide;
 
     private Fragment currentSlide;
+//</editor-fold>
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)

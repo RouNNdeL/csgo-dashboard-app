@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.ui;
+package com.roundel.csgodashboard.ui.slide;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.github.paolorotolo.appintro.ISlidePolicy;
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.SlideAction;
 
 
 import static android.view.View.GONE;
@@ -34,12 +33,14 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
 {
     private static final String TAG = NoWifiSlide.class.getSimpleName();
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
+    //<editor-fold desc="private variables">
     private Button mTurnWifiButton;
     private Button mOpenWifiSettingsButton;
     private ProgressBar mWifiProgress;
     private ViewGroup root;
     private SlideAction mSlideActionInterface;
     private WifiConnectionListener mWifiConnectionListener;
+//</editor-fold>
 
     public static NoWifiSlide newInstance(int layoutResId)
     {
