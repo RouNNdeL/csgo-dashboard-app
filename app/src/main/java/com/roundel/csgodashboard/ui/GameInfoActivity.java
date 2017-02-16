@@ -59,7 +59,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     //<editor-fold desc="private variables">
 
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
-    @BindView(R.id.game_info_round_time_text) TextView mRoundTimeText;
+    @BindView(R.id.game_info_round_time_text) TextView mRoundState;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
     @BindView(R.id.game_info_bomb_container) FrameLayout mBombFrame;
     @BindView(R.id.game_info_bomb) ImageView mBombView;
@@ -97,6 +97,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private ValueAnimator mBombTickingAnimator;
     private ValueAnimator mBombTickScaleAnimator;
+    private boolean mIsBombVisible;
+
     private CountDownTimer mTimer;
 
     private int mRoundTimeMillis = 116000;
@@ -435,29 +437,69 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         if(mGameState != null)
         {
             if(mGameState.getNameHome() != null)
+            {
                 mNameHome.setText(mGameState.getNameHome());
+                mNameHome.setAllCaps(false);
+            }
             else
+            {
                 mNameHome.setText(getString(R.string.game_info_home_name));
+                mNameHome.setAllCaps(true);
+            }
 
             if(mGameState.getNameAway() != null)
+            {
                 mNameAway.setText(mGameState.getNameAway());
+                mNameAway.setAllCaps(false);
+            }
             else
+            {
                 mNameAway.setText(getString(R.string.game_info_away_name));
+                mNameAway.setAllCaps(true);
+            }
+        }
+    }
+
+    private void updateRoundNo()
+    {
+        if(mGameState.getMapPhase() != GameState.Phase.WARMUP)
+        {
+            mRoundNumber.setText(
+                    String.format(
+                            Locale.getDefault(),
+                            getString(R.string.game_info_round), mGameState.getRound()
+                    )
+            );
         }
     }
 
     private void startRound(long timestamp)
     {
-        animateHideBomb();
+        transitionHideBomb();
         startTimer((timestamp - System.currentTimeMillis()) + mRoundTimeMillis);
-        mRoundTimeText.setText(R.string.game_info_time_default);
+        mRoundState.setText(R.string.game_info_time_default);
+    }
+
+    private void startFreezeTime(long timestamp)
+    {
+        transitionHideBomb();
+        startTimer((timestamp - System.currentTimeMillis()) + mFreezeTimeMillis);
+        mRoundState.setText(R.string.game_info_timer_freeze);
+    }
+
+    private void startWarmup()
+    {
+        transitionHideBomb();
+        mRoundTime.setText("");
+        mRoundNumber.setText("");
+        mRoundState.setText(R.string.game_info_time_warmup);
     }
 
     private void plantBomb(long timestamp)
     {
         animateBombPlant();
         startTimer((timestamp - System.currentTimeMillis()) + mBombTimeMillis);
-        mRoundTimeText.setText(R.string.game_info_timer_planted);
+        mRoundState.setText(R.string.game_info_timer_planted);
     }
 
     private void explodeBomb()
@@ -467,7 +509,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         if(mBombTickScaleAnimator != null)
             mBombTickScaleAnimator.cancel();
 
-        mRoundTimeText.setText(R.string.game_info_timer_exploded);
+        mRoundState.setText(R.string.game_info_timer_exploded);
         mRoundTime.setText(String.format(Locale.getDefault(), "%01d:%02d", 0, 0));
     }
 
@@ -476,14 +518,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mTimer.cancel();
         animateBombDefuse();
         mRoundTime.setText("");
-        mRoundTimeText.setText(R.string.game_info_timer_defused);
-    }
-
-    private void startFreezeTime(long timestamp)
-    {
-        animateHideBomb();
-        startTimer((timestamp - System.currentTimeMillis()) + mFreezeTimeMillis);
-        mRoundTimeText.setText(R.string.game_info_timer_freeze);
+        mRoundState.setText(R.string.game_info_timer_defused);
     }
 
     private void update()
@@ -495,8 +530,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             {
                 if(mGameState == null)
                     return;
-                mRoundNumber.setText(String.format(Locale.getDefault(), getString(R.string.game_info_round), mGameState.getRound()));
 
+                updateRoundNo();
                 updateScores();
                 updateTeam();
                 updateStats();
@@ -513,9 +548,6 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         if(mBombTickScaleAnimator != null)
             mBombTickScaleAnimator.cancel();
 
-        TransitionManager.beginDelayedTransition(mSectionRoundInfo);
-        mRoundNumber.setVisibility(View.GONE);
-        mBombFrame.setVisibility(View.VISIBLE);
 
         mBombTickScaleAnimator = ValueAnimator.ofFloat(1.0f, 1.15f);
         mBombTickingAnimator = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
@@ -597,8 +629,13 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         set.start();
     }
 
-    private void animateHideBomb()
+    private void transitionHideBomb()
     {
+        if(!mIsBombVisible)
+            return;
+
+        mIsBombVisible = false;
+
         TransitionManager.beginDelayedTransition(mSectionRoundInfo);
         mRoundNumber.setVisibility(View.VISIBLE);
         mBombFrame.setVisibility(View.GONE);
@@ -612,6 +649,19 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
         }, 1000);
     }
+
+    private void transitionShowBomb()
+    {
+        if(mIsBombVisible)
+            return;
+
+        mIsBombVisible = true;
+
+        TransitionManager.beginDelayedTransition(mSectionRoundInfo);
+        mRoundNumber.setVisibility(View.GONE);
+        mBombFrame.setVisibility(View.VISIBLE);
+    }
+
 
     private void resetBomb()
     {

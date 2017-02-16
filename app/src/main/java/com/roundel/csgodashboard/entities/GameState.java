@@ -521,7 +521,7 @@ public class GameState
         CT, T, NONE
     }
 
-    private enum Phase
+    public enum Phase
     {
         LIVE, FREEZE_TIME, WARMUP, OVER
     }

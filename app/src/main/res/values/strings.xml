@@ -46,4 +46,5 @@
     <string name="game_info_timer_defused">Defused</string>
     <string name="game_info_timer_freeze">Freezetime</string>
     <string name="game_info_round">Round %d</string>
+    <string name="game_info_time_warmup">Warmup</string>
 </resources>
