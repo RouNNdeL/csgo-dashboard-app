@@ -20,6 +20,8 @@ public interface RoundEvents
 
     void onMatchStart(long serverTimestamp);
 
+    void onMatchEnd(long serverTimestamp);
+
     void onWarmupStart(long serverTimestamp);
 
 }

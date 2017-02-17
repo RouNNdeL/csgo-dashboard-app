@@ -321,6 +321,12 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
+    public void onMatchEnd(long serverTimestamp)
+    {
+        LogHelper.d("RoundEvents", "onMatchEnd: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
+    }
+
+    @Override
     public void onWarmupStart(long serverTimestamp)
     {
         LogHelper.d("RoundEvents", "onWarmupStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
@@ -406,7 +412,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             mStatsKills.setText(String.format(Locale.getDefault(), "%d", player.getKills()));
             mStatsAssists.setText(String.format(Locale.getDefault(), "%d", player.getAssists()));
             mStatsDeaths.setText(String.format(Locale.getDefault(), "%d", player.getDeaths()));
-            mStatsKDR.setText(player.getKDRString());
+            mStatsKDR.setText(player.getKdrString());
         }
     }
 
@@ -462,7 +468,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateRoundNo()
     {
-        if(mGameState.getMapPhase() != GameState.Phase.WARMUP)
+        if(mGameState.getMapPhase() != GameState.MapPhase.WARMUP)
         {
             mRoundNumber.setText(
                     String.format(

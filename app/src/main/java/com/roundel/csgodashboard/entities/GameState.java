@@ -6,9 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
 
 /**
  * Created by Krzysiek on 2017-02-13.
@@ -28,8 +25,8 @@ public class GameState
 
     private Map map;
 
-    private Phase mapPhase;
-    private Phase roundPhase;
+    private MapPhase mapPhase;
+    private RoundPhase roundPhase;
 
     private Player player;
 
@@ -41,7 +38,7 @@ public class GameState
     //</editor-fold>
 
 
-    public GameState(String nameHome, String nameAway, int scoreHome, int scoreAway, int round, Map map, Phase mapPhase, Phase roundPhase, Player player, Bomb bomb, Mode mode)
+    public GameState(String nameHome, String nameAway, int scoreHome, int scoreAway, int round, Map map, MapPhase mapPhase, RoundPhase roundPhase, Player player, Bomb bomb, Mode mode)
     {
         this.nameHome = nameHome;
         this.nameAway = nameAway;
@@ -58,24 +55,38 @@ public class GameState
 
     public static GameState fromJSON(JSONObject jsonObject) throws JSONException
     {
-        final JSONObject player = jsonObject.getJSONObject("player");
-        final JSONObject map = jsonObject.getJSONObject("map");
-        final JSONObject round = jsonObject.getJSONObject("round");
-
-        Team team;
+        JSONObject player;
         try
         {
-            if(Objects.equals(player.getString("team").toLowerCase(), "t"))
-                team = Team.T;
-            else if(Objects.equals(player.getString("team").toLowerCase(), "ct"))
-                team = Team.CT;
-            else
-                team = Team.NONE;
+            player = jsonObject.getJSONObject("player");
         }
         catch(JSONException e)
         {
-            team = Team.NONE;
+            player = null;
         }
+        JSONObject map;
+        try
+        {
+            map = jsonObject.getJSONObject("map");
+        }
+        catch(JSONException e)
+        {
+            map = null;
+        }
+
+        JSONObject round;
+        try
+        {
+            round = jsonObject.getJSONObject("round");
+        }
+        catch(JSONException e)
+        {
+            round = null;
+        }
+
+        Player playerObject = Player.fromJSON(player);
+
+        Team team = playerObject.getTeam();
 
         Bomb bomb;
         try
@@ -86,109 +97,116 @@ public class GameState
         {
             bomb = null;
         }
-        int roundNumber;
-        try
-        {
-            roundNumber = map.getInt("round");
-        }
-        catch(JSONException e)
-        {
-            roundNumber = 0;
-        }
 
         JSONObject home;
-        try
-        {
-            home = team == Team.T ? map.getJSONObject("team_t") : map.getJSONObject("team_ct");
-        }
-        catch(JSONException e)
-        {
-            home = null;
-        }
         JSONObject away;
-        try
-        {
-            away = (team == Team.T ? map.getJSONObject("team_ct") : map.getJSONObject("team_t"));
-        }
-        catch(JSONException e)
-        {
-            away = null;
-        }
 
-        String nameHome = null;
-        int scoreHome = 0;
-        if(home != null)
-        {
-            try
-            {
-                nameHome = home.getString("name");
-            }
-            catch(JSONException ignored)
-            {
-
-            }
-            try
-            {
-                scoreHome = home.getInt("score");
-            }
-            catch(JSONException e)
-            {
-                scoreHome = 0;
-            }
-        }
+        int roundNumber = 0;
+        MapPhase mapPhase = null;
+        Mode mode = null;
 
         String nameAway = null;
         int scoreAway = 0;
-        if(home != null)
+
+        String nameHome = null;
+        int scoreHome = 0;
+        if(map != null)
         {
             try
             {
-                nameAway = away.getString("name");
+                roundNumber = map.getInt("round");
             }
-            catch(JSONException ignored)
+            catch(JSONException e)
             {
-
+                roundNumber = 0;
             }
             try
             {
-                scoreAway = away.getInt("score");
+                mapPhase = getMapPhaseFromString(map.getString("phase"));
             }
-            catch(JSONException ignored)
+            catch(JSONException e)
             {
+                mapPhase = null;
+            }
 
+            try
+            {
+                home = team == Team.T ? map.getJSONObject("team_t") : map.getJSONObject("team_ct");
+            }
+            catch(JSONException e)
+            {
+                home = null;
+            }
+            try
+            {
+                away = (team == Team.T ? map.getJSONObject("team_ct") : map.getJSONObject("team_t"));
+            }
+            catch(JSONException e)
+            {
+                away = null;
+            }
+
+
+            try
+            {
+                mode = getModeFromString(map.getString("mode"));
+            }
+            catch(JSONException e)
+            {
+                mode = null;
+            }
+
+            if(home != null)
+            {
+                try
+                {
+                    nameHome = home.getString("name");
+                }
+                catch(JSONException ignored)
+                {
+
+                }
+                try
+                {
+                    scoreHome = home.getInt("score");
+                }
+                catch(JSONException e)
+                {
+                    scoreHome = 0;
+                }
+            }
+
+            if(away != null)
+            {
+                try
+                {
+                    nameAway = away.getString("name");
+                }
+                catch(JSONException ignored)
+                {
+
+                }
+                try
+                {
+                    scoreAway = away.getInt("score");
+                }
+                catch(JSONException ignored)
+                {
+
+                }
             }
         }
 
-        Mode mode;
-        try
-        {
-            mode = getModeFromString(map.getString("mode"));
-        }
-        catch(JSONException e)
-        {
-            mode = null;
-        }
 
-        Phase roundPhase;
+        RoundPhase roundPhase;
         try
         {
-            roundPhase = getPhaseFromString(round.getString("phase"));
+            roundPhase = getRoundPhaseFromString(round.getString("phase"));
         }
         catch(JSONException e)
         {
             roundPhase = null;
         }
-        Phase mapPhase;
-        try
-        {
-            mapPhase = getPhaseFromString(map.getString("phase"));
-        }
-        catch(JSONException e)
-        {
-            mapPhase = null;
-        }
-
-        Player playerObject = Player.fromJSON(player);
 
         return new GameState(nameHome, nameAway, scoreHome, scoreAway, roundNumber, null, mapPhase, roundPhase, playerObject, bomb, mode);
     }
@@ -215,18 +233,33 @@ public class GameState
         }
     }
 
-    private static Phase getPhaseFromString(String phase)
+    private static MapPhase getMapPhaseFromString(String phase)
     {
         switch(phase.toLowerCase())
         {
             case "live":
-                return Phase.LIVE;
-            case "over":
-                return Phase.OVER;
-            case "freezetime":
-                return Phase.FREEZE_TIME;
+                return MapPhase.LIVE;
             case "warmup":
-                return Phase.WARMUP;
+                return MapPhase.WARMUP;
+            case "gameover":
+                return MapPhase.GAMEOVER;
+            default:
+                LogHelper.d("UnknownProperty", "Phase: " + phase);
+                return null;
+        }
+    }
+
+
+    private static RoundPhase getRoundPhaseFromString(String phase)
+    {
+        switch(phase.toLowerCase())
+        {
+            case "live":
+                return RoundPhase.LIVE;
+            case "over":
+                return RoundPhase.OVER;
+            case "freezetime":
+                return RoundPhase.FREEZE_TIME;
             default:
                 LogHelper.d("UnknownProperty", "Phase: " + phase);
                 return null;
@@ -276,7 +309,7 @@ public class GameState
         }
         catch(JSONException e)
         {
-            player = new JSONObject();
+            player = null;
         }
         JSONObject map;
         try
@@ -285,8 +318,9 @@ public class GameState
         }
         catch(JSONException e)
         {
-            map = new JSONObject();
+            map = null;
         }
+
         JSONObject round;
         try
         {
@@ -294,8 +328,9 @@ public class GameState
         }
         catch(JSONException e)
         {
-            round = new JSONObject();
+            round = null;
         }
+
         JSONObject provider;
         try
         {
@@ -303,79 +338,81 @@ public class GameState
         }
         catch(JSONException e)
         {
-            provider = new JSONObject();
-        }
-        long timestamp;
-        try
-        {
-            timestamp = provider.getLong("timestamp");
-        }
-        catch(JSONException e)
-        {
-            timestamp = System.currentTimeMillis();
+            provider = null;
         }
 
-        LogHelper.d(TAG, "Timestamp: " + new java.text.SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(new Date(timestamp)));
-
-        Team team;
-        try
+        long timestamp = System.currentTimeMillis();
+        if(provider != null)
         {
-            if(Objects.equals(player.getString("team").toLowerCase(), "t"))
-                team = Team.T;
-            else if(Objects.equals(player.getString("team").toLowerCase(), "ct"))
-                team = Team.CT;
-            else
-                team = Team.NONE;
-        }
-        catch(JSONException e)
-        {
-            team = Team.NONE;
-        }
-
-        try
-        {
-            final Bomb bomb = getBombFromString(round.getString("bomb"));
-            if(roundEventsListener != null)
+            //Used to trigger events at the proper time
+            try
             {
-                if(this.bomb != bomb && bomb == Bomb.PLANTED)
-                    roundEventsListener.onBombPlanted(timestamp);
-                if(this.bomb != bomb && bomb == Bomb.DEFUSED)
-                    roundEventsListener.onBombDefused(timestamp);
-                if(this.bomb != bomb && bomb == Bomb.EXPLODED)
-                    roundEventsListener.onBombExploded(timestamp);
+                timestamp = provider.getLong("timestamp");
             }
-            this.bomb = bomb;
-        }
-        catch(JSONException e)
-        {
-            this.bomb = null;
-        }
-        try
-        {
-            this.round = map.getInt("round");
-        }
-        catch(JSONException e)
-        {
-            this.round = 0;
+            catch(JSONException ignored)
+            {
+            }
         }
 
-        JSONObject home;
-        try
+        this.player.update(player);
+
+        Team team = this.player.team;
+
+        JSONObject home = null;
+        JSONObject away = null;
+        if(map != null)
         {
-            home = team == Team.T ? map.getJSONObject("team_t") : map.getJSONObject("team_ct");
-        }
-        catch(JSONException e)
-        {
-            home = null;
-        }
-        JSONObject away;
-        try
-        {
-            away = team == Team.T ? map.getJSONObject("team_ct") : map.getJSONObject("team_t");
-        }
-        catch(JSONException e)
-        {
-            away = null;
+            try
+            {
+                this.round = map.getInt("round");
+            }
+            catch(JSONException e)
+            {
+                this.round = 0;
+            }
+
+            try
+            {
+                home = team == Team.T ? map.getJSONObject("team_t") : map.getJSONObject("team_ct");
+            }
+            catch(JSONException ignored)
+            {
+            }
+            try
+            {
+                away = team == Team.T ? map.getJSONObject("team_ct") : map.getJSONObject("team_t");
+            }
+            catch(JSONException ignored)
+            {
+            }
+
+            try
+            {
+                final MapPhase phase = getMapPhaseFromString(map.getString("phase"));
+                if(roundEventsListener != null)
+                {
+                    if(this.mapPhase != phase && phase == MapPhase.LIVE)
+                        roundEventsListener.onMatchStart(timestamp);
+                    if(this.mapPhase != phase && phase == MapPhase.WARMUP)
+                        roundEventsListener.onWarmupStart(timestamp);
+                    if(this.mapPhase != phase && phase == MapPhase.GAMEOVER)
+                        roundEventsListener.onMatchEnd(timestamp);
+                }
+                this.mapPhase = phase;
+            }
+            catch(JSONException e)
+            {
+                this.mapPhase = null;
+            }
+
+            try
+            {
+                this.mode = getModeFromString(map.getString("mode"));
+            }
+            catch(JSONException e)
+            {
+                this.mode = null;
+            }
         }
 
         if(home != null)
@@ -397,6 +434,11 @@ public class GameState
                 this.scoreHome = 0;
             }
         }
+        else
+        {
+            this.nameHome = null;
+            this.scoreHome = 0;
+        }
 
         if(away != null)
         {
@@ -417,53 +459,52 @@ public class GameState
                 this.scoreAway = 0;
             }
         }
-
-        try
+        else
         {
-            this.mode = getModeFromString(map.getString("mode"));
-        }
-        catch(JSONException e)
-        {
-            this.mode = null;
+            this.nameAway = null;
+            this.scoreAway = 0;
         }
 
-        try
+        if(round != null)
         {
-            final Phase phase = getPhaseFromString(round.getString("phase"));
-            if(roundEventsListener != null)
+            try
             {
-                if(this.roundPhase != phase && phase == Phase.LIVE)
-                    roundEventsListener.onRoundStart(timestamp);
-                if(this.roundPhase != phase && phase == Phase.OVER)
-                    roundEventsListener.onRoundEnd(timestamp);
-                if(this.roundPhase != phase && phase == Phase.FREEZE_TIME)
-                    roundEventsListener.onFreezeTimeStart(timestamp);
+                final RoundPhase phase = getRoundPhaseFromString(round.getString("phase"));
+                if(roundEventsListener != null)
+                {
+                    if(this.roundPhase != phase && phase == RoundPhase.LIVE)
+                        roundEventsListener.onRoundStart(timestamp);
+                    if(this.roundPhase != phase && phase == RoundPhase.OVER)
+                        roundEventsListener.onRoundEnd(timestamp);
+                    if(this.roundPhase != phase && phase == RoundPhase.FREEZE_TIME)
+                        roundEventsListener.onFreezeTimeStart(timestamp);
+                }
+                this.roundPhase = phase;
             }
-            this.roundPhase = phase;
-        }
-        catch(JSONException e)
-        {
-            this.roundPhase = null;
-        }
-
-        try
-        {
-            final Phase phase = getPhaseFromString(map.getString("phase"));
-            if(roundEventsListener != null)
+            catch(JSONException e)
             {
-                if(this.mapPhase != phase && phase == Phase.LIVE)
-                    roundEventsListener.onMatchStart(timestamp);
-                if(this.mapPhase != phase && phase == Phase.WARMUP)
-                    roundEventsListener.onWarmupStart(timestamp);
+                this.roundPhase = null;
             }
-            this.mapPhase = phase;
-        }
-        catch(JSONException e)
-        {
-            this.mapPhase = null;
-        }
 
-        this.player.update(player);
+            try
+            {
+                final Bomb bomb = getBombFromString(round.getString("bomb"));
+                if(roundEventsListener != null)
+                {
+                    if(this.bomb != bomb && bomb == Bomb.PLANTED)
+                        roundEventsListener.onBombPlanted(timestamp);
+                    if(this.bomb != bomb && bomb == Bomb.DEFUSED)
+                        roundEventsListener.onBombDefused(timestamp);
+                    if(this.bomb != bomb && bomb == Bomb.EXPLODED)
+                        roundEventsListener.onBombExploded(timestamp);
+                }
+                this.bomb = bomb;
+            }
+            catch(JSONException e)
+            {
+                this.bomb = null;
+            }
+        }
     }
 
     public void setRoundEventsListener(RoundEvents roundEventsListener)
@@ -501,12 +542,12 @@ public class GameState
         return map;
     }
 
-    public Phase getMapPhase()
+    public MapPhase getMapPhase()
     {
         return mapPhase;
     }
 
-    public Phase getRoundPhase()
+    public RoundPhase getRoundPhase()
     {
         return roundPhase;
     }
@@ -521,17 +562,22 @@ public class GameState
         CT, T, NONE
     }
 
-    public enum Phase
+    public enum MapPhase
     {
-        LIVE, FREEZE_TIME, WARMUP, OVER
+        LIVE, WARMUP, GAMEOVER
     }
 
-    private enum Mode
+    private enum RoundPhase
+    {
+        LIVE, FREEZE_TIME, OVER
+    }
+
+    public enum Mode
     {
         COMPETITIVE, CASUAL, ARMS_RACE, DEATHMATCH, DEMOLITION
     }
 
-    public enum Bomb
+    private enum Bomb
     {
         NONE, EXPLODED, DEFUSED, PLANTED
     }
@@ -564,6 +610,7 @@ public class GameState
 
         private Activity activity;
         private Team team;
+        private DecimalFormat mKdrFormat;
         //</editor-fold>
 
 
@@ -602,7 +649,7 @@ public class GameState
             }
             catch(JSONException e)
             {
-                state = new JSONObject();
+                state = null;
             }
             JSONObject stats;
             try
@@ -611,7 +658,7 @@ public class GameState
             }
             catch(JSONException e)
             {
-                stats = new JSONObject();
+                stats = null;
             }
 
             String steamId;
@@ -636,12 +683,7 @@ public class GameState
             Team team;
             try
             {
-                if(Objects.equals(jsonObject.getString("team").toLowerCase(), "t"))
-                    team = Team.T;
-                else if(Objects.equals(jsonObject.getString("team").toLowerCase(), "ct"))
-                    team = Team.CT;
-                else
-                    team = Team.NONE;
+                team = getTeamFromString(jsonObject.getString("team"));
             }
             catch(JSONException e)
             {
@@ -659,105 +701,128 @@ public class GameState
             }
 
             int health;
-            try
+            int armor;
+            boolean hasHelmet;
+            int round_kills;
+            int round_kills_hs;
+            int money;
+            if(state != null)
             {
-                health = state.getInt("health");
+                try
+                {
+                    health = state.getInt("health");
+                }
+                catch(JSONException e)
+                {
+                    health = 0;
+                }
+                try
+                {
+                    armor = state.getInt("armor");
+                }
+                catch(JSONException e)
+                {
+                    armor = 0;
+                }
+                try
+                {
+                    hasHelmet = state.getBoolean("helmet");
+                }
+                catch(JSONException e)
+                {
+                    hasHelmet = false;
+                }
+
+                try
+                {
+                    round_kills = state.getInt("round_kills");
+                }
+                catch(JSONException e)
+                {
+                    round_kills = 0;
+                }
+                try
+                {
+                    round_kills_hs = state.getInt("round_killhs");
+                }
+                catch(JSONException e)
+                {
+                    round_kills_hs = 0;
+                }
+
+                try
+                {
+                    money = state.getInt("money");
+                }
+                catch(JSONException e)
+                {
+                    money = 0;
+                }
             }
-            catch(JSONException e)
+            else
             {
                 health = 0;
-            }
-            int armor;
-            try
-            {
-                armor = state.getInt("armor");
-            }
-            catch(JSONException e)
-            {
                 armor = 0;
-            }
-            boolean hasHelmet;
-            try
-            {
-                hasHelmet = state.getBoolean("helmet");
-            }
-            catch(JSONException e)
-            {
                 hasHelmet = false;
-            }
-
-            int round_kills;
-            try
-            {
-                round_kills = state.getInt("round_kills");
-            }
-            catch(JSONException e)
-            {
                 round_kills = 0;
-            }
-            int round_kills_hs;
-            try
-            {
-                round_kills_hs = state.getInt("round_killhs");
-            }
-            catch(JSONException e)
-            {
                 round_kills_hs = 0;
-            }
-
-            int money;
-            try
-            {
-                money = state.getInt("money");
-            }
-            catch(JSONException e)
-            {
                 money = 0;
             }
 
             int kills;
-            try
+            int assists;
+            int deaths;
+            int mvp;
+            int score;
+            if(stats != null)
             {
-                kills = stats.getInt("kills");
+                try
+                {
+                    kills = stats.getInt("kills");
+                }
+                catch(JSONException e)
+                {
+                    kills = 0;
+                }
+                try
+                {
+                    assists = stats.getInt("assists");
+                }
+                catch(JSONException e)
+                {
+                    assists = 0;
+                }
+                try
+                {
+                    deaths = stats.getInt("deaths");
+                }
+                catch(JSONException e)
+                {
+                    deaths = 0;
+                }
+                try
+                {
+                    mvp = stats.getInt("mvps");
+                }
+                catch(JSONException e)
+                {
+                    mvp = 0;
+                }
+                try
+                {
+                    score = stats.getInt("score");
+                }
+                catch(JSONException e)
+                {
+                    score = 0;
+                }
             }
-            catch(JSONException e)
+            else
             {
                 kills = 0;
-            }
-            int assists;
-            try
-            {
-                assists = stats.getInt("assists");
-            }
-            catch(JSONException e)
-            {
                 assists = 0;
-            }
-            int deaths;
-            try
-            {
-                deaths = stats.getInt("deaths");
-            }
-            catch(JSONException e)
-            {
                 deaths = 0;
-            }
-            int mvp;
-            try
-            {
-                mvp = stats.getInt("mvps");
-            }
-            catch(JSONException e)
-            {
                 mvp = 0;
-            }
-            int score;
-            try
-            {
-                score = stats.getInt("score");
-            }
-            catch(JSONException e)
-            {
                 score = 0;
             }
 
@@ -777,6 +842,20 @@ public class GameState
                 default:
                     LogHelper.d("UnknowProperty", "Activity: " + activity);
                     return null;
+            }
+        }
+
+        private static Team getTeamFromString(String team)
+        {
+            switch(team)
+            {
+                case "t":
+                    return Team.T;
+                case "ct":
+                    return Team.CT;
+                default:
+                    LogHelper.d("UnknowProperty", "Team: " + team);
+                    return Team.NONE;
             }
         }
 
@@ -811,7 +890,7 @@ public class GameState
             }
             catch(JSONException e)
             {
-                state = new JSONObject();
+                state = null;
             }
             JSONObject stats;
             try
@@ -820,7 +899,7 @@ public class GameState
             }
             catch(JSONException e)
             {
-                stats = new JSONObject();
+                stats = null;
             }
 
             try
@@ -843,12 +922,7 @@ public class GameState
 
             try
             {
-                if(Objects.equals(jsonObject.getString("team").toLowerCase(), "t"))
-                    this.team = Team.T;
-                else if(Objects.equals(jsonObject.getString("team").toLowerCase(), "ct"))
-                    this.team = Team.CT;
-                else
-                    this.team = Team.NONE;
+                team = getTeamFromString(jsonObject.getString("team"));
             }
             catch(JSONException e)
             {
@@ -866,98 +940,104 @@ public class GameState
             }
 
 
-            try
+            if(state != null)
             {
-                this.health = state.getInt("health");
-            }
-            catch(JSONException e)
-            {
-                this.health = 0;
+                try
+                {
+                    this.health = state.getInt("health");
+                }
+                catch(JSONException e)
+                {
+                    this.health = 0;
+                }
+
+                try
+                {
+                    this.armor = state.getInt("armor");
+                }
+                catch(JSONException e)
+                {
+                    this.armor = 0;
+                }
+                try
+                {
+                    this.hasHelmet = state.getBoolean("helmet");
+                }
+                catch(JSONException e)
+                {
+                    this.hasHelmet = false;
+                }
+
+                try
+                {
+                    this.round_kills = state.getInt("round_kills");
+                }
+                catch(JSONException e)
+                {
+                    this.round_kills = 0;
+                }
+                try
+                {
+                    this.round_kills_hs = state.getInt("round_killhs");
+                }
+                catch(JSONException e)
+                {
+                    this.round_kills_hs = 0;
+                }
+
+                try
+                {
+                    this.money = state.getInt("money");
+                }
+                catch(JSONException e)
+                {
+                    this.money = 0;
+                }
             }
 
-            try
+            if(stats != null)
             {
-                this.armor = state.getInt("armor");
-            }
-            catch(JSONException e)
-            {
-                this.armor = 0;
-            }
-            try
-            {
-                this.hasHelmet = state.getBoolean("helmet");
-            }
-            catch(JSONException e)
-            {
-                this.hasHelmet = false;
-            }
+                try
+                {
+                    this.kills = stats.getInt("kills");
+                }
+                catch(JSONException e)
+                {
+                    this.kills = 0;
+                }
+                try
+                {
+                    this.assists = stats.getInt("assists");
+                }
+                catch(JSONException e)
+                {
+                    this.assists = 0;
+                }
 
-            try
-            {
-                this.round_kills = state.getInt("round_kills");
-            }
-            catch(JSONException e)
-            {
-                this.round_kills = 0;
-            }
-            try
-            {
-                this.round_kills_hs = state.getInt("round_killhs");
-            }
-            catch(JSONException e)
-            {
-                this.round_kills_hs = 0;
-            }
-
-            try
-            {
-                this.money = state.getInt("money");
-            }
-            catch(JSONException e)
-            {
-                this.money = 0;
-            }
-
-            try
-            {
-                this.kills = stats.getInt("kills");
-            }
-            catch(JSONException e)
-            {
-                this.kills = 0;
-            }
-            try
-            {
-                this.assists = stats.getInt("assists");
-            }
-            catch(JSONException e)
-            {
-                this.assists = 0;
-            }
-
-            try
-            {
-                this.deaths = stats.getInt("deaths");
-            }
-            catch(JSONException e)
-            {
-                this.deaths = 0;
-            }
-            try
-            {
-                this.mvp = stats.getInt("mvps");
-            }
-            catch(JSONException e)
-            {
-                this.mvp = 0;
-            }
-            try
-            {
-                this.score = stats.getInt("score");
-            }
-            catch(JSONException e)
-            {
-                this.score = 0;
+                try
+                {
+                    this.deaths = stats.getInt("deaths");
+                }
+                catch(JSONException e)
+                {
+                    this.deaths = 0;
+                }
+                try
+                {
+                    this.mvp = stats.getInt("mvps");
+                }
+                catch(JSONException e)
+                {
+                    this.mvp = 0;
+                }
+                try
+                {
+                    this.score = stats.getInt("score");
+                }
+                catch(JSONException e)
+                {
+                    this.score = 0;
+                }
             }
         }
 
@@ -1021,13 +1101,13 @@ public class GameState
             return mvp;
         }
 
-        public String getKDRString()
+        public String getKdrString()
         {
-            DecimalFormat df = new DecimalFormat("0.##");
-            return df.format(getKDR());
+            mKdrFormat = new DecimalFormat("0.##");
+            return mKdrFormat.format(getKdr());
         }
 
-        public float getKDR()
+        public float getKdr()
         {
             return deaths == 0 ? kills : ((float) kills) / ((float) deaths);
         }
