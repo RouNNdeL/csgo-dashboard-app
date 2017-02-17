@@ -8,6 +8,8 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.annotation.ColorInt;
+import android.support.annotation.Px;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -18,8 +20,6 @@ import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.MoneyInfo;
 import com.roundel.csgodashboard.util.LogHelper;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -30,34 +30,33 @@ public class MoneyChart extends View
     private static final String TAG = MoneyChart.class.getSimpleName();
 
     //<editor-fold desc="private variables">
-    private MoneyInfo values = new MoneyInfo();
-    private List<Pair<Float, Float>> valuesCoordinates = new ArrayList<>();
+    private MoneyInfo mDataSet = new MoneyInfo();
 
-    private int paddingLeft;
-    private int paddingRight;
-    private int paddingTop;
-    private int paddingBottom;
+    private int mPaddingLeft;
+    private int mPaddingRight;
+    private int mPaddingTop;
+    private int mPaddingBottom;
 
-    private int graphPaddingLeft;
-    private int graphPaddingRight;
-    private int graphPaddingTop;
-    private int graphPaddingBottom;
+    private int mGraphPaddingLeft;
+    private int mGraphPaddingRight;
+    private int mGraphPaddingTop;
+    private int mGraphPaddingBottom;
 
     private Rect mGraphBounds = new Rect();
     private Rect mViewBounds = new Rect();
 
-    private int popupPaddingLeft;
-    private int popupPaddingRight;
-    private int popupPaddingTop;
-    private int popupPaddingBottom;
+    private int mPopupPaddingLeft;
+    private int mPopupPaddingRight;
+    private int mPopupPaddingTop;
+    private int mPopupPaddingBottom;
 
     private float mGraphHeight;
     private float mGraphWidth;
     private float mActualHeight;
     private float mActualWidth;
 
-    private float scaleY;
-    private float scaleX;
+    private float mScaleY;
+    private float mScaleX;
 
     private Paint mLinePaint;
     private Paint mCirclePaint;
@@ -68,19 +67,19 @@ public class MoneyChart extends View
     private Paint mPopupPaint;
     private Paint mDebugPaint;
 
-    private int mLineColor;
-    private int mLineHalfColor;
-    private int mCircleColor;
-    private int mCircleSelectedColor;
-    private int mCircleHoleColor;
+    @ColorInt private int mLineColor;
+    @ColorInt private int mLineHalfColor;
+    @ColorInt private int mCircleColor;
+    @ColorInt private int mCircleSelectedColor;
+    @ColorInt private int mCircleHoleColor;
 
-    private float mLineWidth;
-    private float mLineHalfWidth;
-    private float mCircleSize;
-    private float mCircleSelectedSize;
-    private float mCircleHoleSize;
+    @Px private int mLineWidth;
+    @Px private int mLineHalfWidth;
+    @Px private int mCircleSize;
+    @Px private int mCircleSelectedSize;
+    @Px private int mCircleHoleSize;
 
-    private float mActivationAreaSize;
+    @Px private int mActivationAreaSize;
     private Paint mActivationAreaPaint;
     private boolean mShowActivationArea;
 
@@ -89,13 +88,13 @@ public class MoneyChart extends View
     private boolean mAutoSizeHole;
     private boolean mUseHoleOnSelected;
 
-    private int mTextColor;
-    private int mTextSize;
-    private int mPopupColor;
+    @ColorInt private int mTextColor;
+    @Px private int mTextSize;
+    @ColorInt private int mPopupColor;
 
-    private int mPopupCornerRadius;
+    @Px private int mPopupCornerRadius;
 
-    private MoneyInfo.Entry selectedEntry;
+    private MoneyInfo.Entry mSelectedEntry;
     //</editor-fold>
 
     public MoneyChart(Context context, AttributeSet attrs)
@@ -136,12 +135,17 @@ public class MoneyChart extends View
                     R.styleable.MoneyChart_lineWidth,
                     (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f, getResources().getDisplayMetrics())
             );
-            mCircleHoleSize = mAutoSizeHole ?
-                    Math.min(mCircleSize - mLineWidth, 0) :
-                    array.getDimensionPixelSize(
-                            R.styleable.MoneyChart_circleHoleSize,
-                            (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f, getResources().getDisplayMetrics())
-                    );
+            if(mAutoSizeHole)
+            {
+                mCircleHoleSize = Math.min(mCircleSize - mLineWidth, 0);
+            }
+            else
+            {
+                mCircleHoleSize = array.getDimensionPixelSize(
+                        R.styleable.MoneyChart_circleHoleSize,
+                        (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f, getResources().getDisplayMetrics())
+                );
+            }
             mCircleSelectedSize = array.getDimensionPixelSize(
                     R.styleable.MoneyChart_selectedCircleSize,
                     (int) (mCircleSize + mLineWidth)
@@ -169,15 +173,15 @@ public class MoneyChart extends View
             array.recycle();
         }
 
-        popupPaddingLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 8f, getResources().getDisplayMetrics());
-        popupPaddingRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 8f, getResources().getDisplayMetrics());
-        popupPaddingTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 8f, getResources().getDisplayMetrics());
-        popupPaddingBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 8f, getResources().getDisplayMetrics());
+        mPopupPaddingLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 8f, getResources().getDisplayMetrics());
+        mPopupPaddingRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 8f, getResources().getDisplayMetrics());
+        mPopupPaddingTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 8f, getResources().getDisplayMetrics());
+        mPopupPaddingBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 8f, getResources().getDisplayMetrics());
 
-        graphPaddingLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 24f, getResources().getDisplayMetrics());
-        graphPaddingRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 24f, getResources().getDisplayMetrics());
-        graphPaddingTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 24f, getResources().getDisplayMetrics());
-        graphPaddingBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 24f, getResources().getDisplayMetrics());
+        mGraphPaddingLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 24f, getResources().getDisplayMetrics());
+        mGraphPaddingRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 24f, getResources().getDisplayMetrics());
+        mGraphPaddingTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 24f, getResources().getDisplayMetrics());
+        mGraphPaddingBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 24f, getResources().getDisplayMetrics());
 
         mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mLinePaint.setColor(mLineColor);
@@ -230,9 +234,9 @@ public class MoneyChart extends View
         //Draw lines
         float previousX = -1;
         float previousY = -1;
-        for(MoneyInfo.Entry entry : values)
+        for(MoneyInfo.Entry entry : mDataSet)
         {
-            if(previousX != -1 && previousY != -1 && !values.getHalfGameRounds().contains(entry.getRound() - 1))
+            if(previousX != -1 && previousY != -1 && !mDataSet.getHalfGameRounds().contains(entry.getRound() - 1))
                 canvas.drawLine(previousX, previousY, entry.getX(), entry.getY(), mLinePaint);
 
             previousX = entry.getX();
@@ -240,7 +244,7 @@ public class MoneyChart extends View
         }
 
         //Draw circles
-        for(MoneyInfo.Entry entry : values)
+        for(MoneyInfo.Entry entry : mDataSet)
         {
             if(mShowActivationArea)
                 canvas.drawCircle(entry.getX(), entry.getY(), mActivationAreaSize, mActivationAreaPaint);
@@ -248,37 +252,41 @@ public class MoneyChart extends View
             if(mUseHole)
                 canvas.drawCircle(entry.getX(), entry.getY(), mCircleHoleSize, mCircleHolePaint);
         }
-        if(selectedEntry != null)
+        if(mSelectedEntry != null)
         {
             //Draw a selection circle
             if(mUseHoleOnSelected)
             {
-                canvas.drawCircle(selectedEntry.getX(), selectedEntry.getY(), mCircleSelectedSize, mCircleSelectedPaint);
-                canvas.drawCircle(selectedEntry.getX(), selectedEntry.getY(), mCircleSize, mCirclePaint);
-                canvas.drawCircle(selectedEntry.getX(), selectedEntry.getY(), mCircleHoleSize, mCircleHolePaint);
+                canvas.drawCircle(mSelectedEntry.getX(), mSelectedEntry.getY(), mCircleSelectedSize, mCircleSelectedPaint);
+                canvas.drawCircle(mSelectedEntry.getX(), mSelectedEntry.getY(), mCircleSize, mCirclePaint);
+                canvas.drawCircle(mSelectedEntry.getX(), mSelectedEntry.getY(), mCircleHoleSize, mCircleHolePaint);
             }
             else
             {
-                canvas.drawCircle(selectedEntry.getX(), selectedEntry.getY(), mCircleSelectedSize, mCircleSelectedPaint);
-                canvas.drawCircle(selectedEntry.getX(), selectedEntry.getY(), mCircleSize, mCirclePaint);
-                canvas.drawCircle(selectedEntry.getX(), selectedEntry.getY(), mCircleHoleSize, mCircleSelectedPaint);
+                canvas.drawCircle(mSelectedEntry.getX(), mSelectedEntry.getY(), mCircleSelectedSize, mCircleSelectedPaint);
+                canvas.drawCircle(mSelectedEntry.getX(), mSelectedEntry.getY(), mCircleSize, mCirclePaint);
+                canvas.drawCircle(mSelectedEntry.getX(), mSelectedEntry.getY(), mCircleHoleSize, mCircleSelectedPaint);
             }
 
         }
 
+        //Team switch lines
+        if(mShowHalfLine)
+        {
+            for(int halfRound : mDataSet.getHalfGameRounds())
+            {
+                canvas.drawLine(
+                        ((halfRound - 0.5f) * mScaleX + mGraphBounds.left),
+                        mViewBounds.top,
+                        ((halfRound - 0.5f) * mScaleX + mGraphBounds.left),
+                        mViewBounds.bottom,
+                        mLineHalfPaint
+                );
+            }
+        }
 
-        //Half game line
-        for(int halfRound : values.getHalfGameRounds())
-            canvas.drawLine(
-                    ((halfRound - 0.5f) * scaleX + mGraphBounds.left),
-                    mViewBounds.top,
-                    ((halfRound - 0.5f) * scaleX + mGraphBounds.left),
-                    mViewBounds.bottom,
-                    mLineHalfPaint
-            );
-
-        if(selectedEntry != null)
-            drawPopup(canvas, selectedEntry);
+        if(mSelectedEntry != null)
+            drawPopup(canvas, mSelectedEntry);
 
         if(isInEditMode())
         {
@@ -301,12 +309,12 @@ public class MoneyChart extends View
             LogHelper.d(TAG, "Closest entry: Round " + closest.getRound() + ", Money " + closest.getMoney() + " Distance: " + distance);
             if(distance <= mActivationAreaSize)
             {
-                selectedEntry = closest;
+                mSelectedEntry = closest;
                 invalidate();
             }
             else
             {
-                selectedEntry = null;
+                mSelectedEntry = null;
                 invalidate();
             }
         }
@@ -319,55 +327,53 @@ public class MoneyChart extends View
     {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
 
-        paddingLeft = getPaddingLeft();
-        paddingRight = getPaddingRight();
-        paddingTop = getPaddingTop();
-        paddingBottom = getPaddingBottom();
+        mPaddingLeft = getPaddingLeft();
+        mPaddingRight = getPaddingRight();
+        mPaddingTop = getPaddingTop();
+        mPaddingBottom = getPaddingBottom();
 
 
-        float xPadding = (float) (paddingLeft + paddingRight);
-        float yPadding = (float) (paddingTop + paddingBottom);
+        float xPadding = (float) (mPaddingLeft + mPaddingRight);
+        float yPadding = (float) (mPaddingTop + mPaddingBottom);
 
         mActualWidth = width - xPadding;
         mActualHeight = height - yPadding;
 
-        mGraphHeight = mActualHeight - (graphPaddingBottom + graphPaddingTop);
-        mGraphWidth = mActualWidth - (graphPaddingLeft + graphPaddingRight);
+        mGraphHeight = mActualHeight - (mGraphPaddingBottom + mGraphPaddingTop);
+        mGraphWidth = mActualWidth - (mGraphPaddingLeft + mGraphPaddingRight);
 
-        mViewBounds.left = paddingLeft;
-        mViewBounds.right = width - paddingRight;
-        mViewBounds.top = paddingLeft;
-        mViewBounds.bottom = height - paddingBottom;
+        mViewBounds.left = mPaddingLeft;
+        mViewBounds.right = width - mPaddingRight;
+        mViewBounds.top = mPaddingLeft;
+        mViewBounds.bottom = height - mPaddingBottom;
 
-        mGraphBounds.left = mViewBounds.left + graphPaddingLeft;
-        mGraphBounds.right = mViewBounds.right - graphPaddingRight;
-        mGraphBounds.top = mViewBounds.top + graphPaddingTop;
-        mGraphBounds.bottom = mViewBounds.bottom - graphPaddingBottom;
+        mGraphBounds.left = mViewBounds.left + mGraphPaddingLeft;
+        mGraphBounds.right = mViewBounds.right - mGraphPaddingRight;
+        mGraphBounds.top = mViewBounds.top + mGraphPaddingTop;
+        mGraphBounds.bottom = mViewBounds.bottom - mGraphPaddingBottom;
 
-        scaleX = mGraphWidth / (values.getMaxRound() - 1); //We subtract 1 to make the last point appear at the end of the mGraphBounds
-        scaleY = mGraphHeight / values.getMaxMoney();
+        mScaleX = mGraphWidth / (mDataSet.getMaxRound() - 1); //We subtract 1 to make the last point appear at the end of the mGraphBounds
+        mScaleY = mGraphHeight / mDataSet.getMaxMoney();
 
-        valuesCoordinates = new ArrayList<>();
-
-        for(MoneyInfo.Entry entry : values)
+        for(MoneyInfo.Entry entry : mDataSet)
         {
             entry.setX(getCenterX(entry.getRound()));
             entry.setY(getCenterY(entry.getMoney()));
         }
 
-        if(values.size() > 0 && isInEditMode())
-            selectedEntry = values.get((int) (Math.random() * values.size()));
+        if(mDataSet.size() > 0 && isInEditMode())
+            mSelectedEntry = mDataSet.get((int) (Math.random() * mDataSet.size()));
     }
 
     private float getCenterX(int round)
     {
-        return (round - 1) * scaleX + paddingLeft + graphPaddingLeft;
+        return (round - 1) * mScaleX + mPaddingLeft + mGraphPaddingLeft;
     }
 
     private float getCenterY(int money)
     {
         //We subtract because the canvas draws from the top-left corner
-        return (mGraphHeight + paddingTop + graphPaddingTop) - money * scaleY;
+        return (mGraphHeight + mPaddingTop + mGraphPaddingTop) - money * mScaleY;
     }
 
     private float measureDistance(float x1, float y1, float x2, float y2)
@@ -387,7 +393,7 @@ public class MoneyChart extends View
     {
         MoneyInfo.Entry closest = new MoneyInfo.Entry(-1, -1);
         float closestDistance = -1;
-        for(MoneyInfo.Entry entry : values)
+        for(MoneyInfo.Entry entry : mDataSet)
         {
             final float distance = measureDistance(entry.getX(), entry.getY(), x, y);
             if(closestDistance == -1 || distance < closestDistance)
@@ -404,7 +410,7 @@ public class MoneyChart extends View
         MoneyInfo.Entry closest = new MoneyInfo.Entry(-1, -1);
         float closestDistance = -1;
         double sqrt2 = Math.sqrt(2);
-        for(MoneyInfo.Entry entry : values)
+        for(MoneyInfo.Entry entry : mDataSet)
         {
             if(Math.max(Math.abs(x - entry.getX()), Math.abs(y - entry.getY())) * sqrt2 > max_distance)
                 continue;
@@ -432,13 +438,13 @@ public class MoneyChart extends View
         mTextPaint.getTextBounds(roundString, 0, roundString.length(), roundBounds);
         mTextPaint.getTextBounds(moneyString, 0, moneyString.length(), moneyBounds);
 
-        int popupHeight = roundBounds.height() + moneyBounds.height() + (popupPaddingTop + popupPaddingBottom * 2);
-        int popupWidth = Math.max(roundBounds.width(), moneyBounds.width()) + (popupPaddingLeft + popupPaddingRight * 2);
+        int popupHeight = roundBounds.height() + moneyBounds.height() + (mPopupPaddingTop + mPopupPaddingBottom * 2);
+        int popupWidth = Math.max(roundBounds.width(), moneyBounds.width()) + (mPopupPaddingLeft + mPopupPaddingRight * 2);
 
         Rect popupBounds = new Rect(0, 0, popupWidth, popupHeight);
 
-        offsetRect(roundBounds, (int) selectedEntry.getX() + popupPaddingLeft, (int) selectedEntry.getY() + roundBounds.height() + popupPaddingTop);
-        offsetRect(moneyBounds, (int) selectedEntry.getX() + popupPaddingLeft, (int) selectedEntry.getY() + moneyBounds.height() + popupPaddingTop);
+        offsetRect(roundBounds, (int) selectedEntry.getX() + mPopupPaddingLeft, (int) selectedEntry.getY() + roundBounds.height() + mPopupPaddingTop);
+        offsetRect(moneyBounds, (int) selectedEntry.getX() + mPopupPaddingLeft, (int) selectedEntry.getY() + moneyBounds.height() + mPopupPaddingTop);
         offsetRect(popupBounds, (int) selectedEntry.getX(), (int) selectedEntry.getY());
 
         /* Offset to center relative to the point
@@ -497,46 +503,289 @@ public class MoneyChart extends View
 
     private void preview()
     {
-        values.add(new MoneyInfo.Entry(1, 800));
-        values.add(new MoneyInfo.Entry(2, 2400));
-        values.add(new MoneyInfo.Entry(3, 1550));
-        values.add(new MoneyInfo.Entry(4, 3850));
-        values.add(new MoneyInfo.Entry(5, 1900));
-        values.add(new MoneyInfo.Entry(6, 4500));
-        values.add(new MoneyInfo.Entry(7, 6700));
-        values.add(new MoneyInfo.Entry(8, 10800));
-        values.add(new MoneyInfo.Entry(9, 12900));
-        values.add(new MoneyInfo.Entry(10, 8000));
-        values.add(new MoneyInfo.Entry(11, 6570));
-        values.add(new MoneyInfo.Entry(12, 2300));
-        values.add(new MoneyInfo.Entry(13, 2400));
-        values.add(new MoneyInfo.Entry(14, 4900));
-        values.add(new MoneyInfo.Entry(15, 7500));
-        values.add(new MoneyInfo.Entry(16, 800));
-        values.add(new MoneyInfo.Entry(17, 4400));
-        values.add(new MoneyInfo.Entry(18, 7000));
-        values.add(new MoneyInfo.Entry(19, 10250));
-        values.add(new MoneyInfo.Entry(20, 13500));
-        values.add(new MoneyInfo.Entry(21, 16000));
-        values.add(new MoneyInfo.Entry(22, 13123));
-        values.add(new MoneyInfo.Entry(23, 3237));
-        values.add(new MoneyInfo.Entry(24, 2313));
-        values.add(new MoneyInfo.Entry(25, 8123));
-        values.add(new MoneyInfo.Entry(26, 0));
-        values.add(new MoneyInfo.Entry(27, 1300));
-        values.add(new MoneyInfo.Entry(28, 12312));
-        values.add(new MoneyInfo.Entry(29, 13233));
-        values.add(new MoneyInfo.Entry(30, 8248));
-        values.add(new MoneyInfo.Entry(31, 16000));
-        values.add(new MoneyInfo.Entry(32, 11000));
-        values.add(new MoneyInfo.Entry(33, 4600));
-        values.add(new MoneyInfo.Entry(34, 6000));
-        values.add(new MoneyInfo.Entry(35, 6845));
-        values.add(new MoneyInfo.Entry(36, 16000));
-        values.add(new MoneyInfo.Entry(37, 12700));
+        mDataSet.add(new MoneyInfo.Entry(1, 800));
+        mDataSet.add(new MoneyInfo.Entry(2, 2400));
+        mDataSet.add(new MoneyInfo.Entry(3, 1550));
+        mDataSet.add(new MoneyInfo.Entry(4, 3850));
+        mDataSet.add(new MoneyInfo.Entry(5, 1900));
+        mDataSet.add(new MoneyInfo.Entry(6, 4500));
+        mDataSet.add(new MoneyInfo.Entry(7, 6700));
+        mDataSet.add(new MoneyInfo.Entry(8, 10800));
+        mDataSet.add(new MoneyInfo.Entry(9, 12900));
+        mDataSet.add(new MoneyInfo.Entry(10, 8000));
+        mDataSet.add(new MoneyInfo.Entry(11, 6570));
+        mDataSet.add(new MoneyInfo.Entry(12, 2300));
+        mDataSet.add(new MoneyInfo.Entry(13, 2400));
+        mDataSet.add(new MoneyInfo.Entry(14, 4900));
+        mDataSet.add(new MoneyInfo.Entry(15, 7500));
+        mDataSet.add(new MoneyInfo.Entry(16, 800));
+        mDataSet.add(new MoneyInfo.Entry(17, 4400));
+        mDataSet.add(new MoneyInfo.Entry(18, 7000));
+        mDataSet.add(new MoneyInfo.Entry(19, 10250));
+        mDataSet.add(new MoneyInfo.Entry(20, 13500));
+        mDataSet.add(new MoneyInfo.Entry(21, 16000));
+        mDataSet.add(new MoneyInfo.Entry(22, 13123));
+        mDataSet.add(new MoneyInfo.Entry(23, 3237));
+        mDataSet.add(new MoneyInfo.Entry(24, 2313));
+        mDataSet.add(new MoneyInfo.Entry(25, 8123));
+        mDataSet.add(new MoneyInfo.Entry(26, 0));
+        mDataSet.add(new MoneyInfo.Entry(27, 1300));
+        mDataSet.add(new MoneyInfo.Entry(28, 12312));
+        mDataSet.add(new MoneyInfo.Entry(29, 13233));
+        mDataSet.add(new MoneyInfo.Entry(30, 8248));
+        mDataSet.add(new MoneyInfo.Entry(31, 16000));
+        mDataSet.add(new MoneyInfo.Entry(32, 11000));
+        mDataSet.add(new MoneyInfo.Entry(33, 4600));
+        mDataSet.add(new MoneyInfo.Entry(34, 6000));
+        mDataSet.add(new MoneyInfo.Entry(35, 6845));
+        mDataSet.add(new MoneyInfo.Entry(36, 16000));
+        mDataSet.add(new MoneyInfo.Entry(37, 12700));
 
-        values.addHalfGameRound(15);
-        values.addHalfGameRound(30);
-        values.addHalfGameRound(35);
+        mDataSet.addHalfGameRound(15);
+        mDataSet.addHalfGameRound(30);
+        mDataSet.addHalfGameRound(35);
+    }
+
+    public void notifyDataSetChanged()
+    {
+        invalidate();
+    }
+
+    public void setDataSet(MoneyInfo mDataSet)
+    {
+        this.mDataSet = mDataSet;
+        notifyDataSetChanged();
+    }
+
+    @Px
+    public int getPopupCornerRadius()
+    {
+        return mPopupCornerRadius;
+    }
+
+    public void setPopupCornerRadius(@Px int mPopupCornerRadius)
+    {
+        this.mPopupCornerRadius = mPopupCornerRadius;
+        invalidate();
+    }
+
+    @ColorInt
+    public int getPopupColor()
+    {
+        return mPopupColor;
+    }
+
+    public void setPopupColor(@ColorInt int mPopupColor)
+    {
+        this.mPopupColor = mPopupColor;
+        this.mPopupPaint.setColor(mPopupColor);
+        invalidate();
+    }
+
+    @Px
+    public int getTextSize()
+    {
+        return mTextSize;
+    }
+
+    public void setTextSize(@Px int mTextSize)
+    {
+        this.mTextSize = mTextSize;
+        this.mTextPaint.setTextSize(mTextSize);
+        invalidate();
+    }
+
+    @ColorInt
+    public int getTextColor()
+    {
+        return mTextColor;
+    }
+
+    public void setTextColor(@ColorInt int mTextColor)
+    {
+        this.mTextColor = mTextColor;
+        this.mTextPaint.setColor(mTextColor);
+        invalidate();
+    }
+
+    public boolean isUseHoleOnSelected()
+    {
+        return mUseHoleOnSelected;
+    }
+
+    public void setUseHoleOnSelected(boolean mUseHoleOnSelected)
+    {
+        this.mUseHoleOnSelected = mUseHoleOnSelected;
+        invalidate();
+    }
+
+    public boolean isShowHalfLine()
+    {
+        return mShowHalfLine;
+    }
+
+    public void setShowHalfLine(boolean mShowHalfLine)
+    {
+        this.mShowHalfLine = mShowHalfLine;
+        invalidate();
+    }
+
+    public boolean isUseHole()
+    {
+        return mUseHole;
+    }
+
+    public void setUseHole(boolean mUseHole)
+    {
+        this.mUseHole = mUseHole;
+        invalidate();
+    }
+
+    public boolean isShowActivationArea()
+    {
+        return mShowActivationArea;
+    }
+
+    public void setShowActivationArea(boolean mShowActivationArea)
+    {
+        this.mShowActivationArea = mShowActivationArea;
+        invalidate();
+    }
+
+    @Px
+    public int getActivationAreaSize()
+    {
+        return mActivationAreaSize;
+    }
+
+    public void setActivationAreaSize(@Px int mActivationAreaSize)
+    {
+        this.mActivationAreaSize = mActivationAreaSize;
+        invalidate();
+    }
+
+    @Px
+    public int getCircleHoleSize()
+    {
+        return mCircleHoleSize;
+    }
+
+    public void setCircleHoleSize(@Px int mCircleHoleSize)
+    {
+        this.mCircleHoleSize = mCircleHoleSize;
+        invalidate();
+    }
+
+    @Px
+    public int getCircleSelectedSize()
+    {
+        return mCircleSelectedSize;
+    }
+
+    public void setCircleSelectedSize(@Px int mCircleSelectedSize)
+    {
+        this.mCircleSelectedSize = mCircleSelectedSize;
+        invalidate();
+    }
+
+    @Px
+    public int getCircleSize()
+    {
+        return mCircleSize;
+    }
+
+    public void setCircleSize(@Px int mCircleSize)
+    {
+        this.mCircleSize = mCircleSize;
+        invalidate();
+    }
+
+    @Px
+    public int getLineHalfWidth()
+    {
+        return mLineHalfWidth;
+    }
+
+    public void setLineHalfWidth(@Px int mLineHalfWidth)
+    {
+        this.mLineHalfWidth = mLineHalfWidth;
+        invalidate();
+    }
+
+    @Px
+    public int getLineWidth()
+    {
+        return mLineWidth;
+    }
+
+    public void setLineWidth(@Px int mLineWidth)
+    {
+        this.mLineWidth = mLineWidth;
+        invalidate();
+    }
+
+    @ColorInt
+    public int getCircleHoleColor()
+    {
+        return mCircleHoleColor;
+    }
+
+    public void setCircleHoleColor(@ColorInt int mCircleHoleColor)
+    {
+        this.mCircleHoleColor = mCircleHoleColor;
+        this.mCircleHolePaint.setColor(mCircleHoleColor);
+        invalidate();
+    }
+
+    @ColorInt
+    public int getCircleSelectedColor()
+    {
+        return mCircleSelectedColor;
+    }
+
+    public void setCircleSelectedColor(@ColorInt int mCircleSelectedColor)
+    {
+        this.mCircleSelectedColor = mCircleSelectedColor;
+        this.mCircleSelectedPaint.setColor(mCircleSelectedColor);
+        invalidate();
+    }
+
+    @ColorInt
+    public int getCircleColor()
+    {
+        return mCircleColor;
+    }
+
+    public void setCircleColor(@ColorInt int mCircleColor)
+    {
+        this.mCircleColor = mCircleColor;
+        this.mCirclePaint.setColor(mCircleColor);
+        invalidate();
+    }
+
+    @ColorInt
+    public int getLineHalfColor()
+    {
+        return mLineHalfColor;
+    }
+
+    public void setLineHalfColor(@ColorInt int mLineHalfColor)
+    {
+        this.mLineHalfColor = mLineHalfColor;
+        this.mLineHalfPaint.setColor(mLineHalfColor);
+        invalidate();
+    }
+
+    @ColorInt
+    public int getLineColor()
+    {
+        return mLineColor;
+    }
+
+    public void setLineColor(@ColorInt int mLineColor)
+    {
+        this.mLineColor = mLineColor;
+        this.mLinePaint.setColor(mLineColor);
+        invalidate();
     }
 }

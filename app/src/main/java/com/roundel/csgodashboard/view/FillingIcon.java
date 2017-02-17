@@ -10,6 +10,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.annotation.ColorInt;
+import android.support.annotation.Px;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -29,13 +31,13 @@ public class FillingIcon extends View
     private Paint mFillPaint;
     private Paint mBackgroundPaint;
 
-    private int mStrokeColor;
-    private int mFillColor;
-    private int mBackgroundColor;
+    private @ColorInt int mStrokeColor;
+    private @ColorInt int mFillColor;
+    private @ColorInt int mBackgroundColor;
 
     private boolean mAnimateValueChanges;
 
-    private int mStrokeWidth;
+    private @Px int mStrokeWidth;
 
     private String mPathData;
 
@@ -238,14 +240,18 @@ public class FillingIcon extends View
 
     }
 
-    public int getBackgroundColor()
+    public
+    @ColorInt
+    int getBackgroundColor()
     {
         return mBackgroundColor;
     }
 
-    public void setBackgroundColor(int mBackgroundColor)
+    public void setBackgroundColor(@ColorInt int mBackgroundColor)
     {
         this.mBackgroundColor = mBackgroundColor;
+        this.mBackgroundPaint.setColor(mBackgroundColor);
+        invalidate();
     }
 
     public boolean getAnimateValueChanges()
@@ -258,14 +264,18 @@ public class FillingIcon extends View
         this.mAnimateValueChanges = mAnimateValueChanges;
     }
 
-    public int getStrokeWidth()
+    public
+    @Px
+    int getStrokeWidth()
     {
         return mStrokeWidth;
     }
 
-    public void setStrokeWidth(int mStrokeWidth)
+    public void setStrokeWidth(@Px int mStrokeWidth)
     {
         this.mStrokeWidth = mStrokeWidth;
+        this.mStrokePaint.setStrokeWidth(mStrokeWidth);
+        invalidate();
     }
 
     public String getPathData()
@@ -276,25 +286,34 @@ public class FillingIcon extends View
     public void setPathData(String mPathData)
     {
         this.mPathData = mPathData;
+        invalidate();
     }
 
-    public int getStrokeColor()
+    public
+    @ColorInt
+    int getStrokeColor()
     {
         return mStrokeColor;
     }
 
-    public void setStrokeColor(int mStrokeColor)
+    public void setStrokeColor(@ColorInt int mStrokeColor)
     {
         this.mStrokeColor = mStrokeColor;
+        this.mStrokePaint.setColor(mStrokeColor);
+        invalidate();
     }
 
-    public int getFillColor()
+    public
+    @ColorInt
+    int getFillColor()
     {
         return mFillColor;
     }
 
-    public void setFillColor(int mFillColor)
+    public void setFillColor(@ColorInt int mFillColor)
     {
         this.mFillColor = mFillColor;
+        this.mFillPaint.setColor(mFillColor);
+        invalidate();
     }
 }
