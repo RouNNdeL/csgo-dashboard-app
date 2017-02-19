@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.util.LogHelper;
 import com.zhy.view.flowlayout.FlowLayout;
 
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.List;
 /**
  * Created by Krzysiek on 2017-02-18.
  */
-public class TagAdapter extends com.zhy.view.flowlayout.TagAdapter<String>
+public class TagAdapter
 {
     private static final String TAG = TagAdapter.class.getSimpleName();
     //<editor-fold desc="private variables">
@@ -37,6 +36,7 @@ public class TagAdapter extends com.zhy.view.flowlayout.TagAdapter<String>
     private OnTagRemoveRequested mOnTagRemoveRequested = new OnTagRemoveRequested();
     private boolean mRequestFocus;
 
+    private List<String> mDataSet;
 
     private int mTagNameMinLength = 2;
     private int mTagNameMaxLength = 15;
@@ -45,19 +45,22 @@ public class TagAdapter extends com.zhy.view.flowlayout.TagAdapter<String>
 
     public TagAdapter(List<String> data, Context context)
     {
-        super(data);
+        this.mDataSet = data;
         this.mContext = context;
         mInflater = LayoutInflater.from(context);
     }
 
-    @Override
-    public int getCount()
+    public String getItem(int position)
     {
-        return super.getCount() + 1;
+        return mDataSet.get(position);
     }
 
-    @Override
-    public View getView(FlowLayout parent, final int position, String string)
+    public int getCount()
+    {
+        return mDataSet.size() + 1;
+    }
+
+    public View getView(FlowLayout parent, int position)
     {
         View view;
         if(position >= getCount() - 1)
@@ -89,6 +92,7 @@ public class TagAdapter extends com.zhy.view.flowlayout.TagAdapter<String>
                 @Override
                 public void onClick(View v)
                 {
+                    int position = mParentTagLayout.indexOfChild(v);
                     final boolean isExpanded = position == mExpandedPosition;
 
                     final Transition transition = new AutoTransition();
@@ -169,7 +173,7 @@ public class TagAdapter extends com.zhy.view.flowlayout.TagAdapter<String>
     {
         if(mOnDataChangedListener != null)
         {
-            View view = getView(mParentTagLayout, position, null);
+            View view = getView(mParentTagLayout, position);
             mOnDataChangedListener.onItemInserted(position, view);
         }
     }
@@ -239,7 +243,6 @@ public class TagAdapter extends com.zhy.view.flowlayout.TagAdapter<String>
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event)
         {
-            LogHelper.d(TAG, keyCode + "");
             if(keyCode == KeyEvent.KEYCODE_ENTER)
             {
                 onTagAdded((View) v.getParent());
@@ -254,7 +257,8 @@ public class TagAdapter extends com.zhy.view.flowlayout.TagAdapter<String>
         @Override
         public void onClick(View v)
         {
-            onTagRemoved((View) v.getParent());
+            final View parent = (View) v.getParent();
+            onTagRemoved(parent);
         }
     }
 }
