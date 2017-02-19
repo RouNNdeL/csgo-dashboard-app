@@ -52,7 +52,7 @@
 
             </com.roundel.csgodashboard.view.ExpandableHeightGridView>
 
-            <!--<android.support.design.widget.TextInputLayout
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -61,7 +61,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Title"/>
-            </android.support.design.widget.TextInputLayout>-->
+            </android.support.design.widget.TextInputLayout>
 
             <Spinner
                 android:id="@+id/add_nade_spinner_stance"
@@ -75,6 +75,12 @@
                 android:layout_height="48dp"
                 android:background="@null"/>
 
+            <com.roundel.csgodashboard.view.taglayout.TagLayout
+                android:id="@+id/add_nade_tag_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </com.roundel.csgodashboard.view.taglayout.TagLayout>
 
         </LinearLayout>
 

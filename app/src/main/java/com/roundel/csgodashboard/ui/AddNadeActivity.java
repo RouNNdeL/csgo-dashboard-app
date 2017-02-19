@@ -3,6 +3,7 @@ package com.roundel.csgodashboard.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -19,6 +20,8 @@ import com.roundel.csgodashboard.adapter.StanceAdapter;
 import com.roundel.csgodashboard.entities.Grenade;
 import com.roundel.csgodashboard.entities.Stance;
 import com.roundel.csgodashboard.view.ExpandableHeightGridView;
+import com.roundel.csgodashboard.view.taglayout.TagAdapter;
+import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +30,7 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AddNadeActivity extends AppCompatActivity
+public class AddNadeActivity extends AppCompatActivity implements TagAdapter.TagActionListener
 {
     private static final String TAG = AddNadeActivity.class.getSimpleName();
 
@@ -41,10 +44,12 @@ public class AddNadeActivity extends AppCompatActivity
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
     @BindView(R.id.add_nade_image_grid) ExpandableHeightGridView mImageGrid;
 
+    @BindView(R.id.add_nade_tag_container) TagLayout mTagLayout;
+    List<String> mTagList = new ArrayList<>();
     private StanceAdapter mStanceAdapter;
     private GrenadeAdapter mGrenadeAdapter;
     private GridImageAdapter mImageAdapter;
-
+    private TagAdapter mTagAdapter;
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
     private List<Uri> mImageList = new ArrayList<>();
@@ -74,6 +79,14 @@ public class AddNadeActivity extends AppCompatActivity
         mImageAdapter.setOnAddPhotoListener(new OnAddPhotoListener());
         mImageGrid.setAdapter(mImageAdapter);
         mImageGrid.setExpanded(true);
+
+        mTagList.add("one-way");
+        mTagList.add("mid");
+        mTagList.add("b-site");
+
+        mTagAdapter = new TagAdapter(mTagList, this);
+        mTagAdapter.setTagActionListener(this);
+        mTagLayout.setAdapter(mTagAdapter);
     }
 
     @Override
@@ -110,6 +123,24 @@ public class AddNadeActivity extends AppCompatActivity
             mImageList.add(uri);
             mImageAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public boolean onTagAdded(String name)
+    {
+        TransitionManager.beginDelayedTransition(mTagLayout);
+        mTagList.add(name);
+        mTagAdapter.notifyItemInserted(mTagList.size() - 1);
+
+        return true;
+    }
+
+    @Override
+    public void onTagRemoved(int position)
+    {
+        TransitionManager.beginDelayedTransition(mTagLayout);
+        mTagList.remove(position);
+        mTagAdapter.notifyItemRemoved(position);
     }
 
     private class OnAddPhotoListener implements View.OnClickListener

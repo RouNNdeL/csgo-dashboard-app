@@ -8,4 +8,6 @@
     <dimen name="status_bar_height">25dp</dimen>
     <dimen name="game_info_stats_card_padding">16dp</dimen>
     <dimen name="game_info_stats_gap">6dp</dimen>
+    <dimen name="utility_tag_icon_size">16dp</dimen>
+    <dimen name="utility_tag_icon_margin_start">4dp</dimen>
 </resources>

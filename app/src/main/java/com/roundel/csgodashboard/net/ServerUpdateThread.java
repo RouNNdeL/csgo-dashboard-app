@@ -4,6 +4,7 @@ import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.entities.RoundEvents;
 import com.roundel.csgodashboard.util.LogHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,12 +29,15 @@ public class ServerUpdateThread extends ServerCommunicationThreadBase
     private static final String TIME_REQUEST = "CSGO_DASHBOARD_UPDATE_TIME_REQUEST";
     private static final String EVENT_REQUEST = "CSGO_DASHBOARD_UPDATE_EVENT_REQUEST";
     private static final String EVENT_RESPONSE = "CSGO_DASHBOARD_UPDATE_EVENT_RESPONSE";
+    private static final String MONEY_STATE_REQUEST = "CSGO_DASHBOARD_UPDATE_MONEY_STATE_REQUEST";
+    private static final String MONEY_STATE_RESPONSE = "CSGO_DASHBOARD_UPDATE_MONEY_STATE_RESPONSE";
 
     private static final String EVENT_BOMB_PLANTED = "BOMB_PLANT";
-    private static final String EVENT_BOMB_DEFUSED = "BOMB_DEFUSe";
+    private static final String EVENT_BOMB_DEFUSED = "BOMB_DEFUSE";
     private static final String EVENT_ROUND_STARTED = "ROUND_START";
     private static final String EVENT_ROUND_ENDED = "ROUND_END";
     private static final String EVENT_FREEZE_TIME_STARTED = "FREEZE_TIME_START";
+    private static final String EVENT_WARMUP_STARTED = "WARMUP_START";
     //<editor-fold desc="private variables">
     private GameServer mGameServer;
     private int mPort;
@@ -134,7 +138,25 @@ public class ServerUpdateThread extends ServerCommunicationThreadBase
                                     if(mRoundEventsListener != null)
                                         mRoundEventsListener.onFreezeTimeStart(serverTimestamp);
                                     break;
+                                case EVENT_WARMUP_STARTED:
+                                    if(mRoundEventsListener != null)
+                                        mRoundEventsListener.onFreezeTimeStart(serverTimestamp);
                             }
+                        }
+
+                        request = new JSONObject();
+                        request.put("code", MONEY_STATE_REQUEST);
+
+                        sendJSON(gameServerSocket, request);
+
+                        response = receiveJSON(gameServerSocket);
+
+                        if(Objects.equals(response.getString("code"), MONEY_STATE_RESPONSE))
+                        {
+                            LogHelper.d(TAG, "Successfully received money state");
+                            JSONArray money_state = response.getJSONArray("money_state");
+
+                            LogHelper.d(TAG, "moneyState length: " + money_state.length());
                         }
                     }
                 }

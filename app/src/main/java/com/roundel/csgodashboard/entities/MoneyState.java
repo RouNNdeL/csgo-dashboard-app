@@ -6,9 +6,9 @@ import java.util.List;
 /**
  * Created by Krzysiek on 2017-02-12.
  */
-public class MoneyInfo extends ArrayList<MoneyInfo.Entry>
+public class MoneyState extends ArrayList<MoneyState.Entry>
 {
-    private static final String TAG = MoneyInfo.class.getSimpleName();
+    private static final String TAG = MoneyState.class.getSimpleName();
 
     //<editor-fold desc="private variables">
     private List<Integer> mHalfGameRounds = new ArrayList<>();

@@ -88,14 +88,25 @@ public class GameState
 
         Team team = playerObject.getTeam();
 
-        Bomb bomb;
-        try
+        Bomb bomb = null;
+        RoundPhase roundPhase = null;
+        if(round != null)
         {
-            bomb = getBombFromString(round.getString("bomb"));
-        }
-        catch(JSONException e)
-        {
-            bomb = null;
+            try
+            {
+                bomb = getBombFromString(round.getString("ic_csgo_bomb"));
+            }
+            catch(JSONException igonerd)
+            {
+            }
+
+            try
+            {
+                roundPhase = getRoundPhaseFromString(round.getString("phase"));
+            }
+            catch(JSONException ignored)
+            {
+            }
         }
 
         JSONObject home;
@@ -197,17 +208,6 @@ public class GameState
             }
         }
 
-
-        RoundPhase roundPhase;
-        try
-        {
-            roundPhase = getRoundPhaseFromString(round.getString("phase"));
-        }
-        catch(JSONException e)
-        {
-            roundPhase = null;
-        }
-
         return new GameState(nameHome, nameAway, scoreHome, scoreAway, roundNumber, null, mapPhase, roundPhase, playerObject, bomb, mode);
     }
 
@@ -235,6 +235,9 @@ public class GameState
 
     private static MapPhase getMapPhaseFromString(String phase)
     {
+        if(phase == null)
+            return null;
+
         switch(phase.toLowerCase())
         {
             case "live":
@@ -243,8 +246,10 @@ public class GameState
                 return MapPhase.WARMUP;
             case "gameover":
                 return MapPhase.GAMEOVER;
+            case "intermission":
+                return MapPhase.INTERMISSION;
             default:
-                LogHelper.d("UnknownProperty", "Phase: " + phase);
+                LogHelper.d("UnknownProperty", "MapPhase: " + phase);
                 return null;
         }
     }
@@ -261,7 +266,7 @@ public class GameState
             case "freezetime":
                 return RoundPhase.FREEZE_TIME;
             default:
-                LogHelper.d("UnknownProperty", "Phase: " + phase);
+                LogHelper.d("UnknownProperty", "RoundPhase: " + phase);
                 return null;
         }
     }
@@ -287,7 +292,7 @@ public class GameState
     {
         return "GameState{" +
                 "mode=" + mode +
-                ", bomb=" + bomb +
+                ", ic_csgo_bomb=" + bomb +
                 ", player=" + player.toString() +
                 ", roundPhase=" + roundPhase +
                 ", mapPhase=" + mapPhase +
@@ -488,7 +493,7 @@ public class GameState
 
             try
             {
-                final Bomb bomb = getBombFromString(round.getString("bomb"));
+                final Bomb bomb = getBombFromString(round.getString("ic_csgo_bomb"));
                 if(roundEventsListener != null)
                 {
                     if(this.bomb != bomb && bomb == Bomb.PLANTED)
@@ -564,7 +569,7 @@ public class GameState
 
     public enum MapPhase
     {
-        LIVE, WARMUP, GAMEOVER
+        LIVE, WARMUP, GAMEOVER, INTERMISSION
     }
 
     private enum RoundPhase
@@ -847,14 +852,17 @@ public class GameState
 
         private static Team getTeamFromString(String team)
         {
-            switch(team)
+            if(team == null)
+                return Team.NONE;
+
+            switch(team.toLowerCase())
             {
                 case "t":
                     return Team.T;
                 case "ct":
                     return Team.CT;
                 default:
-                    LogHelper.d("UnknowProperty", "Team: " + team);
+                    LogHelper.d("UnknownProperty", "Team: " + team);
                     return Team.NONE;
             }
         }

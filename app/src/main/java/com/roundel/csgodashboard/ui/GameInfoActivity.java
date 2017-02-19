@@ -329,6 +329,14 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onWarmupStart(long serverTimestamp)
     {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                startWarmup();
+            }
+        });
         LogHelper.d("RoundEvents", "onWarmupStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
@@ -473,23 +481,23 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             mRoundNumber.setText(
                     String.format(
                             Locale.getDefault(),
-                            getString(R.string.game_info_round), mGameState.getRound()
+                            getString(R.string.game_info_round), mGameState.getRound() + 1 //Cs numbers round from 0
                     )
             );
         }
     }
 
-    private void startRound(long timestamp)
+    private void startRound(long localTimestamp)
     {
         transitionHideBomb();
-        startTimer((timestamp - System.currentTimeMillis()) + mRoundTimeMillis);
+        startTimer((localTimestamp - System.currentTimeMillis()) + mRoundTimeMillis);
         mRoundState.setText(R.string.game_info_time_default);
     }
 
-    private void startFreezeTime(long timestamp)
+    private void startFreezeTime(long localTimestamp)
     {
         transitionHideBomb();
-        startTimer((timestamp - System.currentTimeMillis()) + mFreezeTimeMillis);
+        startTimer((localTimestamp - System.currentTimeMillis()) + mFreezeTimeMillis);
         mRoundState.setText(R.string.game_info_timer_freeze);
     }
 
@@ -501,10 +509,11 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mRoundState.setText(R.string.game_info_time_warmup);
     }
 
-    private void plantBomb(long timestamp)
+    private void plantBomb(long localTimestamp)
     {
+        transitionShowBomb();
         animateBombPlant();
-        startTimer((timestamp - System.currentTimeMillis()) + mBombTimeMillis);
+        startTimer((localTimestamp - System.currentTimeMillis()) + mBombTimeMillis);
         mRoundState.setText(R.string.game_info_timer_planted);
     }
 

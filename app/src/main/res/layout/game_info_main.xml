@@ -113,7 +113,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/bomb"
+                        android:src="@drawable/ic_csgo_bomb"
                         android:tint="@color/bombPlantedInactive"/>
 
                     <ImageView
@@ -121,7 +121,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/bomb_ticking_marks"
+                        android:src="@drawable/ic_csgo_bomb_ticking_marks"
                         android:tint="@color/bombPlantedInactive"/>
                 </FrameLayout>
 

@@ -17,7 +17,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.entities.MoneyInfo;
+import com.roundel.csgodashboard.entities.MoneyState;
 import com.roundel.csgodashboard.util.LogHelper;
 
 import java.util.Locale;
@@ -30,7 +30,7 @@ public class MoneyChart extends View
     private static final String TAG = MoneyChart.class.getSimpleName();
 
     //<editor-fold desc="private variables">
-    private MoneyInfo mDataSet = new MoneyInfo();
+    private MoneyState mDataSet = new MoneyState();
 
     private int mPaddingLeft;
     private int mPaddingRight;
@@ -94,7 +94,7 @@ public class MoneyChart extends View
 
     @Px private int mPopupCornerRadius;
 
-    private MoneyInfo.Entry mSelectedEntry;
+    private MoneyState.Entry mSelectedEntry;
     //</editor-fold>
 
     public MoneyChart(Context context, AttributeSet attrs)
@@ -234,7 +234,7 @@ public class MoneyChart extends View
         //Draw lines
         float previousX = -1;
         float previousY = -1;
-        for(MoneyInfo.Entry entry : mDataSet)
+        for(MoneyState.Entry entry : mDataSet)
         {
             if(previousX != -1 && previousY != -1 && !mDataSet.getHalfGameRounds().contains(entry.getRound() - 1))
                 canvas.drawLine(previousX, previousY, entry.getX(), entry.getY(), mLinePaint);
@@ -244,7 +244,7 @@ public class MoneyChart extends View
         }
 
         //Draw circles
-        for(MoneyInfo.Entry entry : mDataSet)
+        for(MoneyState.Entry entry : mDataSet)
         {
             if(mShowActivationArea)
                 canvas.drawCircle(entry.getX(), entry.getY(), mActivationAreaSize, mActivationAreaPaint);
@@ -300,11 +300,11 @@ public class MoneyChart extends View
     {
         if(event.getAction() == MotionEvent.ACTION_UP)
         {
-            final Pair<MoneyInfo.Entry, Float> closestPair = findClosest(event.getX(), event.getY());
+            final Pair<MoneyState.Entry, Float> closestPair = findClosest(event.getX(), event.getY());
 
-            //final Pair<MoneyInfo.Entry, Float> closestPairNew = findClosest(event.getX(), event.getY(), mActivationAreaSize);
+            //final Pair<MoneyState.Entry, Float> closestPairNew = findClosest(event.getX(), event.getY(), mActivationAreaSize);
 
-            MoneyInfo.Entry closest = closestPair.first;
+            MoneyState.Entry closest = closestPair.first;
             float distance = closestPair.second;
             LogHelper.d(TAG, "Closest entry: Round " + closest.getRound() + ", Money " + closest.getMoney() + " Distance: " + distance);
             if(distance <= mActivationAreaSize)
@@ -355,7 +355,7 @@ public class MoneyChart extends View
         mScaleX = mGraphWidth / (mDataSet.getMaxRound() - 1); //We subtract 1 to make the last point appear at the end of the mGraphBounds
         mScaleY = mGraphHeight / mDataSet.getMaxMoney();
 
-        for(MoneyInfo.Entry entry : mDataSet)
+        for(MoneyState.Entry entry : mDataSet)
         {
             entry.setX(getCenterX(entry.getRound()));
             entry.setY(getCenterY(entry.getMoney()));
@@ -385,15 +385,15 @@ public class MoneyChart extends View
      * @param x coordinate of the touch event
      * @param y coordinate of the touch event
      *
-     * @return {@link Pair<>} where "first" is the nearest {@link com.roundel.csgodashboard.entities.MoneyInfo.Entry}
+     * @return {@link Pair<>} where "first" is the nearest {@link MoneyState.Entry}
      * and "second" is a {@link Long} that is a distance to the nearest {@link
-     * com.roundel.csgodashboard.entities.MoneyInfo.Entry}
+     * MoneyState.Entry}
      */
-    private Pair<MoneyInfo.Entry, Float> findClosest(float x, float y)
+    private Pair<MoneyState.Entry, Float> findClosest(float x, float y)
     {
-        MoneyInfo.Entry closest = new MoneyInfo.Entry(-1, -1);
+        MoneyState.Entry closest = new MoneyState.Entry(-1, -1);
         float closestDistance = -1;
-        for(MoneyInfo.Entry entry : mDataSet)
+        for(MoneyState.Entry entry : mDataSet)
         {
             final float distance = measureDistance(entry.getX(), entry.getY(), x, y);
             if(closestDistance == -1 || distance < closestDistance)
@@ -405,12 +405,12 @@ public class MoneyChart extends View
         return new Pair<>(closest, closestDistance);
     }
 
-    private Pair<MoneyInfo.Entry, Float> findClosest(float x, float y, float max_distance)
+    private Pair<MoneyState.Entry, Float> findClosest(float x, float y, float max_distance)
     {
-        MoneyInfo.Entry closest = new MoneyInfo.Entry(-1, -1);
+        MoneyState.Entry closest = new MoneyState.Entry(-1, -1);
         float closestDistance = -1;
         double sqrt2 = Math.sqrt(2);
-        for(MoneyInfo.Entry entry : mDataSet)
+        for(MoneyState.Entry entry : mDataSet)
         {
             if(Math.max(Math.abs(x - entry.getX()), Math.abs(y - entry.getY())) * sqrt2 > max_distance)
                 continue;
@@ -426,7 +426,7 @@ public class MoneyChart extends View
         return new Pair<>(closest, closestDistance);
     }
 
-    private void drawPopup(Canvas canvas, MoneyInfo.Entry selectedEntry)
+    private void drawPopup(Canvas canvas, MoneyState.Entry selectedEntry)
     {
         String roundString = String.format(Locale.getDefault(), "Round %d", selectedEntry.getRound());
         String moneyString = String.format(Locale.getDefault(), "$" +
@@ -503,43 +503,43 @@ public class MoneyChart extends View
 
     private void preview()
     {
-        mDataSet.add(new MoneyInfo.Entry(1, 800));
-        mDataSet.add(new MoneyInfo.Entry(2, 2400));
-        mDataSet.add(new MoneyInfo.Entry(3, 1550));
-        mDataSet.add(new MoneyInfo.Entry(4, 3850));
-        mDataSet.add(new MoneyInfo.Entry(5, 1900));
-        mDataSet.add(new MoneyInfo.Entry(6, 4500));
-        mDataSet.add(new MoneyInfo.Entry(7, 6700));
-        mDataSet.add(new MoneyInfo.Entry(8, 10800));
-        mDataSet.add(new MoneyInfo.Entry(9, 12900));
-        mDataSet.add(new MoneyInfo.Entry(10, 8000));
-        mDataSet.add(new MoneyInfo.Entry(11, 6570));
-        mDataSet.add(new MoneyInfo.Entry(12, 2300));
-        mDataSet.add(new MoneyInfo.Entry(13, 2400));
-        mDataSet.add(new MoneyInfo.Entry(14, 4900));
-        mDataSet.add(new MoneyInfo.Entry(15, 7500));
-        mDataSet.add(new MoneyInfo.Entry(16, 800));
-        mDataSet.add(new MoneyInfo.Entry(17, 4400));
-        mDataSet.add(new MoneyInfo.Entry(18, 7000));
-        mDataSet.add(new MoneyInfo.Entry(19, 10250));
-        mDataSet.add(new MoneyInfo.Entry(20, 13500));
-        mDataSet.add(new MoneyInfo.Entry(21, 16000));
-        mDataSet.add(new MoneyInfo.Entry(22, 13123));
-        mDataSet.add(new MoneyInfo.Entry(23, 3237));
-        mDataSet.add(new MoneyInfo.Entry(24, 2313));
-        mDataSet.add(new MoneyInfo.Entry(25, 8123));
-        mDataSet.add(new MoneyInfo.Entry(26, 0));
-        mDataSet.add(new MoneyInfo.Entry(27, 1300));
-        mDataSet.add(new MoneyInfo.Entry(28, 12312));
-        mDataSet.add(new MoneyInfo.Entry(29, 13233));
-        mDataSet.add(new MoneyInfo.Entry(30, 8248));
-        mDataSet.add(new MoneyInfo.Entry(31, 16000));
-        mDataSet.add(new MoneyInfo.Entry(32, 11000));
-        mDataSet.add(new MoneyInfo.Entry(33, 4600));
-        mDataSet.add(new MoneyInfo.Entry(34, 6000));
-        mDataSet.add(new MoneyInfo.Entry(35, 6845));
-        mDataSet.add(new MoneyInfo.Entry(36, 16000));
-        mDataSet.add(new MoneyInfo.Entry(37, 12700));
+        mDataSet.add(new MoneyState.Entry(1, 800));
+        mDataSet.add(new MoneyState.Entry(2, 2400));
+        mDataSet.add(new MoneyState.Entry(3, 1550));
+        mDataSet.add(new MoneyState.Entry(4, 3850));
+        mDataSet.add(new MoneyState.Entry(5, 1900));
+        mDataSet.add(new MoneyState.Entry(6, 4500));
+        mDataSet.add(new MoneyState.Entry(7, 6700));
+        mDataSet.add(new MoneyState.Entry(8, 10800));
+        mDataSet.add(new MoneyState.Entry(9, 12900));
+        mDataSet.add(new MoneyState.Entry(10, 8000));
+        mDataSet.add(new MoneyState.Entry(11, 6570));
+        mDataSet.add(new MoneyState.Entry(12, 2300));
+        mDataSet.add(new MoneyState.Entry(13, 2400));
+        mDataSet.add(new MoneyState.Entry(14, 4900));
+        mDataSet.add(new MoneyState.Entry(15, 7500));
+        mDataSet.add(new MoneyState.Entry(16, 800));
+        mDataSet.add(new MoneyState.Entry(17, 4400));
+        mDataSet.add(new MoneyState.Entry(18, 7000));
+        mDataSet.add(new MoneyState.Entry(19, 10250));
+        mDataSet.add(new MoneyState.Entry(20, 13500));
+        mDataSet.add(new MoneyState.Entry(21, 16000));
+        mDataSet.add(new MoneyState.Entry(22, 13123));
+        mDataSet.add(new MoneyState.Entry(23, 3237));
+        mDataSet.add(new MoneyState.Entry(24, 2313));
+        mDataSet.add(new MoneyState.Entry(25, 8123));
+        mDataSet.add(new MoneyState.Entry(26, 0));
+        mDataSet.add(new MoneyState.Entry(27, 1300));
+        mDataSet.add(new MoneyState.Entry(28, 12312));
+        mDataSet.add(new MoneyState.Entry(29, 13233));
+        mDataSet.add(new MoneyState.Entry(30, 8248));
+        mDataSet.add(new MoneyState.Entry(31, 16000));
+        mDataSet.add(new MoneyState.Entry(32, 11000));
+        mDataSet.add(new MoneyState.Entry(33, 4600));
+        mDataSet.add(new MoneyState.Entry(34, 6000));
+        mDataSet.add(new MoneyState.Entry(35, 6845));
+        mDataSet.add(new MoneyState.Entry(36, 16000));
+        mDataSet.add(new MoneyState.Entry(37, 12700));
 
         mDataSet.addHalfGameRound(15);
         mDataSet.addHalfGameRound(30);
@@ -551,7 +551,7 @@ public class MoneyChart extends View
         invalidate();
     }
 
-    public void setDataSet(MoneyInfo mDataSet)
+    public void setDataSet(MoneyState mDataSet)
     {
         this.mDataSet = mDataSet;
         notifyDataSetChanged();
