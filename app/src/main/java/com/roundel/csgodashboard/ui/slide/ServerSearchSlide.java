@@ -72,7 +72,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private static final int PORT_MAX = (1 << 16) - 1;
     private static final int PORT_MIN = 0;
 
-    private final List<GameServer> gameServers = new ArrayList<>();
+    private final int mStartActivityDelay = 1500;
+
+    private final List<GameServer> mGameServers = new ArrayList<>();
 
     //<editor-fold desc="private variables">
     @BindView(R.id.setup_server_connection_container) RelativeLayout mConnectionContainer;
@@ -143,7 +145,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
         mCardView = (CardView) root.findViewById(R.id.setup_server_search_cardview);
 
-        mAdapter = new GameServerAdapter(gameServers, this);
+        mAdapter = new GameServerAdapter(mGameServers, this);
 
         mLayoutManager = new LinearLayoutManager(getContext());
 
@@ -163,7 +165,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             {
                 View root = (View) v.getParent();
                 final int position = mRecyclerView.getChildLayoutPosition(root);
-                currentGameServer = gameServers.get(position);
+                currentGameServer = mGameServers.get(position);
 
                 connect();
                 break;
@@ -347,9 +349,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     public void addServer(GameServer server)
     {
-        for(int i = 0; i < gameServers.size(); i++)
+        for(int i = 0; i < mGameServers.size(); i++)
         {
-            GameServer gameServer = gameServers.get(i);
+            GameServer gameServer = mGameServers.get(i);
             if(Objects.equals(gameServer.getHost(), server.getHost()))
             {
                 if(gameServer.getPort() != server.getPort())
@@ -360,8 +362,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 return;
             }
         }
-        gameServers.add(server);
-        mAdapter.notifyItemInserted(gameServers.size() - 1);
+        mGameServers.add(server);
+        mAdapter.notifyItemInserted(mGameServers.size() - 1);
     }
 
     public void startDiscovery()
@@ -426,11 +428,18 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 //TODO: Create separate methods
             }
         });
-        Intent intent = new Intent(getContext(), GameInfoActivity.class);
-        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_NAME, gameServer.getName());
-        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_HOST, gameServer.getHost());
-        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_PORT, gameServer.getPort());
-        getContext().startActivity(intent);
+        new Handler().postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Intent intent = new Intent(getContext(), GameInfoActivity.class);
+                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_NAME, gameServer.getName());
+                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_HOST, gameServer.getHost());
+                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_PORT, gameServer.getPort());
+                getContext().startActivity(intent);
+            }
+        }, mStartActivityDelay);
     }
 
     private void onConnectionRefused(GameServer gameServer)

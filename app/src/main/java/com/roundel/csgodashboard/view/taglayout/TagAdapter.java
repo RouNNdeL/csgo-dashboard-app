@@ -37,6 +37,7 @@ public class TagAdapter
     private boolean mRequestFocus;
 
     private List<String> mDataSet;
+    private int mExpandTransitionDuration = 150;
 
     private int mTagNameMinLength = 2;
     private int mTagNameMaxLength = 15;
@@ -48,6 +49,7 @@ public class TagAdapter
         this.mDataSet = data;
         this.mContext = context;
         mInflater = LayoutInflater.from(context);
+        mExpandTransitionDuration = context.getResources().getInteger(R.integer.tag_expand_transition_duration);
     }
 
     public String getItem(int position)
@@ -86,7 +88,6 @@ public class TagAdapter
             name.setText(getItem(position));
             name.setMaxEms(mTagNameMaxEms);
 
-            //TODO: Fix expanding when removing an icon
             view.setOnClickListener(new View.OnClickListener()
             {
                 @Override
@@ -96,7 +97,7 @@ public class TagAdapter
                     final boolean isExpanded = position == mExpandedPosition;
 
                     final Transition transition = new AutoTransition();
-                    transition.setDuration(150);
+                    transition.setDuration(mExpandTransitionDuration);
 
                     TransitionManager.beginDelayedTransition(mParentTagLayout, transition);
                     removeIcon.setVisibility(View.VISIBLE);

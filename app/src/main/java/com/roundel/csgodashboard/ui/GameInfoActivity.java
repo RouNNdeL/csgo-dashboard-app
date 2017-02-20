@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
+import android.support.transition.AutoTransition;
+import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -45,6 +47,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindColor;
+import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -55,9 +58,13 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     public static final String EXTRA_GAME_SERVER_NAME = "EXTRA_GAME_SERVER_NAME";
     public static final String EXTRA_GAME_SERVER_PORT = "EXTRA_GAME_SERVER_PORT";
 
-    private final ScheduledExecutorService pingingScheduler = Executors.newScheduledThreadPool(1);
-    //<editor-fold desc="private variables">
+    private final ScheduledExecutorService mPingingScheduler = Executors.newScheduledThreadPool(1);
+    private final int mBombResetDelay = 1000;
+    private final float mBombTickingMaxScale = 1.15f;
+    private final int mPingingPeriod = 5000;
+    private final int mPingingDelay = 5000;
 
+    //<editor-fold desc="private variables">
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
     @BindView(R.id.game_info_round_time_text) TextView mRoundState;
     @BindView(R.id.game_info_round_no) TextView mRoundNumber;
@@ -83,13 +90,18 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindColor(R.color.yellowT) int mColorYellowT;
     @BindColor(R.color.blueCT) int mColorBlueCT;
 
+    @BindInt(R.integer.bomb_show_transition_duration) int mBombShowTransitionDuration;
+    @BindInt(R.integer.bomb_hide_transition_duration) int mBombHideTransitionDuration;
+    @BindInt(R.integer.bomb_ticking_anim_duration) int mBombTickingAnimDuration;
+    @BindInt(R.integer.bomb_defuse_transition_duration) int mBombDefuseTransitionDuration;
+
     private TextView text;
     private ImageView backdrop;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
     private GameState mGameState;
     private GameServer mGameServer;
-    private ScheduledFuture<?> pingingHandler;
+    private ScheduledFuture<?> mPingingHandler;
     private GameInfoListeningThread mGameInfoServerThread;
 
     private int maxHealthValue = 100;
@@ -161,10 +173,10 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     protected void onPause()
     {
         super.onPause();
-        if(pingingHandler != null)
+        if(mPingingHandler != null)
         {
-            pingingHandler.cancel(true);
-            LogHelper.i(TAG, "Stopping the pingingHandler");
+            mPingingHandler.cancel(true);
+            LogHelper.i(TAG, "Stopping the mPingingHandler");
         }
         if(mGameInfoServerThread != null)
         {
@@ -373,10 +385,10 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
                 serverPingingThread.start();
             }
         };
-        if(pingingHandler != null)
-            pingingHandler.cancel(false);
-        pingingHandler = pingingScheduler.scheduleAtFixedRate(threadRunnable, 5, 5, TimeUnit.SECONDS);
-        LogHelper.i(TAG, "Scheduled the pingingHandler for 5s");
+        if(mPingingHandler != null)
+            mPingingHandler.cancel(false);
+        mPingingHandler = mPingingScheduler.scheduleAtFixedRate(threadRunnable, mPingingDelay, mPingingPeriod, TimeUnit.MILLISECONDS);
+        LogHelper.i(TAG, "Scheduled the mPingingHandler for 5s");
     }
 
     private void updateServer(int port)
@@ -564,7 +576,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             mBombTickScaleAnimator.cancel();
 
 
-        mBombTickScaleAnimator = ValueAnimator.ofFloat(1.0f, 1.15f);
+        mBombTickScaleAnimator = ValueAnimator.ofFloat(1.0f, mBombTickingMaxScale);
         mBombTickingAnimator = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
 
         mBombTickingAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
@@ -592,12 +604,12 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         });
 
         mBombTickingAnimator.setRepeatMode(ValueAnimator.REVERSE);
-        mBombTickingAnimator.setDuration(1000);
+        mBombTickingAnimator.setDuration(mBombTickingAnimDuration);
         mBombTickingAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mBombTickingAnimator.start();
 
         mBombTickScaleAnimator.setRepeatMode(ValueAnimator.REVERSE);
-        mBombTickScaleAnimator.setDuration(1000);
+        mBombTickScaleAnimator.setDuration(mBombTickingAnimDuration);
         mBombTickScaleAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mBombTickScaleAnimator.start();
     }
@@ -639,7 +651,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         });
 
         AnimatorSet set = new AnimatorSet();
-        set.setDuration(500);
+        set.setDuration(mBombDefuseTransitionDuration);
         set.playTogether(tickAlpha, bombColor);
         set.start();
     }
@@ -651,7 +663,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
         mIsBombVisible = false;
 
-        TransitionManager.beginDelayedTransition(mSectionRoundInfo);
+        Transition transition = new AutoTransition();
+        transition.setDuration(mBombHideTransitionDuration);
+        TransitionManager.beginDelayedTransition(mSectionRoundInfo, transition);
         mRoundNumber.setVisibility(View.VISIBLE);
         mBombFrame.setVisibility(View.GONE);
 
@@ -662,7 +676,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             {
                 resetBomb();
             }
-        }, 1000);
+        }, mBombResetDelay);
     }
 
     private void transitionShowBomb()
@@ -672,7 +686,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
         mIsBombVisible = true;
 
-        TransitionManager.beginDelayedTransition(mSectionRoundInfo);
+        Transition transition = new AutoTransition();
+        transition.setDuration(mBombShowTransitionDuration);
+        TransitionManager.beginDelayedTransition(mSectionRoundInfo, transition);
         mRoundNumber.setVisibility(View.GONE);
         mBombFrame.setVisibility(View.VISIBLE);
     }
@@ -691,12 +707,17 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     {
         if(mTimer != null)
             mTimer.cancel();
-        mTimer = new CountDownTimer(millis, 250)
+        mTimer = new CountDownTimer(millis, 1000)
         {
 
             public void onTick(long millisUntilFinished)
             {
-                mRoundTime.setText(String.format(Locale.getDefault(), "%01d:%02d", (int) Math.floor(millisUntilFinished / 60 / 1000), (millisUntilFinished / 1000) % 60));
+                mRoundTime.setText(String.format(
+                        Locale.getDefault(),
+                        "%01d:%02d",
+                        (int) Math.floor(millisUntilFinished / 60 / 1000),
+                        (millisUntilFinished / 1000) % 60
+                ));
             }
 
             public void onFinish()

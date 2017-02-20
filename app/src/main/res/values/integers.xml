@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <integer name="bomb_show_transition_duration">250</integer>
+    <integer name="bomb_hide_transition_duration">250</integer>
+    <integer name="bomb_ticking_anim_duration">1000</integer>
+    <integer name="bomb_defuse_transition_duration">500</integer>
+    <integer name="tag_expand_transition_duration">150</integer>
+    <integer name="tag_add_transition_duration">150</integer>
+    <integer name="tag_remove_transition_duration">200</integer>
     <integer name="default_transition_duration">250</integer>
     <integer name="filling_icon_anim_duration">500</integer>
 </resources>

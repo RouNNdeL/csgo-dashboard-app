@@ -3,6 +3,8 @@ package com.roundel.csgodashboard.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.transition.AutoTransition;
+import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -39,13 +42,15 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
     //<editor-fold desc="private variables">
     @BindView(R.id.add_nade_toolbar) Toolbar mToolbar;
-
     @BindView(R.id.add_nade_spinner_grenade) Spinner mGrenadeSpinner;
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
     @BindView(R.id.add_nade_image_grid) ExpandableHeightGridView mImageGrid;
-
     @BindView(R.id.add_nade_tag_container) TagLayout mTagLayout;
-    List<String> mTagList = new ArrayList<>();
+
+    @BindInt(R.integer.tag_add_transition_duration) int mTagAddTransitionDuration;
+    @BindInt(R.integer.tag_remove_transition_duration) int mTagRemoveTransitionDuration;
+
+    private List<String> mTagList = new ArrayList<>();
     private StanceAdapter mStanceAdapter;
     private GrenadeAdapter mGrenadeAdapter;
     private GridImageAdapter mImageAdapter;
@@ -128,7 +133,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     @Override
     public boolean onTagAdded(String name)
     {
-        TransitionManager.beginDelayedTransition(mTagLayout);
+        Transition transition = new AutoTransition();
+        transition.setDuration(mTagAddTransitionDuration);
+        TransitionManager.beginDelayedTransition(mTagLayout, transition);
+
         mTagList.add(name);
         mTagAdapter.notifyItemInserted(mTagList.size() - 1);
 
@@ -138,7 +146,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     @Override
     public void onTagRemoved(int position)
     {
-        TransitionManager.beginDelayedTransition(mTagLayout);
+        Transition transition = new AutoTransition();
+        transition.setDuration(mTagRemoveTransitionDuration);
+        TransitionManager.beginDelayedTransition(mTagLayout, transition);
+
         mTagList.remove(position);
         mTagAdapter.notifyItemRemoved(position);
     }
