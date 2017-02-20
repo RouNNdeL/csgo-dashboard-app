@@ -23,7 +23,7 @@ public class GameState
 
     private int round;
 
-    private Map map;
+    private String mapCodeName;
 
     private MapPhase mapPhase;
     private RoundPhase roundPhase;
@@ -38,14 +38,14 @@ public class GameState
     //</editor-fold>
 
 
-    public GameState(String nameHome, String nameAway, int scoreHome, int scoreAway, int round, Map map, MapPhase mapPhase, RoundPhase roundPhase, Player player, Bomb bomb, Mode mode)
+    public GameState(String nameHome, String nameAway, int scoreHome, int scoreAway, int round, String mapCodeName, MapPhase mapPhase, RoundPhase roundPhase, Player player, Bomb bomb, Mode mode)
     {
         this.nameHome = nameHome;
         this.nameAway = nameAway;
         this.scoreHome = scoreHome;
         this.scoreAway = scoreAway;
         this.round = round;
-        this.map = map;
+        this.mapCodeName = mapCodeName;
         this.mapPhase = mapPhase;
         this.roundPhase = roundPhase;
         this.player = player;
@@ -96,7 +96,7 @@ public class GameState
             {
                 bomb = getBombFromString(round.getString("ic_csgo_bomb"));
             }
-            catch(JSONException igonerd)
+            catch(JSONException ignored)
             {
             }
 
@@ -113,6 +113,7 @@ public class GameState
         JSONObject away;
 
         int roundNumber = 0;
+        String mapCodeName = null;
         MapPhase mapPhase = null;
         Mode mode = null;
 
@@ -125,19 +126,26 @@ public class GameState
         {
             try
             {
-                roundNumber = map.getInt("round");
+                mapCodeName = map.getString("name");
             }
             catch(JSONException e)
             {
-                roundNumber = 0;
+                e.printStackTrace();
+            }
+            try
+            {
+                roundNumber = map.getInt("round");
+            }
+            catch(JSONException ignored)
+            {
             }
             try
             {
                 mapPhase = getMapPhaseFromString(map.getString("phase"));
             }
-            catch(JSONException e)
+            catch(JSONException ignored)
             {
-                mapPhase = null;
+
             }
 
             try
@@ -208,7 +216,7 @@ public class GameState
             }
         }
 
-        return new GameState(nameHome, nameAway, scoreHome, scoreAway, roundNumber, null, mapPhase, roundPhase, playerObject, bomb, mode);
+        return new GameState(nameHome, nameAway, scoreHome, scoreAway, roundNumber, mapCodeName, mapPhase, roundPhase, playerObject, bomb, mode);
     }
 
 
@@ -296,7 +304,7 @@ public class GameState
                 ", player=" + player.toString() +
                 ", roundPhase=" + roundPhase +
                 ", mapPhase=" + mapPhase +
-                ", map=" + map +
+                ", mapCodeName=" + mapCodeName +
                 ", round=" + round +
                 ", scoreAway=" + scoreAway +
                 ", scoreHome=" + scoreHome +
@@ -367,6 +375,14 @@ public class GameState
         JSONObject away = null;
         if(map != null)
         {
+            try
+            {
+                this.mapCodeName = map.getString("name");
+            }
+            catch(JSONException e)
+            {
+                this.mapCodeName = null;
+            }
             try
             {
                 this.round = map.getInt("round");
@@ -542,9 +558,9 @@ public class GameState
         return round;
     }
 
-    public Map getMap()
+    public String getMapCodeName()
     {
-        return map;
+        return mapCodeName;
     }
 
     public MapPhase getMapPhase()

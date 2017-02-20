@@ -8,7 +8,6 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -16,6 +15,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -28,7 +28,9 @@ import com.bumptech.glide.Glide;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.entities.GameState;
+import com.roundel.csgodashboard.entities.Maps;
 import com.roundel.csgodashboard.entities.RoundEvents;
+import com.roundel.csgodashboard.entities.UserData;
 import com.roundel.csgodashboard.net.GameInfoListeningThread;
 import com.roundel.csgodashboard.net.ServerPingingThread;
 import com.roundel.csgodashboard.net.ServerUpdateThread;
@@ -54,6 +56,7 @@ import butterknife.ButterKnife;
 public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener, RoundEvents, ServerUpdateThread.OnOffsetDetermined
 {
     private static final String TAG = GameInfoActivity.class.getSimpleName();
+
     public static final String EXTRA_GAME_SERVER_HOST = "EXTRA_GAME_SERVER_HOST";
     public static final String EXTRA_GAME_SERVER_NAME = "EXTRA_GAME_SERVER_NAME";
     public static final String EXTRA_GAME_SERVER_PORT = "EXTRA_GAME_SERVER_PORT";
@@ -96,11 +99,12 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindInt(R.integer.bomb_defuse_transition_duration) int mBombDefuseTransitionDuration;
 
     private TextView text;
-    private ImageView backdrop;
-    private Toolbar toolbar;
-    private AppBarLayout appBarLayout;
+    private ImageView mMapImage;
+    private Toolbar mToolbar;
+    private AppBarLayout mAppBarLayout;
     private GameState mGameState;
     private GameServer mGameServer;
+    private UserData mUserData;
     private ScheduledFuture<?> mPingingHandler;
     private GameInfoListeningThread mGameInfoServerThread;
 
@@ -130,15 +134,12 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         ButterKnife.bind(this);
 
         text = (TextView) findViewById(R.id.text2);
-        backdrop = (ImageView) findViewById(R.id.main_backdrop);
+        mMapImage = (ImageView) findViewById(R.id.main_backdrop);
         //title = (TextView) findViewById(R.id.main_toolbar_title);
-        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        appBarLayout = (AppBarLayout) findViewById(R.id.main_appbar);
+        mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        mAppBarLayout = (AppBarLayout) findViewById(R.id.main_appbar);
 
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Mirage");
-
-        Glide.with(this).load(Uri.parse("file:///android_asset/maps/de_mirage.jpg")).into(backdrop);
+        setSupportActionBar(mToolbar);
 
         /*this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();*/
@@ -148,6 +149,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         findViewById(R.id.testBombD).setOnClickListener(this);
         findViewById(R.id.viewLogs).setOnClickListener(this);
         findViewById(R.id.testAddNade).setOnClickListener(this);
+
+        mUserData = UserData.mapsOnly(this);
+        mUserData.save();
     }
 
     @Override
@@ -499,6 +503,41 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    private void updateMap()
+    {
+        final Maps.Map map = mUserData.getMaps().mapFromCodeName(mGameState.getMapCodeName());
+        if(map != null)
+        {
+            Glide.with(this).load(map.getImageUri()).into(mMapImage);
+            final ActionBar actionBar = getSupportActionBar();
+            if(actionBar != null)
+            {
+                actionBar.setTitle(map.getName());
+            }
+        }
+    }
+
+    private void update()
+    {
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if(mGameState == null)
+                    return;
+
+                updateRoundNo();
+                updateScores();
+                updateTeam();
+                updateStats();
+                updateHealthArmor();
+                updateTeamNames();
+                updateMap();
+            }
+        });
+    }
+
     private void startRound(long localTimestamp)
     {
         transitionHideBomb();
@@ -546,26 +585,6 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         animateBombDefuse();
         mRoundTime.setText("");
         mRoundState.setText(R.string.game_info_timer_defused);
-    }
-
-    private void update()
-    {
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                if(mGameState == null)
-                    return;
-
-                updateRoundNo();
-                updateScores();
-                updateTeam();
-                updateStats();
-                updateHealthArmor();
-                updateTeamNames();
-            }
-        });
     }
 
     private void animateBombPlant()

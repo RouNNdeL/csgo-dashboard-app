@@ -1,6 +1,7 @@
 package com.roundel.csgodashboard.entities;
 
-import java.net.URI;
+import android.net.Uri;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,16 +12,16 @@ public class UtilityBase
 {
     private static final String TAG = UtilityBase.class.getSimpleName();
 
-    public static final String ASSETS_BASE = "file:///android_asset/";
-
-    private List<URI> imageUris = new ArrayList<>();
+    //<editor-fold desc="private variables">
+    private List<Uri> imageUris = new ArrayList<>();
     private List<String> tags = new ArrayList<>();
 
-    private Map map;
+    private Maps.Map map;
     private String title;
     private String description;
+//</editor-fold>
 
-    public UtilityBase(List<URI> imageUris, List<String> tags, Map map, String title, String description)
+    public UtilityBase(List<Uri> imageUris, List<String> tags, Maps.Map map, String title, String description)
     {
         this.imageUris = imageUris;
         this.tags = tags;
@@ -29,12 +30,12 @@ public class UtilityBase
         this.description = description;
     }
 
-    public List<URI> getImageUris()
+    public List<Uri> getImageUris()
     {
         return imageUris;
     }
 
-    public void setImageUris(List<URI> imageUris)
+    public void setImageUris(List<Uri> imageUris)
     {
         this.imageUris = imageUris;
     }
@@ -49,12 +50,12 @@ public class UtilityBase
         this.tags = tags;
     }
 
-    public Map getMap()
+    public Maps.Map getMap()
     {
         return map;
     }
 
-    public void setMap(Map map)
+    public void setMap(Maps.Map map)
     {
         this.map = map;
     }

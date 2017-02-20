@@ -1,8 +1,11 @@
 package com.roundel.csgodashboard.entities;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.roundel.csgodashboard.util.UriAdapter;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -35,7 +38,11 @@ public class Utilities extends ArrayList<UtilityBase>
                 {
                     builder.append(line);
                 }
-                return new Gson().fromJson(builder.toString(), Utilities.class);
+                final GsonBuilder gsonBuilder = new GsonBuilder();
+                gsonBuilder.registerTypeAdapter(Uri.class, new UriAdapter());
+
+                final Gson gson = gsonBuilder.create();
+                return gson.fromJson(builder.toString(), Utilities.class);
             }
             else
                 return new Utilities();
@@ -49,8 +56,12 @@ public class Utilities extends ArrayList<UtilityBase>
 
     public void saveToFile(Context context) throws IOException
     {
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Uri.class, new UriAdapter());
+        final Gson gson = gsonBuilder.create();
+
         FileOutputStream fos = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
-        fos.write(new Gson().toJson(this).getBytes());
+        fos.write(gson.toJson(this).getBytes());
         fos.close();
     }
 }

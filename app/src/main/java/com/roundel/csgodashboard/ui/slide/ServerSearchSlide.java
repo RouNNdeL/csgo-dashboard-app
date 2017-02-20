@@ -422,24 +422,22 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             public void run()
             {
                 setStatusIconSuccess();
-
                 setStatusConnectedSuccessfully();
 
-                //TODO: Create separate methods
+                new Handler().postDelayed(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        Intent intent = new Intent(getContext(), GameInfoActivity.class);
+                        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_NAME, gameServer.getName());
+                        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_HOST, gameServer.getHost());
+                        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_PORT, gameServer.getPort());
+                        getContext().startActivity(intent);
+                    }
+                }, mStartActivityDelay);
             }
         });
-        new Handler().postDelayed(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                Intent intent = new Intent(getContext(), GameInfoActivity.class);
-                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_NAME, gameServer.getName());
-                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_HOST, gameServer.getHost());
-                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_PORT, gameServer.getPort());
-                getContext().startActivity(intent);
-            }
-        }, mStartActivityDelay);
     }
 
     private void onConnectionRefused(GameServer gameServer)

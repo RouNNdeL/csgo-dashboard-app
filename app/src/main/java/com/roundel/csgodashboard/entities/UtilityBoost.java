@@ -1,6 +1,7 @@
 package com.roundel.csgodashboard.entities;
 
-import java.net.URI;
+import android.net.Uri;
+
 import java.util.List;
 
 /**
@@ -10,10 +11,12 @@ public class UtilityBoost extends UtilityBase
 {
     private static final String TAG = UtilityBoost.class.getSimpleName();
 
+    //<editor-fold desc="private variables">
     private int numberOfTeamMates;
     private boolean isRunBoost;
+//</editor-fold>
 
-    public UtilityBoost(List<URI> imageUris, List<String> tags, Map map, String title, String description, int numberOfTeamMates, boolean isRunBoost)
+    public UtilityBoost(List<Uri> imageUris, List<String> tags, Maps.Map map, String title, String description, int numberOfTeamMates, boolean isRunBoost)
     {
         super(imageUris, tags, map, title, description);
         this.numberOfTeamMates = numberOfTeamMates;
