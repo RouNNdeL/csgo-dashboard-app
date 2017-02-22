@@ -12,6 +12,8 @@ public class UtilityBase
 {
     private static final String TAG = UtilityBase.class.getSimpleName();
 
+    public static final String TABLE_NAME = "utilities";
+
     //<editor-fold desc="private variables">
     private List<Uri> imageUris = new ArrayList<>();
     private List<String> tags = new ArrayList<>();

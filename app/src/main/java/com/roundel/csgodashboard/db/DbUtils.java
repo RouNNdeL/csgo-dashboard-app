@@ -41,15 +41,23 @@ public class DbUtils
         );
     }
 
+    public static Cursor queryMaps(SQLiteDatabase db, String[] projection)
+    {
+        return queryMaps(
+                db,
+                projection,
+                null,
+                null,
+                Map._ID,
+                ORDER_ASCENDING
+        );
+    }
+
     public static Cursor queryMaps(SQLiteDatabase db)
     {
         return queryMaps(
                 db,
-                new String[]{Map._ID, Map.COLUMN_NAME_CODE_NAME, Map.COLUMN_NAME_NAME, Map.COLUMN_NAME_IMG_URI},
-                null,
-                null,
-                Map.COLUMN_NAME_NAME,
-                ORDER_ASCENDING
+                new String[]{Map._ID, Map.COLUMN_NAME_CODE_NAME, Map.COLUMN_NAME_NAME, Map.COLUMN_NAME_IMG_URI}
         );
     }
 

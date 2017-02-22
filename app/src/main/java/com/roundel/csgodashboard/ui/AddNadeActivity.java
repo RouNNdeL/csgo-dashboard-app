@@ -13,15 +13,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CursorAdapter;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.adapter.GrenadeAdapter;
 import com.roundel.csgodashboard.adapter.GridImageAdapter;
-import com.roundel.csgodashboard.adapter.MapSpinnerAdapter;
 import com.roundel.csgodashboard.adapter.StanceAdapter;
+import com.roundel.csgodashboard.db.DbHelper;
+import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Grenade;
+import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.Maps;
 import com.roundel.csgodashboard.entities.Stance;
 import com.roundel.csgodashboard.entities.UserData;
@@ -76,7 +80,9 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
     private UserData mUserData;
     private Maps mUserDataMaps;
-    private MapSpinnerAdapter mMapAdapter;
+    private SimpleCursorAdapter mMapAdapter;
+
+    private DbHelper mDbHelper;
     //</editor-fold>
 
     @Override
@@ -94,15 +100,36 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mUserData = UserData.fromContext(this);
         mUserDataMaps = mUserData.getMaps();
 
+        mDbHelper = new DbHelper(this);
+
         mStanceList = Stance.getDefaultStanceList(this);
-        mStanceAdapter = new StanceAdapter(this, R.layout.list_icon_two_line_no_ripple, R.id.list_text_primary, mStanceList);
+        mStanceAdapter = new StanceAdapter(
+                this,
+                R.layout.list_icon_two_line_no_ripple,
+                R.id.list_text_primary, mStanceList
+        );
         mStanceSpinner.setAdapter(mStanceAdapter);
 
         mGrenadeList = Grenade.getDefaultGrenadeList(this);
-        mGrenadeAdapter = new GrenadeAdapter(this, R.layout.list_icon_one_line_no_ripple, R.id.list_text_primary, mGrenadeList);
+        mGrenadeAdapter = new GrenadeAdapter(
+                this,
+                R.layout.list_icon_one_line_no_ripple,
+                R.id.list_text_primary, mGrenadeList
+        );
         mGrenadeSpinner.setAdapter(mGrenadeAdapter);
 
-        mMapAdapter = new MapSpinnerAdapter(mUserDataMaps, this);
+        final String[] projection = {Map.COLUMN_NAME_NAME};
+        mMapAdapter = new SimpleCursorAdapter(
+                this,
+                R.layout.list_simple_one_line_no_ripple,
+                DbUtils.queryMaps(
+                        mDbHelper.getReadableDatabase(),
+                        projection
+                ),
+                projection,
+                new int[]{R.id.list_text_primary},
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
+        );
         mMapSpinner.setAdapter(mMapAdapter);
         mMapSpinner.setOnItemSelectedListener(new OnMapSelectedListener());
 

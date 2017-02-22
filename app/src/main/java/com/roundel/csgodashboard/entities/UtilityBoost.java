@@ -14,7 +14,7 @@ public class UtilityBoost extends UtilityBase
     //<editor-fold desc="private variables">
     private int numberOfTeamMates;
     private boolean isRunBoost;
-//</editor-fold>
+    //</editor-fold>
 
     public UtilityBoost(List<Uri> imageUris, List<String> tags, Map map, String title, String description, int numberOfTeamMates, boolean isRunBoost)
     {

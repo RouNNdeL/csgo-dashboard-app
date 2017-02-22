@@ -28,7 +28,7 @@ public class DbHelper extends SQLiteOpenHelper
 
     //<editor-fold desc="private variables">
     private Context context;
-//</editor-fold>
+    //</editor-fold>
 
     public DbHelper(Context context)
     {
