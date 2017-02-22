@@ -16,12 +16,12 @@ public class UtilityBase
     private List<Uri> imageUris = new ArrayList<>();
     private List<String> tags = new ArrayList<>();
 
-    private Maps.Map map;
+    private Map map;
     private String title;
     private String description;
-//</editor-fold>
+    //</editor-fold>
 
-    public UtilityBase(List<Uri> imageUris, List<String> tags, Maps.Map map, String title, String description)
+    public UtilityBase(List<Uri> imageUris, List<String> tags, Map map, String title, String description)
     {
         this.imageUris = imageUris;
         this.tags = tags;
@@ -50,12 +50,12 @@ public class UtilityBase
         this.tags = tags;
     }
 
-    public Maps.Map getMap()
+    public Map getMap()
     {
         return map;
     }
 
-    public void setMap(Maps.Map map)
+    public void setMap(Map map)
     {
         this.map = map;
     }

@@ -19,9 +19,9 @@ public class UtilityGrenade extends UtilityBase
     //<editor-fold desc="private variables">
     private int type;
     private boolean isJumpThrow;
-//</editor-fold>
+    //</editor-fold>
 
-    public UtilityGrenade(List<Uri> imageUris, List<String> tags, Maps.Map map, String title, String description, int type, boolean isJumpThrow)
+    public UtilityGrenade(List<Uri> imageUris, List<String> tags, Map map, String title, String description, int type, boolean isJumpThrow)
     {
         super(imageUris, tags, map, title, description);
         this.type = type;

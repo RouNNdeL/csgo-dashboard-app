@@ -16,7 +16,7 @@ public class UtilityBoost extends UtilityBase
     private boolean isRunBoost;
 //</editor-fold>
 
-    public UtilityBoost(List<Uri> imageUris, List<String> tags, Maps.Map map, String title, String description, int numberOfTeamMates, boolean isRunBoost)
+    public UtilityBoost(List<Uri> imageUris, List<String> tags, Map map, String title, String description, int numberOfTeamMates, boolean isRunBoost)
     {
         super(imageUris, tags, map, title, description);
         this.numberOfTeamMates = numberOfTeamMates;

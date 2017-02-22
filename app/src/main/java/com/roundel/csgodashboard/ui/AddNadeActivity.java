@@ -12,19 +12,32 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.adapter.GrenadeAdapter;
 import com.roundel.csgodashboard.adapter.GridImageAdapter;
+import com.roundel.csgodashboard.adapter.MapSpinnerAdapter;
 import com.roundel.csgodashboard.adapter.StanceAdapter;
 import com.roundel.csgodashboard.entities.Grenade;
+import com.roundel.csgodashboard.entities.Maps;
 import com.roundel.csgodashboard.entities.Stance;
+import com.roundel.csgodashboard.entities.UserData;
+import com.roundel.csgodashboard.entities.Utilities;
+import com.roundel.csgodashboard.util.FileGenerator;
+import com.roundel.csgodashboard.util.LogHelper;
 import com.roundel.csgodashboard.view.ExpandableHeightGridView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -44,20 +57,26 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     @BindView(R.id.add_nade_toolbar) Toolbar mToolbar;
     @BindView(R.id.add_nade_spinner_grenade) Spinner mGrenadeSpinner;
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
+    @BindView(R.id.add_nade_spinner_map) Spinner mMapSpinner;
     @BindView(R.id.add_nade_image_grid) ExpandableHeightGridView mImageGrid;
     @BindView(R.id.add_nade_tag_container) TagLayout mTagLayout;
 
     @BindInt(R.integer.tag_add_transition_duration) int mTagAddTransitionDuration;
     @BindInt(R.integer.tag_remove_transition_duration) int mTagRemoveTransitionDuration;
 
-    private List<String> mTagList = new ArrayList<>();
     private StanceAdapter mStanceAdapter;
     private GrenadeAdapter mGrenadeAdapter;
     private GridImageAdapter mImageAdapter;
     private TagAdapter mTagAdapter;
+
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
     private List<Uri> mImageList = new ArrayList<>();
+    private List<String> mTagList = new ArrayList<>();
+
+    private UserData mUserData;
+    private Maps mUserDataMaps;
+    private MapSpinnerAdapter mMapAdapter;
     //</editor-fold>
 
     @Override
@@ -72,6 +91,9 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         getSupportActionBar().setTitle("Add nade");
 
+        mUserData = UserData.fromContext(this);
+        mUserDataMaps = mUserData.getMaps();
+
         mStanceList = Stance.getDefaultStanceList(this);
         mStanceAdapter = new StanceAdapter(this, R.layout.list_icon_two_line_no_ripple, R.id.list_text_primary, mStanceList);
         mStanceSpinner.setAdapter(mStanceAdapter);
@@ -79,6 +101,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mGrenadeList = Grenade.getDefaultGrenadeList(this);
         mGrenadeAdapter = new GrenadeAdapter(this, R.layout.list_icon_one_line_no_ripple, R.id.list_text_primary, mGrenadeList);
         mGrenadeSpinner.setAdapter(mGrenadeAdapter);
+
+        mMapAdapter = new MapSpinnerAdapter(mUserDataMaps, this);
+        mMapSpinner.setAdapter(mMapAdapter);
+        mMapSpinner.setOnItemSelectedListener(new OnMapSelectedListener());
 
         mImageAdapter = new GridImageAdapter(mImageList, this);
         mImageAdapter.setOnAddPhotoListener(new OnAddPhotoListener());
@@ -109,7 +135,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         {
             case R.id.menu_add_nade_done:
                 //TODO: Validate the form, then save it's state and finish the Activity
-                Toast.makeText(this, "TODO: Save and finish the activity", Toast.LENGTH_SHORT).show();
+                submit();
                 return true;
         }
         return false;
@@ -137,10 +163,17 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         transition.setDuration(mTagAddTransitionDuration);
         TransitionManager.beginDelayedTransition(mTagLayout, transition);
 
-        mTagList.add(name);
-        mTagAdapter.notifyItemInserted(mTagList.size() - 1);
-
-        return true;
+        if(!mTagList.contains(name))
+        {
+            mTagList.add(name);
+            mTagAdapter.notifyItemInserted(mTagList.size() - 1);
+            return true;
+        }
+        else
+        {
+            Toast.makeText(this, "Tags have to be unique", Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 
     @Override
@@ -152,6 +185,72 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         mTagList.remove(position);
         mTagAdapter.notifyItemRemoved(position);
+    }
+
+    private void submit()
+    {
+        if(verify())
+        {
+            List<Uri> copiedPaths = new ArrayList<>();
+            for(Uri uri : mImageList)
+            {
+                try
+                {
+                    copiedPaths.add(copyFromUri(uri));
+                }
+                catch(IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * @return true if the form is properly filled
+     */
+    private boolean verify()
+    {
+
+        return true;
+    }
+
+    /**
+     * @param uri data received from {@link #onActivityResult}
+     *
+     * @return {@link Uri} of the new file created in the external storage
+     * @throws IOException
+     */
+    private Uri copyFromUri(Uri uri) throws IOException
+    {
+        OutputStream out;
+        String root = getExternalFilesDir(null).getAbsolutePath() + File.separator;
+
+        LogHelper.d(TAG, root);
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+        final byte[] data = getBytes(inputStream);
+
+        File file = FileGenerator.createRandomFile("", "", new File(root + Utilities.IMAGE_FOLDER_NAME));
+        out = new FileOutputStream(file);
+
+        out.write(data);
+        out.close();
+
+        return Uri.parse(file.getAbsolutePath());
+    }
+
+    public byte[] getBytes(InputStream inputStream) throws IOException
+    {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while((len = inputStream.read(buffer)) != -1)
+        {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
     }
 
     private class OnAddPhotoListener implements View.OnClickListener
@@ -170,6 +269,25 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
             {
                 Toast.makeText(AddNadeActivity.this, String.format(Locale.getDefault(), "You can have at most %d images", MAX_IMAGE_COUNT), Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private class OnMapSelectedListener implements AdapterView.OnItemSelectedListener
+    {
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+        {
+            if(position >= mUserDataMaps.size())
+            {
+                //TODO: Start a AddMapActivity
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent)
+        {
+
         }
     }
 }

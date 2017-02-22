@@ -89,7 +89,7 @@ public class UserData
      *
      * @return true if saved successfully
      */
-    public static boolean addMap(Maps.Map map, Context context)
+    public static boolean addMap(Map map, Context context)
     {
         try
         {

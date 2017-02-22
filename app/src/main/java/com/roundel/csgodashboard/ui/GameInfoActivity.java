@@ -27,7 +27,7 @@ import com.bumptech.glide.Glide;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.entities.GameState;
-import com.roundel.csgodashboard.entities.Maps;
+import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.RoundEvents;
 import com.roundel.csgodashboard.entities.UserData;
 import com.roundel.csgodashboard.net.GameInfoListeningThread;
@@ -504,7 +504,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateMap()
     {
-        final Maps.Map map = mUserData.getMaps().mapFromCodeName(mGameState.getMapCodeName());
+        final Map map = mUserData.getMaps().mapFromCodeName(mGameState.getMapCodeName());
         if(map != null)
         {
             Glide.with(this).load(map.getImageUri()).into(mMapImage);

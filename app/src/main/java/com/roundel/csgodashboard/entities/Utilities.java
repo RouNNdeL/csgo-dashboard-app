@@ -14,6 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by Krzysiek on 2017-02-10.
@@ -21,6 +23,8 @@ import java.util.ArrayList;
 public class Utilities extends ArrayList<UtilityBase>
 {
     private static final String TAG = Utilities.class.getSimpleName();
+
+    public static final String IMAGE_FOLDER_NAME = "utilities";
     private static final int BUFFER_SIZE = 1024;
     private static final String FILE_NAME = "utilities.dat";
 
@@ -63,5 +67,35 @@ public class Utilities extends ArrayList<UtilityBase>
         FileOutputStream fos = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
         fos.write(gson.toJson(this).getBytes());
         fos.close();
+    }
+
+    public HashSet<String> getTags()
+    {
+        HashSet<String> set = new HashSet<>();
+
+        for(UtilityBase utility : this)
+        {
+            set.addAll(utility.getTags());
+        }
+
+        return set;
+    }
+
+    public List<String> getOrderedTags()
+    {
+        List<String> list = new ArrayList<>();
+
+        for(UtilityBase utility : this)
+        {
+            for(String tag : utility.getTags())
+            {
+                if(!list.contains(tag))
+                {
+                    list.add(tag);
+                }
+            }
+        }
+
+        return list;
     }
 }

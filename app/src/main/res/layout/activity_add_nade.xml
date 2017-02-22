@@ -75,6 +75,12 @@
                 android:layout_height="48dp"
                 android:background="@null"/>
 
+            <Spinner
+                android:id="@+id/add_nade_spinner_map"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@null"/>
+
             <com.roundel.csgodashboard.view.taglayout.TagLayout
                 android:id="@+id/add_nade_tag_container"
                 android:layout_width="match_parent"
