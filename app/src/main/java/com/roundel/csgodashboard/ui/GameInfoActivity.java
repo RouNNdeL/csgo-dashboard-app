@@ -15,7 +15,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -509,10 +508,10 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         if(map != null)
         {
             Glide.with(this).load(map.getImageUri()).into(mMapImage);
-            final ActionBar actionBar = getSupportActionBar();
-            if(actionBar != null)
+            if(getSupportActionBar() != null)
             {
-                actionBar.setTitle(map.getName());
+                //TODO: Find a way to fix the not updating toolbar
+                getSupportActionBar().setTitle(map.getName());
             }
         }
     }
