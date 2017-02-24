@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.entities.Stance;
+import com.roundel.csgodashboard.entities.utility.Stance;
 
 import java.util.List;
 

@@ -1,8 +1,7 @@
-package com.roundel.csgodashboard.entities;
+package com.roundel.csgodashboard.entities.utility;
 
 import android.net.Uri;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,8 +14,8 @@ public class UtilityBase
     public static final String TABLE_NAME = "utilities";
 
     //<editor-fold desc="private variables">
-    private List<Uri> imageUris = new ArrayList<>();
-    private List<String> tags = new ArrayList<>();
+    private List<Uri> imageUris;
+    private List<String> tags;
 
     private int mapId;
     private String title;

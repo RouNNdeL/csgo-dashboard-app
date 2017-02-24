@@ -4,9 +4,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.roundel.csgodashboard.entities.Grenade;
 import com.roundel.csgodashboard.entities.Map;
-import com.roundel.csgodashboard.entities.Stance;
+import com.roundel.csgodashboard.entities.utility.Grenade;
+import com.roundel.csgodashboard.entities.utility.Stance;
 
 /**
  * Created by Krzysiek on 2017-02-22.

@@ -6,10 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-import com.roundel.csgodashboard.entities.Grenade;
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.Maps;
-import com.roundel.csgodashboard.entities.Stance;
+import com.roundel.csgodashboard.entities.utility.Grenade;
+import com.roundel.csgodashboard.entities.utility.Stance;
 
 /**
  * Created by Krzysiek on 2017-02-22.

@@ -2,6 +2,9 @@ package com.roundel.csgodashboard.entities;
 
 import android.content.Context;
 
+import com.roundel.csgodashboard.entities.utility.Utilities;
+import com.roundel.csgodashboard.entities.utility.UtilityBase;
+
 import java.io.IOException;
 
 /**

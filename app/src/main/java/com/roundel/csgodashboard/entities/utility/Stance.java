@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.entities;
+package com.roundel.csgodashboard.entities.utility;
 
 import android.content.Context;
 import android.provider.BaseColumns;

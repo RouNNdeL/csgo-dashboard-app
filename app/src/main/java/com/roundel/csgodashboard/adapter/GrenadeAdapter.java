@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.entities.Grenade;
+import com.roundel.csgodashboard.entities.utility.Grenade;
 
 import java.util.List;
 
