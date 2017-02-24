@@ -18,16 +18,16 @@ public class UtilityBase
     private List<Uri> imageUris = new ArrayList<>();
     private List<String> tags = new ArrayList<>();
 
-    private Map map;
+    private int mapId;
     private String title;
     private String description;
     //</editor-fold>
 
-    public UtilityBase(List<Uri> imageUris, List<String> tags, Map map, String title, String description)
+    public UtilityBase(List<Uri> imageUris, List<String> tags, int mapId, String title, String description)
     {
         this.imageUris = imageUris;
         this.tags = tags;
-        this.map = map;
+        this.mapId = mapId;
         this.title = title;
         this.description = description;
     }
@@ -52,14 +52,14 @@ public class UtilityBase
         this.tags = tags;
     }
 
-    public Map getMap()
+    public int getMapId()
     {
-        return map;
+        return mapId;
     }
 
-    public void setMap(Map map)
+    public void setMapId(int mapId)
     {
-        this.map = map;
+        this.mapId = mapId;
     }
 
     public String getTitle()

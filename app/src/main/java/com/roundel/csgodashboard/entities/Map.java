@@ -19,6 +19,11 @@ public class Map implements BaseColumns
     public static final String COLUMN_NAME_NAME = "name";
     public static final String COLUMN_NAME_IMG_URI = "uri";
 
+    public static final String[] PROJECTION_ALL =
+            new String[]{_ID, COLUMN_NAME_CODE_NAME, COLUMN_NAME_NAME, COLUMN_NAME_IMG_URI};
+    public static final String[] PROJECTION_DATA =
+            new String[]{COLUMN_NAME_CODE_NAME, COLUMN_NAME_NAME, COLUMN_NAME_IMG_URI};
+
     static final String MAP_DE_CBBLE = "de_cbble";
     static final String MAP_DE_CACHE = "de_cache";
     static final String MAP_DE_DUST = "de_dust";

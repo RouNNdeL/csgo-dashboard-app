@@ -118,15 +118,14 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         );
         mGrenadeSpinner.setAdapter(mGrenadeAdapter);
 
-        final String[] projection = {Map.COLUMN_NAME_NAME};
         mMapAdapter = new SimpleCursorAdapter(
                 this,
                 R.layout.list_simple_one_line_no_ripple,
                 DbUtils.queryMaps(
                         mDbHelper.getReadableDatabase(),
-                        projection
+                        new String[]{Map._ID, Map.COLUMN_NAME_NAME}
                 ),
-                projection,
+                new String[]{Map.COLUMN_NAME_NAME},
                 new int[]{R.id.list_text_primary},
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
         );

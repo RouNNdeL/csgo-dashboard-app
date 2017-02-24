@@ -4,7 +4,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.roundel.csgodashboard.entities.Grenade;
 import com.roundel.csgodashboard.entities.Map;
+import com.roundel.csgodashboard.entities.Stance;
 
 /**
  * Created by Krzysiek on 2017-02-22.
@@ -23,8 +25,21 @@ public class DbHelper extends SQLiteOpenHelper
                     Map.COLUMN_NAME_NAME + " TEXT," +
                     Map.COLUMN_NAME_IMG_URI + " TEXT)";
 
+    private static final String SQL_CREATE_GRENADES =
+            "CREATE TABLE " + Grenade.TABLE_NAME + " (" +
+                    Grenade._ID + " INTEGER PRIMARY KEY)";
+
+    private static final String SQL_CREATE_STANCES =
+            "CREATE TABLE " + Stance.TABLE_NAME + " (" +
+                    Stance._ID + " INTEGER PRIMARY KEY)";
+
+
     private static final String SQL_DELETE_MAPS =
             "DROP TABLE IF EXISTS " + Map.TABLE_NAME;
+    private static final String SQL_DELETE_GRENADES =
+            "DROP TABLE IF EXISTS " + Grenade.TABLE_NAME;
+    private static final String SQL_DELETE_STANCES =
+            "DROP TABLE IF EXISTS " + Stance.TABLE_NAME;
 
     //<editor-fold desc="private variables">
     private Context context;
@@ -40,7 +55,9 @@ public class DbHelper extends SQLiteOpenHelper
     public void onCreate(SQLiteDatabase db)
     {
         db.execSQL(SQL_CREATE_MAPS);
+
         DbUtils.insertDefaultMaps(db, context);
+        DbUtils.insertDefaultGrenades(db, context);
     }
 
     @Override

@@ -11,20 +11,17 @@ public class UtilityGrenade extends UtilityBase
 {
     private static final String TAG = UtilityGrenade.class.getSimpleName();
 
-    public static final int GRENADE_FLASHBANG = 200;
-    public static final int GRENADE_HE = 201;
-    public static final int GRENADE_MOLOTOV = 202;
-    public static final int GRENADE_SMOKE = 203;
-
     //<editor-fold desc="private variables">
     private int type;
+    private int stance;
     private boolean isJumpThrow;
     //</editor-fold>
 
-    public UtilityGrenade(List<Uri> imageUris, List<String> tags, Map map, String title, String description, int type, boolean isJumpThrow)
+    public UtilityGrenade(List<Uri> imageUris, List<String> tags, int mapId, String title, String description, int type, int stance, boolean isJumpThrow)
     {
-        super(imageUris, tags, map, title, description);
+        super(imageUris, tags, mapId, title, description);
         this.type = type;
+        this.stance = stance;
         this.isJumpThrow = isJumpThrow;
     }
 
