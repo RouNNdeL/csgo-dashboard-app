@@ -29,6 +29,7 @@ import com.roundel.csgodashboard.entities.Maps;
 import com.roundel.csgodashboard.entities.UserData;
 import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
+import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.Utilities;
 import com.roundel.csgodashboard.util.FileGenerator;
 import com.roundel.csgodashboard.util.LogHelper;
@@ -76,7 +77,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
     private List<Uri> mImageList = new ArrayList<>();
-    private List<String> mTagList = new ArrayList<>();
+    private Tags mTagList = new Tags();
 
     private UserData mUserData;
     private Maps mUserDataMaps;

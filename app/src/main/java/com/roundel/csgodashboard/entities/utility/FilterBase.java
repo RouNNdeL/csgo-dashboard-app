@@ -1,7 +1,5 @@
 package com.roundel.csgodashboard.entities.utility;
 
-import java.util.List;
-
 /**
  * Created by Krzysiek on 2017-02-24.
  */
@@ -10,18 +8,18 @@ public class FilterBase
     private static final String TAG = FilterBase.class.getSimpleName();
 
     //<editor-fold desc="private variables">
-    private List<String> tags;
+    private Tags tags;
     private Integer mapId;
     private String title;
     //</editor-fold>
 
 
-    public List<String> getTags()
+    public Tags getTags()
     {
         return tags;
     }
 
-    public void setTags(List<String> tags)
+    public void setTags(Tags tags)
     {
         this.tags = tags;
     }

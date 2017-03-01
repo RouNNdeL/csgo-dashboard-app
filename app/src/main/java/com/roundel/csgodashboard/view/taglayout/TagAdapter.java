@@ -14,9 +14,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.roundel.csgodashboard.R;
+import com.roundel.csgodashboard.entities.utility.Tags;
 import com.zhy.view.flowlayout.FlowLayout;
-
-import java.util.List;
 
 /**
  * Created by Krzysiek on 2017-02-18.
@@ -36,7 +35,7 @@ public class TagAdapter
     private OnTagRemoveRequested mOnTagRemoveRequested = new OnTagRemoveRequested();
     private boolean mRequestFocus;
 
-    private List<String> mDataSet;
+    private Tags mDataSet;
     private int mExpandTransitionDuration = 150;
 
     private int mTagNameMinLength = 2;
@@ -44,7 +43,7 @@ public class TagAdapter
     private int mTagNameMaxEms = 8;
     //</editor-fold>
 
-    public TagAdapter(List<String> data, Context context)
+    public TagAdapter(Tags data, Context context)
     {
         this.mDataSet = data;
         this.mContext = context;

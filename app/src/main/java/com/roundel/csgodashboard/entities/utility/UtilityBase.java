@@ -11,18 +11,16 @@ public class UtilityBase
 {
     private static final String TAG = UtilityBase.class.getSimpleName();
 
-    public static final String TABLE_NAME = "utilities";
-
     //<editor-fold desc="private variables">
     private List<Uri> imageUris;
-    private List<String> tags;
+    private Tags tags;
 
     private int mapId;
     private String title;
     private String description;
     //</editor-fold>
 
-    public UtilityBase(List<Uri> imageUris, List<String> tags, int mapId, String title, String description)
+    public UtilityBase(List<Uri> imageUris, Tags tags, int mapId, String title, String description)
     {
         this.imageUris = imageUris;
         this.tags = tags;
@@ -41,12 +39,12 @@ public class UtilityBase
         this.imageUris = imageUris;
     }
 
-    public List<String> getTags()
+    public Tags getTags()
     {
         return tags;
     }
 
-    public void setTags(List<String> tags)
+    public void setTags(Tags tags)
     {
         this.tags = tags;
     }
