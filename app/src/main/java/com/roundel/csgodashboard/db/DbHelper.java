@@ -40,8 +40,8 @@ public class DbHelper extends SQLiteOpenHelper
                     UtilityGrenade.COLUMN_NAME_STANCE + " INTEGER NOT NULL," +
                     UtilityGrenade.COLUMN_NAME_MAP_ID + " INTEGER NOT NULL," +
                     UtilityGrenade.COLUMN_NAME_TYPE + " INTEGER NOT NULL," +
-                    UtilityGrenade.COLUMN_NAME_TAGS + "TEXT," +
-                    UtilityGrenade.COLUMN_NAME_IMG_URIS + "TEXT" + ")";
+                    UtilityGrenade.COLUMN_NAME_TAGS + " TEXT," +
+                    UtilityGrenade.COLUMN_NAME_IMG_URIS + " TEXT" + ")";
 
     private static final String SQL_CREATE_BOOSTS =
             "CREATE TABLE " + UtilityBoost.TABLE_NAME + " (" +
@@ -51,8 +51,8 @@ public class DbHelper extends SQLiteOpenHelper
                     UtilityBoost.COLUMN_NAME_RUNBOOST + " INTEGER NOT NULL," +
                     UtilityBoost.COLUMN_NAME_TEAMMATES + " INTEGER NOT NULL," +
                     UtilityBoost.COLUMN_NAME_MAP_ID + " INTEGER NOT NULL," +
-                    UtilityBoost.COLUMN_NAME_TAGS + "TEXT," +
-                    UtilityBoost.COLUMN_NAME_IMG_URIS + "TEXT" + ")";
+                    UtilityBoost.COLUMN_NAME_TAGS + " TEXT," +
+                    UtilityBoost.COLUMN_NAME_IMG_URIS + " TEXT" + ")";
 
     private static final String SQL_DELETE_MAPS =
             "DROP TABLE IF EXISTS " + Map.TABLE_NAME;
@@ -82,7 +82,6 @@ public class DbHelper extends SQLiteOpenHelper
         db.execSQL(SQL_CREATE_BOOSTS);
 
         DbUtils.insertDefaultMaps(db, context);
-        DbUtils.insertDefaultGrenades(db, context);
     }
 
     @Override
@@ -92,6 +91,7 @@ public class DbHelper extends SQLiteOpenHelper
         db.execSQL(SQL_DELETE_TAGS);
         db.execSQL(SQL_DELETE_GRENADES);
         db.execSQL(SQL_DELETE_BOOSTS);
+
         onCreate(db);
     }
 

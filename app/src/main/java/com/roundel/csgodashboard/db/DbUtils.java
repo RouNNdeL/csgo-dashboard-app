@@ -8,7 +8,6 @@ import android.net.Uri;
 
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.Maps;
-import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
 
 /**
@@ -29,13 +28,6 @@ public class DbUtils
         values.put(Map.COLUMN_NAME_IMG_URI, map.getImageUri().toString());
 
         return db.insert(Map.TABLE_NAME, null, values);
-    }
-
-    public static long insertGrenade(SQLiteDatabase db, Grenade grenade)
-    {
-        ContentValues values = new ContentValues(1);
-        values.put(Grenade._ID, grenade.getId());
-        return db.insert(Grenade.TABLE_NAME, null, values);
     }
 
     public static long insertStance(SQLiteDatabase db, Stance stance)
@@ -84,17 +76,6 @@ public class DbUtils
         for(Map map : Maps.getDefaultMaps(context))
         {
             if(insertMap(db, map) == -1)
-                success = false;
-        }
-        return success;
-    }
-
-    public static boolean insertDefaultGrenades(SQLiteDatabase db, Context context)
-    {
-        boolean success = true;
-        for(Grenade grenade : Grenade.getDefaultGrenadeList(context))
-        {
-            if(insertGrenade(db, grenade) == -1)
                 success = false;
         }
         return success;

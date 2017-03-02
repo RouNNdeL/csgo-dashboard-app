@@ -7,7 +7,6 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.github.paolorotolo.appintro.AppIntro;
-import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.ui.slide.NoWifiSlide;
 import com.roundel.csgodashboard.ui.slide.ServerSearchSlide;
 import com.roundel.csgodashboard.ui.slide.SlideAction;
@@ -41,9 +40,9 @@ public class ServerSetupActivity extends AppIntro implements SlideAction, Server
         showSkipButton(false);
         setSeparatorColor(getColor(android.R.color.transparent));
 
-        noWifiSlide = NoWifiSlide.newInstance(R.layout.setup_no_wifi);
-        serverSearchSlide = ServerSearchSlide.newInstance(R.layout.setup_server_search);
-        waitGameSlide = WaitGameSlide.newInstance(R.layout.setup_wait_game);
+        noWifiSlide = NoWifiSlide.newInstance();
+        serverSearchSlide = ServerSearchSlide.newInstance();
+        waitGameSlide = WaitGameSlide.newInstance();
 
         noWifiSlide.attachSlideActionInterface(this);
         noWifiSlide.attachWifiConnectionListener(this);

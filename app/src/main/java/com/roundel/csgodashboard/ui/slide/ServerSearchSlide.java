@@ -113,12 +113,12 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private GameServer currentGameServer;
     //</editor-fold>
 
-    public static ServerSearchSlide newInstance(int layoutResId)
+    public static ServerSearchSlide newInstance()
     {
         ServerSearchSlide sampleSlide = new ServerSearchSlide();
 
         Bundle args = new Bundle();
-        args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
+        args.putInt(ARG_LAYOUT_RES_ID, R.layout.setup_server_search);
         sampleSlide.setArguments(args);
 
         return sampleSlide;

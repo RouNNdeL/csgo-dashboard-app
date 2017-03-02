@@ -42,12 +42,12 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
     private WifiConnectionListener mWifiConnectionListener;
 //</editor-fold>
 
-    public static NoWifiSlide newInstance(int layoutResId)
+    public static NoWifiSlide newInstance()
     {
         NoWifiSlide sampleSlide = new NoWifiSlide();
 
         Bundle args = new Bundle();
-        args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
+        args.putInt(ARG_LAYOUT_RES_ID, R.layout.setup_no_wifi);
         sampleSlide.setArguments(args);
 
         return sampleSlide;
