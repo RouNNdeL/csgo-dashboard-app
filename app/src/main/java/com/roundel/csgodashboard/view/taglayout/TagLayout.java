@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.roundel.csgodashboard.R;
 import com.zhy.view.flowlayout.FlowLayout;
 
 /**
@@ -49,9 +50,9 @@ public class TagLayout extends FlowLayout implements TagAdapter.OnDataChangedLis
         int lineHeight = 0;
 
         //This is to prevent tags jumping to the next line when expanded (remove icon is shown)
-        /*int removeIconSize = getResources().getDimensionPixelSize(R.dimen.utility_tag_icon_margin_start) +
+        int removeIconSize = getResources().getDimensionPixelSize(R.dimen.utility_tag_icon_margin_start) +
                 getResources().getDimensionPixelSize(R.dimen.utility_tag_icon_size);
-        sizeWidth -= removeIconSize;*/
+        sizeWidth -= removeIconSize;
 
         int cCount = getChildCount();
 

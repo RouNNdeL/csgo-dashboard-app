@@ -7,6 +7,8 @@ import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,8 +22,8 @@ import android.widget.Toast;
 
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.adapter.GrenadeAdapter;
-import com.roundel.csgodashboard.adapter.GridImageAdapter;
 import com.roundel.csgodashboard.adapter.StanceAdapter;
+import com.roundel.csgodashboard.adapter.UtilityImagesAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
@@ -33,7 +35,6 @@ import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.Utilities;
 import com.roundel.csgodashboard.util.FileGenerator;
 import com.roundel.csgodashboard.util.LogHelper;
-import com.roundel.csgodashboard.view.ExpandableHeightGridView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
@@ -63,7 +64,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     @BindView(R.id.add_nade_spinner_grenade) Spinner mGrenadeSpinner;
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
     @BindView(R.id.add_nade_spinner_map) Spinner mMapSpinner;
-    @BindView(R.id.add_nade_image_grid) ExpandableHeightGridView mImageGrid;
+    @BindView(R.id.add_nade_image_recyclerview) RecyclerView mImageRecyclerView;
     @BindView(R.id.add_nade_tag_container) TagLayout mTagLayout;
 
     @BindInt(R.integer.tag_add_transition_duration) int mTagAddTransitionDuration;
@@ -71,8 +72,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
     private StanceAdapter mStanceAdapter;
     private GrenadeAdapter mGrenadeAdapter;
-    private GridImageAdapter mImageAdapter;
+    private UtilityImagesAdapter mImageAdapter;
     private TagAdapter mTagAdapter;
+
+    private LinearLayoutManager mImageLayoutManager;
 
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
@@ -133,10 +136,11 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mMapSpinner.setAdapter(mMapAdapter);
         mMapSpinner.setOnItemSelectedListener(new OnMapSelectedListener());
 
-        mImageAdapter = new GridImageAdapter(mImageList, this);
+        mImageAdapter = new UtilityImagesAdapter(mImageList, this);
         mImageAdapter.setOnAddPhotoListener(new OnAddPhotoListener());
-        mImageGrid.setAdapter(mImageAdapter);
-        mImageGrid.setExpanded(true);
+        mImageLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mImageRecyclerView.setAdapter(mImageAdapter);
+        mImageRecyclerView.setLayoutManager(mImageLayoutManager);
 
         mTagList.add("one-way");
         mTagList.add("mid");
@@ -180,6 +184,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
             mImageList.add(uri);
             mImageAdapter.notifyDataSetChanged();
+            mImageLayoutManager.scrollToPosition(mImageList.size());
         }
     }
 

@@ -10,4 +10,5 @@
     <dimen name="game_info_stats_gap">6dp</dimen>
     <dimen name="utility_tag_icon_size">16dp</dimen>
     <dimen name="utility_tag_icon_margin_start">4dp</dimen>
+    <dimen name="utlity_imageview_add_photo_padding">32dp</dimen>
 </resources>

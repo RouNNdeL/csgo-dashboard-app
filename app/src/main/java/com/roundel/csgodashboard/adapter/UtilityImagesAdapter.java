@@ -55,8 +55,8 @@ public class UtilityImagesAdapter extends RecyclerView.Adapter<UtilityImagesAdap
         {
             final ImageView imageView = (ImageView) holder.itemView;
             imageView.setOnClickListener(onAddPhotoListener);
-            float density = mContext.getResources().getDisplayMetrics().density;
-            int padding = (int) (density * 32);
+            imageView.setImageResource(R.drawable.ic_add_a_photo_white_24dp);
+            int padding = mContext.getResources().getDimensionPixelSize(R.dimen.utlity_imageview_add_photo_padding);
             imageView.setPadding(padding, padding, padding, padding);
         }
     }
