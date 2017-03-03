@@ -29,7 +29,7 @@ public class DbHelper extends SQLiteOpenHelper
     private static final String SQL_CREATE_TAGS =
             "CREATE TABLE " + Tags.TABLE_NAME + " (" +
                     Tags._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    Tags.COLUMN_NAME_NAME + " TEXT)";
+                    Tags.COLUMN_NAME_NAME + " TEXT UNIQUE)";
 
     private static final String SQL_CREATE_GRENADES =
             "CREATE TABLE " + UtilityGrenade.TABLE_NAME + " (" +

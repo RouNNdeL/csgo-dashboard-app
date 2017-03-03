@@ -77,7 +77,7 @@ public class ViewNadeActivity extends AppCompatActivity
      */
     private void fillActivity()
     {
-        final Map map = DbUtils.queryMapById(mReadableDatabase, mUtilityData.getMapId());
+        final Map map = mUtilityData.getMap();
         final Stance stance = Stance.fromType(mUtilityData.getStance(), this);
         final Grenade grenade = Grenade.fromType(mUtilityData.getStance(), this);
 

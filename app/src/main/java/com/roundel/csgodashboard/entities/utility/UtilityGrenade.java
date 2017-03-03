@@ -3,6 +3,8 @@ package com.roundel.csgodashboard.entities.utility;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.roundel.csgodashboard.entities.Map;
+
 import java.util.List;
 
 /**
@@ -52,9 +54,9 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
     private boolean isJumpThrow;
     //</editor-fold>
 
-    public UtilityGrenade(List<Uri> imageUris, Tags tags, int mapId, String title, String description, int type, int stance, boolean isJumpThrow)
+    public UtilityGrenade(List<Uri> imageUris, Tags tags, Map map, String title, String description, int type, int stance, boolean isJumpThrow)
     {
-        super(imageUris, tags, mapId, title, description);
+        super(imageUris, tags, map, title, description);
         this.type = type;
         this.stance = stance;
         this.isJumpThrow = isJumpThrow;

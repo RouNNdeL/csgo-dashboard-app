@@ -48,6 +48,7 @@ public class Map implements BaseColumns
     private String codeName;
     private String name;
     private Uri imageUri;
+    private int id;
     //</editor-fold>
 
     public Map(String codeName, Uri imageUri, Context context)
@@ -104,5 +105,15 @@ public class Map implements BaseColumns
     public String getCodeName()
     {
         return codeName;
+    }
+
+    public int getId()
+    {
+        return id;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
     }
 }

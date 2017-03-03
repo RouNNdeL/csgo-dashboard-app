@@ -3,6 +3,8 @@ package com.roundel.csgodashboard.entities.utility;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.roundel.csgodashboard.entities.Map;
+
 import java.util.List;
 
 /**
@@ -27,9 +29,9 @@ public class UtilityBoost extends UtilityBase implements BaseColumns
     private boolean isRunBoost;
     //</editor-fold>
 
-    public UtilityBoost(List<Uri> imageUris, Tags tags, int mapId, String title, String description, int numberOfTeamMates, boolean isRunBoost)
+    public UtilityBoost(List<Uri> imageUris, Tags tags, Map map, String title, String description, int numberOfTeamMates, boolean isRunBoost)
     {
-        super(imageUris, tags, mapId, title, description);
+        super(imageUris, tags, map, title, description);
         this.numberOfTeamMates = numberOfTeamMates;
         this.isRunBoost = isRunBoost;
     }

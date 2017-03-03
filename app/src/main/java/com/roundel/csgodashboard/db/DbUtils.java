@@ -4,13 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.Maps;
-import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
+import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 
 import java.util.ArrayList;
@@ -28,9 +29,11 @@ public class DbUtils
 
     private static final String ARRAY_DIVIDER = ";";
 
+    //<editor-fold desc="Inserts">
     public static long insertMap(SQLiteDatabase db, Map map)
     {
         ContentValues values = new ContentValues(3);
+
         values.put(Map.COLUMN_NAME_CODE_NAME, map.getCodeName());
         values.put(Map.COLUMN_NAME_NAME, map.getName());
         values.put(Map.COLUMN_NAME_IMG_URI, map.getImageUri().toString());
@@ -38,13 +41,32 @@ public class DbUtils
         return db.insert(Map.TABLE_NAME, null, values);
     }
 
-    public static long insertStance(SQLiteDatabase db, Stance stance)
+    public static long insertTag(SQLiteDatabase db, String tag)
     {
         ContentValues values = new ContentValues(1);
-        values.put(Stance._ID, stance.getId());
+        values.put(Tags.COLUMN_NAME_NAME, tag);
+
         return db.insert(Stance.TABLE_NAME, null, values);
     }
 
+    public static long insertGrenade(SQLiteDatabase db, UtilityGrenade utilityGrenade)
+    {
+        ContentValues values = new ContentValues(8);
+
+        //TODO: Add tag column
+        values.put(UtilityGrenade.COLUMN_NAME_TITLE, utilityGrenade.getTitle());
+        values.put(UtilityGrenade.COLUMN_NAME_DESCRIPTION, utilityGrenade.getDescription());
+        values.put(UtilityGrenade.COLUMN_NAME_MAP_ID, utilityGrenade.getMap().getId());
+        values.put(UtilityGrenade.COLUMN_NAME_IMG_URIS, joinUris(utilityGrenade.getImageUris()));
+        values.put(UtilityGrenade.COLUMN_NAME_JUMP_THROW, utilityGrenade.isJumpThrow());
+        values.put(UtilityGrenade.COLUMN_NAME_STANCE, utilityGrenade.getStance());
+        values.put(UtilityGrenade.COLUMN_NAME_TYPE, utilityGrenade.getType());
+
+        return db.insert(UtilityGrenade.TABLE_NAME, null, values);
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Maps query">
     public static Cursor queryMaps(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs, String orderColumn, String order)
     {
         return db.query(
@@ -89,17 +111,6 @@ public class DbUtils
         return success;
     }
 
-    public static boolean insertDefaultStances(SQLiteDatabase db, Context context)
-    {
-        boolean success = true;
-        for(Stance stance : Stance.getDefaultStanceList(context))
-        {
-            if(insertStance(db, stance) == -1)
-                success = false;
-        }
-        return success;
-    }
-
     public static Map queryMapById(SQLiteDatabase db, int id)
     {
         Cursor cursor = queryMaps(db, Map.PROJECTION_DATA, Map._ID + " = ?", new String[]{String.valueOf(id)}, Map._ID, ORDER_ASCENDING);
@@ -113,18 +124,25 @@ public class DbUtils
         }
         return null;
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Grenades query">
     public static Cursor queryGrenades(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs, String orderColumn, String order)
     {
-        return db.query(
-                Grenade.TABLE_NAME,
+        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
+        builder.setTables(UtilityGrenade.TABLE_NAME +
+                " LEFT JOIN " + Map.TABLE_NAME +
+                " ON " +
+                UtilityGrenade.COLUMN_NAME_MAP_ID + " = " + Map._ID
+        );
+        return db.rawQuery(builder.buildQuery(
                 projection,
                 selection,
-                selectionArgs,
                 null,
                 null,
-                orderColumn + " COLLATE LOCALIZED " + order
-        );
+                orderColumn + " COLLATE LOCALIZED " + order,
+                null
+        ), selectionArgs);
     }
 
     public static Cursor queryGrenades(SQLiteDatabase db, String[] projection)
@@ -160,10 +178,20 @@ public class DbUtils
         if(cursor.moveToFirst())
         {
             //TODO: Finish the method
+
+            final Tags tags = queryTags(
+                    db,
+                    splitTagIds(
+                            cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAGS))
+                    )
+            );
+            final List<Uri> uris = splitUris(
+                    cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_IMG_URIS))
+            );
             return new UtilityGrenade(
+                    uris,
+                    tags,
                     null,
-                    null,
-                    0,
                     null,
                     null,
                     0,
@@ -173,7 +201,83 @@ public class DbUtils
         }
         return null;
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Tags query">
+    private static Tags queryTags(SQLiteDatabase db, List<Integer> ids)
+    {
+        Tags tags = new Tags();
+        Cursor cursor = queryTags(
+                db,
+                new String[]{Tags.COLUMN_NAME_NAME},
+                buildTagQuery(ids),
+                tagSelectionArgsFromIdList(ids),
+                Tags._ID,
+                ORDER_ASCENDING
+        );
+        while(cursor.moveToNext())
+        {
+            tags.add(cursor.getString(cursor.getColumnIndex(Tags.COLUMN_NAME_NAME)));
+        }
+        return tags;
+    }
+
+    public static Cursor queryTags(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs, String orderColumn, String order)
+    {
+        return db.query(
+                Tags.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                orderColumn + " COLLATE LOCALIZED " + order
+        );
+    }
+
+    public static Cursor queryTags(SQLiteDatabase db, String[] projection)
+    {
+        return queryTags(
+                db,
+                projection,
+                null,
+                null,
+                Tags._ID,
+                ORDER_ASCENDING
+        );
+    }
+
+    public static Cursor queryTags(SQLiteDatabase db)
+    {
+        return queryTags(
+                db,
+                new String[]{Tags._ID, Tags.COLUMN_NAME_NAME},
+                null,
+                null,
+                Tags._ID,
+                ORDER_ASCENDING
+        );
+    }
+
+    public static String queryTagById(SQLiteDatabase db, int id)
+    {
+        Cursor cursor = queryTags(
+                db,
+                new String[]{Tags.COLUMN_NAME_NAME},
+                Tags._ID + " = ?",
+                new String[]{String.valueOf(id)},
+                Tags._ID,
+                ORDER_ASCENDING
+        );
+        if(cursor.moveToFirst())
+        {
+            return cursor.getString(cursor.getColumnIndex(Tags.COLUMN_NAME_NAME));
+        }
+        return null;
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Private support functions">
     private static List<Uri> splitUris(String string)
     {
         String[] split = string.split(ARRAY_DIVIDER);
@@ -209,4 +313,27 @@ public class DbUtils
     {
         return TextUtils.join(ARRAY_DIVIDER, list);
     }
+
+    private static String buildTagQuery(List<Integer> list)
+    {
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < list.size(); i++)
+        {
+            builder.append("ID = ?");
+            if(i < list.size() - 2)
+                builder.append(" OR ");
+        }
+        return builder.toString();
+    }
+
+    private static String[] tagSelectionArgsFromIdList(List<Integer> ids)
+    {
+        List<String> tmp = new ArrayList<>();
+        for(int id : ids)
+        {
+            tmp.add(String.valueOf(id));
+        }
+        return (String[]) tmp.toArray();
+    }
+    //</editor-fold>
 }

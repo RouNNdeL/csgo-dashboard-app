@@ -2,6 +2,8 @@ package com.roundel.csgodashboard.entities.utility;
 
 import android.net.Uri;
 
+import com.roundel.csgodashboard.entities.Map;
+
 import java.util.List;
 
 /**
@@ -15,16 +17,16 @@ public class UtilityBase
     private List<Uri> imageUris;
     private Tags tags;
 
-    private int mapId;
+    private Map map;
     private String title;
     private String description;
     //</editor-fold>
 
-    public UtilityBase(List<Uri> imageUris, Tags tags, int mapId, String title, String description)
+    public UtilityBase(List<Uri> imageUris, Tags tags, Map map, String title, String description)
     {
         this.imageUris = imageUris;
         this.tags = tags;
-        this.mapId = mapId;
+        this.map = map;
         this.title = title;
         this.description = description;
     }
@@ -49,14 +51,14 @@ public class UtilityBase
         this.tags = tags;
     }
 
-    public int getMapId()
+    public Map getMap()
     {
-        return mapId;
+        return map;
     }
 
-    public void setMapId(int mapId)
+    public void setMap(Map map)
     {
-        this.mapId = mapId;
+        map = map;
     }
 
     public String getTitle()
