@@ -1,6 +1,7 @@
 package com.roundel.csgodashboard.view.taglayout;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -15,11 +16,22 @@ public class TagLayout extends FlowLayout implements TagAdapter.OnDataChangedLis
     private static final String TAG = TagLayout.class.getSimpleName();
     //<editor-fold desc="private variables">
     private TagAdapter mTagAdapter;
-//</editor-fold>
+    private boolean mEditable;
+    //</editor-fold>
 
     public TagLayout(Context context, AttributeSet attrs, int defStyle)
     {
         super(context, attrs, defStyle);
+
+        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.TagLayout, defStyle, 0);
+        try
+        {
+            mEditable = array.getBoolean(R.styleable.TagLayout_editable, false);
+        }
+        finally
+        {
+            array.recycle();
+        }
     }
 
     public TagLayout(Context context, AttributeSet attrs)
@@ -139,5 +151,16 @@ public class TagLayout extends FlowLayout implements TagAdapter.OnDataChangedLis
         {
             addView(mTagAdapter.getView(this, i));
         }
+    }
+
+    public boolean isEditable()
+    {
+        return mEditable;
+    }
+
+    public void setEditable(boolean editable)
+    {
+        mEditable = editable;
+        refreshLayout();
     }
 }

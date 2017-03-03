@@ -58,7 +58,10 @@ public class TagAdapter
 
     public int getCount()
     {
-        return mDataSet.size() + 1;
+        if(mParentTagLayout.isEditable())
+            return mDataSet.size() + 1;
+        else
+            return mDataSet.size();
     }
 
     public View getView(FlowLayout parent, int position)
@@ -81,45 +84,48 @@ public class TagAdapter
             view = mInflater.inflate(R.layout.utility_tag_layout, parent, false);
 
             final TextView name = (TextView) view.findViewById(R.id.utility_tag_name);
-            final ImageView removeIcon = (ImageView) view.findViewById(R.id.utility_tag_remove);
-
-            removeIcon.setOnClickListener(mOnTagRemoveRequested);
             name.setText(getItem(position));
             name.setMaxEms(mTagNameMaxEms);
 
-            view.setOnClickListener(new View.OnClickListener()
+            if(mParentTagLayout.isEditable())
             {
-                @Override
-                public void onClick(View v)
+                final ImageView removeIcon = (ImageView) view.findViewById(R.id.utility_tag_remove);
+
+                removeIcon.setOnClickListener(mOnTagRemoveRequested);
+                view.setOnClickListener(new View.OnClickListener()
                 {
-                    int position = mParentTagLayout.indexOfChild(v);
-                    final boolean isExpanded = position == mExpandedPosition;
-
-                    final Transition transition = new AutoTransition();
-                    transition.setDuration(mExpandTransitionDuration);
-
-                    TransitionManager.beginDelayedTransition(mParentTagLayout, transition);
-                    removeIcon.setVisibility(View.VISIBLE);
-                    if(mExpandedPosition != -1)
+                    @Override
+                    public void onClick(View v)
                     {
-                        View child = mParentTagLayout.getChildAt(mExpandedPosition);
-                        if(child != null)
+                        int position = mParentTagLayout.indexOfChild(v);
+                        final boolean isExpanded = position == mExpandedPosition;
+
+                        final Transition transition = new AutoTransition();
+                        transition.setDuration(mExpandTransitionDuration);
+
+                        TransitionManager.beginDelayedTransition(mParentTagLayout, transition);
+                        removeIcon.setVisibility(View.VISIBLE);
+                        if(mExpandedPosition != -1)
                         {
-                            final ImageView i = (ImageView) child.findViewById(R.id.utility_tag_remove);
-                            if(i != null)
+                            View child = mParentTagLayout.getChildAt(mExpandedPosition);
+                            if(child != null)
                             {
-                                i.setVisibility(View.GONE);
+                                final ImageView i = (ImageView) child.findViewById(R.id.utility_tag_remove);
+                                if(i != null)
+                                {
+                                    i.setVisibility(View.GONE);
+                                    mExpandedPosition = -1;
+                                }
+                            }
+                            else
+                            {
                                 mExpandedPosition = -1;
                             }
                         }
-                        else
-                        {
-                            mExpandedPosition = -1;
-                        }
+                        mExpandedPosition = isExpanded ? -1 : position;
                     }
-                    mExpandedPosition = isExpanded ? -1 : position;
-                }
-            });
+                });
+            }
         }
         return view;
     }

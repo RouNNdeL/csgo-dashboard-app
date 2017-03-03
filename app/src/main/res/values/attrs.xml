@@ -22,6 +22,7 @@
         <attr name="showHoleSelected" format="boolean"/>
         <attr name="popupCornerRadius" format="dimension"/>
     </declare-styleable>
+
     <declare-styleable name="FillingIcon">
         <attr name="strokeWidth" format="dimension"/>
         <attr name="strokeColor" format="color"/>
@@ -36,5 +37,9 @@
             <enum name="end_start" value="3"/>
         </attr>
 
+    </declare-styleable>
+
+    <declare-styleable name="TagLayout">
+        <attr name="editable" format="boolean"/>
     </declare-styleable>
 </resources>

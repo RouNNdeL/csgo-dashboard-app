@@ -23,6 +23,29 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
     public static final String COLUMN_NAME_TAGS = "tags";
     public static final String COLUMN_NAME_IMG_URIS = "img_uris";
 
+    public static final String[] PROJECTION_ALL = {
+            _ID,
+            COLUMN_NAME_TITLE,
+            COLUMN_NAME_DESCRIPTION,
+            COLUMN_NAME_MAP_ID,
+            COLUMN_NAME_TYPE,
+            COLUMN_NAME_STANCE,
+            COLUMN_NAME_JUMP_THROW,
+            COLUMN_NAME_TAGS,
+            COLUMN_NAME_IMG_URIS
+    };
+
+    public static final String[] PROJECTION_DATA = {
+            COLUMN_NAME_TITLE,
+            COLUMN_NAME_DESCRIPTION,
+            COLUMN_NAME_MAP_ID,
+            COLUMN_NAME_TYPE,
+            COLUMN_NAME_STANCE,
+            COLUMN_NAME_JUMP_THROW,
+            COLUMN_NAME_TAGS,
+            COLUMN_NAME_IMG_URIS
+    };
+
     //<editor-fold desc="private variables">
     private int type;
     private int stance;
@@ -55,5 +78,15 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
     public void setJumpThrow(boolean jumpThrow)
     {
         isJumpThrow = jumpThrow;
+    }
+
+    public int getStance()
+    {
+        return stance;
+    }
+
+    public void setStance(int stance)
+    {
+        this.stance = stance;
     }
 }

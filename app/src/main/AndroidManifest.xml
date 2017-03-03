@@ -29,6 +29,8 @@
             android:name=".ui.AddNadeActivity"
             android:windowSoftInputMode="adjustPan">
         </activity>
+        <activity android:name=".ui.ViewNadeActivity">
+        </activity>
     </application>
 
 </manifest>
