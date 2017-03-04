@@ -235,9 +235,8 @@ public class FillingIcon extends View
 
     }
 
-    public
     @ColorInt
-    int getBackgroundColor()
+    public int getBackgroundColor()
     {
         return mBackgroundColor;
     }
@@ -259,9 +258,8 @@ public class FillingIcon extends View
         this.mAnimateValueChanges = mAnimateValueChanges;
     }
 
-    public
     @Px
-    int getStrokeWidth()
+    public int getStrokeWidth()
     {
         return mStrokeWidth;
     }
@@ -284,9 +282,8 @@ public class FillingIcon extends View
         invalidate();
     }
 
-    public
     @ColorInt
-    int getStrokeColor()
+    public int getStrokeColor()
     {
         return mStrokeColor;
     }
@@ -298,9 +295,8 @@ public class FillingIcon extends View
         invalidate();
     }
 
-    public
     @ColorInt
-    int getFillColor()
+    public int getFillColor()
     {
         return mFillColor;
     }

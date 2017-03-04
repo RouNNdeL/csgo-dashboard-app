@@ -264,14 +264,14 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onBombExploded(long serverTimestamp)
     {
-        runOnUiThread(() -> explodeBomb());
+        runOnUiThread(this::explodeBomb);
         LogHelper.d("RoundEvents", "onBombExploded: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
     public void onBombDefused(long serverTimestamp)
     {
-        runOnUiThread(() -> defuseBomb());
+        runOnUiThread(this::defuseBomb);
         LogHelper.d("RoundEvents", "onBombDefused: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
@@ -310,7 +310,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onWarmupStart(long serverTimestamp)
     {
-        runOnUiThread(() -> startWarmup());
+        runOnUiThread(this::startWarmup);
         LogHelper.d("RoundEvents", "onWarmupStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
@@ -323,7 +323,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private void startGameInfoListener()
     {
         mGameInfoServerThread = new GameInfoListeningThread();
-        mGameInfoServerThread.setOnServerStartedListener(port -> updateServer(port));
+        mGameInfoServerThread.setOnServerStartedListener(this::updateServer);
         mGameInfoServerThread.setOnDataListener(this);
         mGameInfoServerThread.start();
         LogHelper.i(TAG, "Starting the GameInfoListeningThread");
@@ -609,7 +609,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mRoundNumber.setVisibility(View.VISIBLE);
         mBombFrame.setVisibility(View.GONE);
 
-        new Handler().postDelayed(() -> resetBomb(), mBombResetDelay);
+        new Handler().postDelayed(this::resetBomb, mBombResetDelay);
     }
 
     private void transitionShowBomb()

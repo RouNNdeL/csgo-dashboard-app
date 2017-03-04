@@ -425,7 +425,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void onConnectionAllow()
     {
-        getActivity().runOnUiThread(() -> setStatusAllow());
+        getActivity().runOnUiThread(this::setStatusAllow);
     }
 
     //<editor-fold desc="Connecting animation">
