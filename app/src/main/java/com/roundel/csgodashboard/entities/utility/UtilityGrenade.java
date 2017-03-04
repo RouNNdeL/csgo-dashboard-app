@@ -1,6 +1,5 @@
 package com.roundel.csgodashboard.entities.utility;
 
-import android.net.Uri;
 import android.provider.BaseColumns;
 
 import com.roundel.csgodashboard.entities.Map;
@@ -22,8 +21,8 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
     public static final String COLUMN_NAME_TYPE = "type";
     public static final String COLUMN_NAME_STANCE = "stance";
     public static final String COLUMN_NAME_JUMP_THROW = "jumpthrow";
-    public static final String COLUMN_NAME_TAGS = "tags";
-    public static final String COLUMN_NAME_IMG_URIS = "img_uris";
+    public static final String COLUMN_NAME_TAG_IDS = "tag_ids";
+    public static final String COLUMN_NAME_IMG_IDS = "img_ids";
 
     public static final String[] PROJECTION_ALL = {
             _ID,
@@ -33,8 +32,8 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
             COLUMN_NAME_TYPE,
             COLUMN_NAME_STANCE,
             COLUMN_NAME_JUMP_THROW,
-            COLUMN_NAME_TAGS,
-            COLUMN_NAME_IMG_URIS
+            COLUMN_NAME_TAG_IDS,
+            COLUMN_NAME_IMG_IDS
     };
 
     public static final String[] PROJECTION_DATA = {
@@ -44,8 +43,8 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
             COLUMN_NAME_TYPE,
             COLUMN_NAME_STANCE,
             COLUMN_NAME_JUMP_THROW,
-            COLUMN_NAME_TAGS,
-            COLUMN_NAME_IMG_URIS
+            COLUMN_NAME_TAG_IDS,
+            COLUMN_NAME_IMG_IDS
     };
 
     //<editor-fold desc="private variables">
@@ -54,9 +53,9 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
     private boolean isJumpThrow;
     //</editor-fold>
 
-    public UtilityGrenade(List<Uri> imageUris, Tags tags, Map map, String title, String description, int type, int stance, boolean isJumpThrow)
+    public UtilityGrenade(List<String> imageIds, Tags tags, Map map, String title, String description, int type, int stance, boolean isJumpThrow)
     {
-        super(imageUris, tags, map, title, description);
+        super(imageIds, tags, map, title, description);
         this.type = type;
         this.stance = stance;
         this.isJumpThrow = isJumpThrow;

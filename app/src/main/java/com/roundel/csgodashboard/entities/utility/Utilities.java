@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.roundel.csgodashboard.util.UriAdapter;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -56,6 +57,11 @@ public class Utilities extends ArrayList<UtilityBase>
             e.printStackTrace();
             return new Utilities();
         }
+    }
+
+    public static String getImgPath(Context context)
+    {
+        return context.getExternalFilesDir(null).getAbsolutePath() + File.separator + IMAGE_FOLDER_NAME;
     }
 
     public void saveToFile(Context context) throws IOException

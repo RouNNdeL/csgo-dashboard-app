@@ -36,7 +36,7 @@ public class TagLayout extends FlowLayout implements TagAdapter.OnDataChangedLis
 
     public TagLayout(Context context, AttributeSet attrs)
     {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public TagLayout(Context context)

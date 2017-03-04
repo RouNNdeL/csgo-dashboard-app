@@ -16,7 +16,7 @@ public class DbHelper extends SQLiteOpenHelper
 {
     private static final String TAG = DbHelper.class.getSimpleName();
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 20;
     private static final String DATABASE_NAME = "entities.db";
 
     private static final String SQL_CREATE_MAPS =
@@ -40,8 +40,8 @@ public class DbHelper extends SQLiteOpenHelper
                     UtilityGrenade.COLUMN_NAME_STANCE + " INTEGER NOT NULL," +
                     UtilityGrenade.COLUMN_NAME_MAP_ID + " INTEGER NOT NULL," +
                     UtilityGrenade.COLUMN_NAME_TYPE + " INTEGER NOT NULL," +
-                    UtilityGrenade.COLUMN_NAME_TAGS + " TEXT," +
-                    UtilityGrenade.COLUMN_NAME_IMG_URIS + " TEXT" + ")";
+                    UtilityGrenade.COLUMN_NAME_TAG_IDS + " TEXT," +
+                    UtilityGrenade.COLUMN_NAME_IMG_IDS + " TEXT" + ")";
 
     private static final String SQL_CREATE_BOOSTS =
             "CREATE TABLE " + UtilityBoost.TABLE_NAME + " (" +

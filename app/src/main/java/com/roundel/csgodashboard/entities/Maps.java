@@ -61,15 +61,15 @@ public class Maps extends ArrayList<Map>
     {
         Maps maps = new Maps();
 
-        maps.add(new Map(Map.MAP_DE_CACHE, Map.MAP_URI_DE_CACHE, context));
-        maps.add(new Map(Map.MAP_DE_CBBLE, Map.MAP_URI_DE_CBBLE, context));
-        maps.add(new Map(Map.MAP_DE_DUST, Map.MAP_URI_DE_DUST, context));
-        maps.add(new Map(Map.MAP_DE_DUST2, Map.MAP_URI_DE_DUST2, context));
-        maps.add(new Map(Map.MAP_DE_INFERNO, Map.MAP_URI_DE_INFERNO, context));
-        maps.add(new Map(Map.MAP_DE_MIRAGE, Map.MAP_URI_DE_MIRAGE, context));
-        maps.add(new Map(Map.MAP_DE_NUKE, Map.MAP_URI_DE_NUKE, context));
-        maps.add(new Map(Map.MAP_DE_OVERPASS, Map.MAP_URI_DE_OVERPASS, context));
-        maps.add(new Map(Map.MAP_DE_TRAIN, Map.MAP_URI_DE_TRAIN, context));
+        maps.add(Map.withoutId(Map.MAP_DE_CACHE, Map.MAP_URI_DE_CACHE, context));
+        maps.add(Map.withoutId(Map.MAP_DE_CBBLE, Map.MAP_URI_DE_CBBLE, context));
+        maps.add(Map.withoutId(Map.MAP_DE_DUST, Map.MAP_URI_DE_DUST, context));
+        maps.add(Map.withoutId(Map.MAP_DE_DUST2, Map.MAP_URI_DE_DUST2, context));
+        maps.add(Map.withoutId(Map.MAP_DE_INFERNO, Map.MAP_URI_DE_INFERNO, context));
+        maps.add(Map.withoutId(Map.MAP_DE_MIRAGE, Map.MAP_URI_DE_MIRAGE, context));
+        maps.add(Map.withoutId(Map.MAP_DE_NUKE, Map.MAP_URI_DE_NUKE, context));
+        maps.add(Map.withoutId(Map.MAP_DE_OVERPASS, Map.MAP_URI_DE_OVERPASS, context));
+        maps.add(Map.withoutId(Map.MAP_DE_TRAIN, Map.MAP_URI_DE_TRAIN, context));
 
         return maps;
     }

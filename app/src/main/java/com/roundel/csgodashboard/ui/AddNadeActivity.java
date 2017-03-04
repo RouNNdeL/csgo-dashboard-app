@@ -1,8 +1,11 @@
 package com.roundel.csgodashboard.ui;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
@@ -15,15 +18,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.adapter.GrenadeAdapter;
-import com.roundel.csgodashboard.adapter.StanceAdapter;
-import com.roundel.csgodashboard.adapter.UtilityImagesAdapter;
+import com.roundel.csgodashboard.adapter.recyclerview.UtilityImagesAdapter;
+import com.roundel.csgodashboard.adapter.spinner.GrenadeAdapter;
+import com.roundel.csgodashboard.adapter.spinner.StanceAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
@@ -33,8 +37,8 @@ import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.Utilities;
+import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 import com.roundel.csgodashboard.util.FileGenerator;
-import com.roundel.csgodashboard.util.LogHelper;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
@@ -66,6 +70,11 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     @BindView(R.id.add_nade_spinner_map) Spinner mMapSpinner;
     @BindView(R.id.add_nade_image_recyclerview) RecyclerView mImageRecyclerView;
     @BindView(R.id.add_nade_tag_container) TagLayout mTagLayout;
+    @BindView(R.id.add_nade_title) TextInputEditText mTitleEditText;
+    @BindView(R.id.add_nade_title_container) TextInputLayout mTitleContainer;
+    @BindView(R.id.add_nade_description) TextInputEditText mDescriptionEditText;
+    @BindView(R.id.add_nade_description_container) TextInputLayout mDescriptionContainer;
+    @BindView(R.id.add_nade_checkbox_jumpthrow) CheckBox mJumpthrowCheckbox;
 
     @BindInt(R.integer.tag_add_transition_duration) int mTagAddTransitionDuration;
     @BindInt(R.integer.tag_remove_transition_duration) int mTagRemoveTransitionDuration;
@@ -80,13 +89,15 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
     private List<Uri> mImageList = new ArrayList<>();
-    private Tags mTagList = new Tags();
+    private Tags mTags = new Tags();
 
     private UserData mUserData;
     private Maps mUserDataMaps;
     private SimpleCursorAdapter mMapAdapter;
 
     private DbHelper mDbHelper;
+    private SQLiteDatabase mReadableDatabase;
+    private SQLiteDatabase mWritableDatabase;
     //</editor-fold>
 
     @Override
@@ -105,6 +116,8 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mUserDataMaps = mUserData.getMaps();
 
         mDbHelper = new DbHelper(this);
+        mReadableDatabase = mDbHelper.getReadableDatabase();
+        mWritableDatabase = mDbHelper.getWritableDatabase();
 
         mStanceList = Stance.getDefaultStanceList(this);
         mStanceAdapter = new StanceAdapter(
@@ -126,7 +139,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
                 this,
                 R.layout.list_simple_one_line_no_ripple,
                 DbUtils.queryMaps(
-                        mDbHelper.getReadableDatabase(),
+                        this.mReadableDatabase,
                         new String[]{Map._ID, Map.COLUMN_NAME_NAME}
                 ),
                 new String[]{Map.COLUMN_NAME_NAME},
@@ -142,11 +155,11 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mImageRecyclerView.setAdapter(mImageAdapter);
         mImageRecyclerView.setLayoutManager(mImageLayoutManager);
 
-        mTagList.add("one-way");
-        mTagList.add("mid");
-        mTagList.add("b-site");
+        mTags.add("one-way");
+        mTags.add("mid");
+        mTags.add("b-site");
 
-        mTagAdapter = new TagAdapter(mTagList, this);
+        mTagAdapter = new TagAdapter(mTags, this);
         mTagAdapter.setTagActionListener(this);
         mTagLayout.setAdapter(mTagAdapter);
     }
@@ -195,10 +208,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         transition.setDuration(mTagAddTransitionDuration);
         TransitionManager.beginDelayedTransition(mTagLayout, transition);
 
-        if(!mTagList.contains(name))
+        if(!mTags.contains(name))
         {
-            mTagList.add(name);
-            mTagAdapter.notifyItemInserted(mTagList.size() - 1);
+            mTags.add(name);
+            mTagAdapter.notifyItemInserted(mTags.size() - 1);
             return true;
         }
         else
@@ -215,60 +228,76 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         transition.setDuration(mTagRemoveTransitionDuration);
         TransitionManager.beginDelayedTransition(mTagLayout, transition);
 
-        mTagList.remove(position);
+        mTags.remove(position);
         mTagAdapter.notifyItemRemoved(position);
     }
 
     private void submit()
     {
-        if(verify())
+        final UtilityGrenade utilityGrenade = validate();
+        if(utilityGrenade != null)
         {
-            List<Uri> copiedPaths = new ArrayList<>();
+            List<String> copiedIds = new ArrayList<>();
             for(Uri uri : mImageList)
             {
                 try
                 {
-                    copiedPaths.add(copyFromUri(uri));
+                    copiedIds.add(copyFromUri(uri));
                 }
                 catch(IOException e)
                 {
                     e.printStackTrace();
                 }
             }
+
+            //Update the Uris to point to the new location in the App's memory
+            utilityGrenade.setImageIds(copiedIds);
+
+            DbUtils.insertGrenade(mWritableDatabase, utilityGrenade);
+            finish();
         }
     }
 
     /**
-     * @return true if the form is properly filled
+     * @return {@code null} if the form is improperly filled, {@link UtilityGrenade} object containing the
+     * form's data if it is properly filled
      */
-    private boolean verify()
+    private UtilityGrenade validate()
     {
+        int mapId = (int) mMapSpinner.getSelectedItemId();
+        int stanceId = (int) mStanceSpinner.getSelectedItemId();
+        int grenadeId = (int) mGrenadeSpinner.getSelectedItemId();
 
-        return true;
+        boolean isJumpthrow = mJumpthrowCheckbox.isSelected();
+
+        String title = mTitleEditText.getText().toString();
+        String description = mDescriptionEditText.getText().toString();
+
+        //We pass null as the imageUris param because it is going to be updated
+        // when we copy the Uris into the App's memory
+        return new UtilityGrenade(null, mTags, Map.referenceOnly(mapId), title, description, grenadeId, stanceId, isJumpthrow);
     }
 
     /**
      * @param uri data received from {@link #onActivityResult}
      *
-     * @return {@link Uri} of the new file created in the external storage
+     * @return id of the copied image
      * @throws IOException
      */
-    private Uri copyFromUri(Uri uri) throws IOException
+    private String copyFromUri(Uri uri) throws IOException
     {
         OutputStream out;
-        String root = getExternalFilesDir(null).getAbsolutePath() + File.separator;
 
-        LogHelper.d(TAG, root);
         InputStream inputStream = getContentResolver().openInputStream(uri);
         final byte[] data = getBytes(inputStream);
 
-        File file = FileGenerator.createRandomFile("", "", new File(root + Utilities.IMAGE_FOLDER_NAME));
+        File file = FileGenerator.createRandomFile("", "", new File(Utilities.getImgPath(this)));
         out = new FileOutputStream(file);
 
         out.write(data);
         out.close();
 
-        return Uri.parse(file.getAbsolutePath());
+        return file.getName();
     }
 
     public byte[] getBytes(InputStream inputStream) throws IOException

@@ -67,7 +67,7 @@ public class TagAdapter
     public View getView(FlowLayout parent, int position)
     {
         View view;
-        if(position >= getCount() - 1)
+        if(position >= mDataSet.size())
         {
             view = mInflater.inflate(R.layout.utility_tag_add, parent, false);
             final ImageView addIcon = (ImageView) view.findViewById(R.id.utility_tag_add);

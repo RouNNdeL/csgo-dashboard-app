@@ -40,7 +40,7 @@ import android.widget.TextView;
 
 import com.github.paolorotolo.appintro.ISlidePolicy;
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.adapter.GameServerAdapter;
+import com.roundel.csgodashboard.adapter.recyclerview.GameServerAdapter;
 import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.net.ServerConnectionThread;
 import com.roundel.csgodashboard.net.ServerDiscoveryThread;

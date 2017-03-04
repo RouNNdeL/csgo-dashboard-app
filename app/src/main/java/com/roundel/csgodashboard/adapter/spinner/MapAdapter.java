@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.adapter;
+package com.roundel.csgodashboard.adapter.spinner;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -14,9 +14,9 @@ import com.roundel.csgodashboard.entities.Maps;
 /**
  * Created by Krzysiek on 2017-02-22.
  */
-public class MapSpinnerAdapter extends BaseAdapter
+public class MapAdapter extends BaseAdapter
 {
-    private static final String TAG = MapSpinnerAdapter.class.getSimpleName();
+    private static final String TAG = MapAdapter.class.getSimpleName();
 
     private static final int TYPE_MAP = 0;
     private static final int TYPE_ADD_MAP = 1;
@@ -24,9 +24,9 @@ public class MapSpinnerAdapter extends BaseAdapter
     //<editor-fold desc="private variables">
     private Maps mDataSet;
     private LayoutInflater mLayoutInflater;
-//</editor-fold>
+    //</editor-fold>
 
-    public MapSpinnerAdapter(Maps mDataSet, Context context)
+    public MapAdapter(Maps mDataSet, Context context)
     {
         this.mDataSet = mDataSet;
         this.mLayoutInflater = LayoutInflater.from(context);
@@ -51,7 +51,11 @@ public class MapSpinnerAdapter extends BaseAdapter
     @Override
     public long getItemId(int position)
     {
-        return 0;
+        if(getItem(position) != null)
+        {
+            return getItem(position).getId();
+        }
+        return -1;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.roundel.csgodashboard.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -10,11 +11,11 @@ import android.text.TextUtils;
 
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.Maps;
-import com.roundel.csgodashboard.entities.utility.Stance;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,21 +47,31 @@ public class DbUtils
         ContentValues values = new ContentValues(1);
         values.put(Tags.COLUMN_NAME_NAME, tag);
 
-        return db.insert(Stance.TABLE_NAME, null, values);
+        return db.insert(Tags.TABLE_NAME, null, values);
+    }
+
+    public static long insertOrThrowTag(SQLiteDatabase db, String tag)
+    {
+        ContentValues values = new ContentValues(1);
+        values.put(Tags.COLUMN_NAME_NAME, tag);
+
+        return db.insertOrThrow(Tags.TABLE_NAME, null, values);
     }
 
     public static long insertGrenade(SQLiteDatabase db, UtilityGrenade utilityGrenade)
     {
         ContentValues values = new ContentValues(8);
 
-        //TODO: Add tag column
+        List<Long> tagIds = insertTags(db, utilityGrenade.getTags());
+
         values.put(UtilityGrenade.COLUMN_NAME_TITLE, utilityGrenade.getTitle());
         values.put(UtilityGrenade.COLUMN_NAME_DESCRIPTION, utilityGrenade.getDescription());
         values.put(UtilityGrenade.COLUMN_NAME_MAP_ID, utilityGrenade.getMap().getId());
-        values.put(UtilityGrenade.COLUMN_NAME_IMG_URIS, joinUris(utilityGrenade.getImageUris()));
+        values.put(UtilityGrenade.COLUMN_NAME_IMG_IDS, joinImgIds(utilityGrenade.getImageIds()));
         values.put(UtilityGrenade.COLUMN_NAME_JUMP_THROW, utilityGrenade.isJumpThrow());
         values.put(UtilityGrenade.COLUMN_NAME_STANCE, utilityGrenade.getStance());
         values.put(UtilityGrenade.COLUMN_NAME_TYPE, utilityGrenade.getType());
+        values.put(UtilityGrenade.COLUMN_NAME_TAG_IDS, joinTagIds(tagIds));
 
         return db.insert(UtilityGrenade.TABLE_NAME, null, values);
     }
@@ -117,6 +128,7 @@ public class DbUtils
         if(cursor.moveToFirst())
         {
             return new Map(
+                    id,
                     cursor.getString(cursor.getColumnIndex(Map.COLUMN_NAME_CODE_NAME)),
                     cursor.getString(cursor.getColumnIndex(Map.COLUMN_NAME_NAME)),
                     Uri.parse(cursor.getString(cursor.getColumnIndex(Map.COLUMN_NAME_IMG_URI)))
@@ -182,14 +194,14 @@ public class DbUtils
             final Tags tags = queryTags(
                     db,
                     splitTagIds(
-                            cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAGS))
+                            cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS))
                     )
             );
-            final List<Uri> uris = splitUris(
-                    cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_IMG_URIS))
-            );
+            final List<String> imgIds = Arrays.asList(splitImgIds(
+                    cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_IMG_IDS))
+            ));
             return new UtilityGrenade(
-                    uris,
+                    imgIds,
                     tags,
                     null,
                     null,
@@ -204,7 +216,7 @@ public class DbUtils
     //</editor-fold>
 
     //<editor-fold desc="Tags query">
-    private static Tags queryTags(SQLiteDatabase db, List<Integer> ids)
+    private static Tags queryTags(SQLiteDatabase db, List<Long> ids)
     {
         Tags tags = new Tags();
         Cursor cursor = queryTags(
@@ -220,6 +232,24 @@ public class DbUtils
             tags.add(cursor.getString(cursor.getColumnIndex(Tags.COLUMN_NAME_NAME)));
         }
         return tags;
+    }
+
+    private static List<Long> queryTagIds(SQLiteDatabase db, List<String> names)
+    {
+        List<Long> ids = new ArrayList<>();
+        Cursor cursor = queryTags(
+                db,
+                new String[]{Tags._ID},
+                buildTagIdQuery(names),
+                names.toArray(new String[names.size()]),
+                Tags._ID,
+                ORDER_ASCENDING
+        );
+        while(cursor.moveToNext())
+        {
+            ids.add(cursor.getLong(cursor.getColumnIndex(Tags._ID)));
+        }
+        return ids;
     }
 
     public static Cursor queryTags(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs, String orderColumn, String order)
@@ -277,63 +307,88 @@ public class DbUtils
     }
     //</editor-fold>
 
-    //<editor-fold desc="Private support functions">
-    private static List<Uri> splitUris(String string)
+    //<editor-fold desc="'private' support functions">
+    private static String[] splitImgIds(String string)
+    {
+        return string.split(ARRAY_DIVIDER);
+    }
+
+    private static String joinImgIds(List<String> list)
+    {
+        return TextUtils.join(ARRAY_DIVIDER, list);
+    }
+
+    private static List<Long> splitTagIds(String string)
     {
         String[] split = string.split(ARRAY_DIVIDER);
-        List<Uri> list = new ArrayList<>();
+        List<Long> list = new ArrayList<>();
 
         for(String s : split)
         {
-            list.add(Uri.parse(s));
+            list.add(Long.valueOf(s));
         }
 
         return list;
     }
 
-    private static String joinUris(List<Uri> list)
+    private static String joinTagIds(List<Long> list)
     {
         return TextUtils.join(ARRAY_DIVIDER, list);
     }
 
-    private static List<Integer> splitTagIds(String string)
-    {
-        String[] split = string.split(ARRAY_DIVIDER);
-        List<Integer> list = new ArrayList<>();
-
-        for(String s : split)
-        {
-            list.add(Integer.valueOf(s));
-        }
-
-        return list;
-    }
-
-    private static String joinTagIds(List<Integer> list)
-    {
-        return TextUtils.join(ARRAY_DIVIDER, list);
-    }
-
-    private static String buildTagQuery(List<Integer> list)
+    private static String buildTagQuery(List<Long> list)
     {
         StringBuilder builder = new StringBuilder();
         for(int i = 0; i < list.size(); i++)
         {
-            builder.append("ID = ?");
-            if(i < list.size() - 2)
+            builder.append(Tags._ID + " = ?");
+            if(i < list.size() - 1)
                 builder.append(" OR ");
         }
         return builder.toString();
     }
 
-    private static String[] tagSelectionArgsFromIdList(List<Integer> ids)
+    private static String buildTagIdQuery(List<String> list)
+    {
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < list.size(); i++)
+        {
+            builder.append(Tags.COLUMN_NAME_NAME + " = ?");
+            if(i < list.size() - 1)
+                builder.append(" OR ");
+        }
+        return builder.toString();
+    }
+
+    private static String[] tagSelectionArgsFromIdList(List<Long> ids)
     {
         List<String> tmp = new ArrayList<>();
-        for(int id : ids)
+        for(long id : ids)
         {
             tmp.add(String.valueOf(id));
         }
         return (String[]) tmp.toArray();
+    }
+
+    private static List<Long> insertTags(SQLiteDatabase db, Tags tags)
+    {
+        List<Long> ids = new ArrayList<>();
+        List<String> notUniqueTags = new ArrayList<>();
+        for(String tag : tags)
+        {
+            try
+            {
+                ids.add(insertOrThrowTag(db, tag));
+            }
+            catch(SQLiteConstraintException e)
+            {
+                notUniqueTags.add(tag);
+            }
+        }
+
+        ids.addAll(queryTagIds(db, notUniqueTags));
+
+        return ids;
     }
     //</editor-fold>
 }

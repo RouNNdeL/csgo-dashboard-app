@@ -48,22 +48,39 @@ public class Map implements BaseColumns
     private String codeName;
     private String name;
     private Uri imageUri;
-    private int id;
+    private int id = -1;
     //</editor-fold>
 
-    public Map(String codeName, Uri imageUri, Context context)
+    private Map(String codeName, Uri imageUri, Context context)
     {
         this.codeName = codeName;
         this.name = nameFromCodeName(codeName, context);
         this.imageUri = imageUri;
     }
 
-    public Map(String codeName, String name, Uri imageUri)
+    private Map(int id)
     {
+        this.id = id;
+    }
+
+    public Map(int id, String codeName, String name, Uri imageUri)
+    {
+        this.id = id;
         this.codeName = codeName;
         this.name = name;
         this.imageUri = imageUri;
     }
+
+    public static Map withoutId(String codeName, Uri imageUri, Context context)
+    {
+        return new Map(codeName, imageUri, context);
+    }
+
+    public static Map referenceOnly(int id)
+    {
+        return new Map(id);
+    }
+
 
     private String nameFromCodeName(String codeName, Context context)
     {

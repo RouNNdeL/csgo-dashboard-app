@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.adapter;
+package com.roundel.csgodashboard.adapter.recyclerview;
 
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;

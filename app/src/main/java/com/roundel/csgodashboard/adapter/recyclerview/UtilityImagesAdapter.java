@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.adapter;
+package com.roundel.csgodashboard.adapter.recyclerview;
 
 import android.content.Context;
 import android.net.Uri;

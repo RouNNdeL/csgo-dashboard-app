@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.adapter;
+package com.roundel.csgodashboard.adapter.spinner;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -23,7 +23,7 @@ public class StanceAdapter extends ArrayAdapter<Stance>
 
     //<editor-fold desc="private variables">
     private LayoutInflater mLayoutInflater;
-//</editor-fold>
+    //</editor-fold>
 
     public StanceAdapter(Context context, int resource, int textViewResourceId, List<Stance> objects)
     {
@@ -32,6 +32,15 @@ public class StanceAdapter extends ArrayAdapter<Stance>
         mLayoutInflater = LayoutInflater.from(context);
     }
 
+    @Override
+    public long getItemId(int position)
+    {
+        if(getItem(position) != null)
+        {
+            return getItem(position).getId();
+        }
+        return -1;
+    }
 
     @Override
     public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent)
