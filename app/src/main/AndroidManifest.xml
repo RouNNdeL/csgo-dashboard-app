@@ -14,22 +14,27 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.GameInfoActivity">
+        <activity android:name=".ui.activity.GameInfoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.ServerSetupActivity">
+        <activity android:name=".ui.activity.ServerSetupActivity">
         </activity>
-        <activity android:name=".ui.LogActivity">
+        <activity android:name=".ui.activity.LogActivity">
         </activity>
         <activity
-            android:name=".ui.AddNadeActivity"
+            android:name=".ui.activity.AddNadeActivity"
             android:windowSoftInputMode="adjustPan">
         </activity>
-        <activity android:name=".ui.ViewNadeActivity">
+        <activity android:name=".ui.activity.ViewNadeActivity">
+        </activity>
+        <activity
+            android:name=".ui.activity.UtilityActivity"
+            android:label="@string/title_activity_utility"
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 

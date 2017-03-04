@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.ui;
+package com.roundel.csgodashboard.ui.activity;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,6 +17,7 @@ import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
+import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
@@ -47,6 +48,7 @@ public class ViewNadeActivity extends AppCompatActivity
     private DbHelper mDbHelper;
     private SQLiteDatabase mReadableDatabase;
     private UtilityGrenade mUtilityData;
+    private Tags mTags;
     //</editor-fold>
 
     @Override
@@ -68,7 +70,6 @@ public class ViewNadeActivity extends AppCompatActivity
         mReadableDatabase = mDbHelper.getReadableDatabase();
 
         mUtilityData = DbUtils.queryGrenadeById(mReadableDatabase, utilityId);
-
         fillActivity();
     }
 

@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.ui;
+package com.roundel.csgodashboard.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

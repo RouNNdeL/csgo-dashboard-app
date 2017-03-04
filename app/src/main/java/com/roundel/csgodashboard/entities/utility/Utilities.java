@@ -61,7 +61,7 @@ public class Utilities extends ArrayList<UtilityBase>
 
     public static String getImgPath(Context context)
     {
-        return context.getExternalFilesDir(null).getAbsolutePath() + File.separator + IMAGE_FOLDER_NAME;
+        return context.getExternalFilesDir(null).getAbsolutePath() + File.separator + IMAGE_FOLDER_NAME + File.separator;
     }
 
     public void saveToFile(Context context) throws IOException

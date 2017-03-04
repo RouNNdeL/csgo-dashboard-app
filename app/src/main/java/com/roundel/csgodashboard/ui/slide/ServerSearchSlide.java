@@ -44,7 +44,7 @@ import com.roundel.csgodashboard.adapter.recyclerview.GameServerAdapter;
 import com.roundel.csgodashboard.entities.GameServer;
 import com.roundel.csgodashboard.net.ServerConnectionThread;
 import com.roundel.csgodashboard.net.ServerDiscoveryThread;
-import com.roundel.csgodashboard.ui.GameInfoActivity;
+import com.roundel.csgodashboard.ui.activity.GameInfoActivity;
 import com.roundel.csgodashboard.util.LogHelper;
 import com.transitionseverywhere.extra.Scale;
 

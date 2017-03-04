@@ -1,9 +1,12 @@
 package com.roundel.csgodashboard.entities.utility;
 
+import android.database.Cursor;
 import android.provider.BaseColumns;
 
+import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,26 +28,26 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
     public static final String COLUMN_NAME_IMG_IDS = "img_ids";
 
     public static final String[] PROJECTION_ALL = {
-            _ID,
-            COLUMN_NAME_TITLE,
-            COLUMN_NAME_DESCRIPTION,
-            COLUMN_NAME_MAP_ID,
-            COLUMN_NAME_TYPE,
-            COLUMN_NAME_STANCE,
-            COLUMN_NAME_JUMP_THROW,
-            COLUMN_NAME_TAG_IDS,
-            COLUMN_NAME_IMG_IDS
+            TABLE_NAME + "." + _ID,
+            TABLE_NAME + "." + COLUMN_NAME_TITLE,
+            TABLE_NAME + "." + COLUMN_NAME_DESCRIPTION,
+            TABLE_NAME + "." + COLUMN_NAME_MAP_ID,
+            TABLE_NAME + "." + COLUMN_NAME_TYPE,
+            TABLE_NAME + "." + COLUMN_NAME_STANCE,
+            TABLE_NAME + "." + COLUMN_NAME_JUMP_THROW,
+            TABLE_NAME + "." + COLUMN_NAME_TAG_IDS,
+            TABLE_NAME + "." + COLUMN_NAME_IMG_IDS
     };
 
     public static final String[] PROJECTION_DATA = {
-            COLUMN_NAME_TITLE,
-            COLUMN_NAME_DESCRIPTION,
-            COLUMN_NAME_MAP_ID,
-            COLUMN_NAME_TYPE,
-            COLUMN_NAME_STANCE,
-            COLUMN_NAME_JUMP_THROW,
-            COLUMN_NAME_TAG_IDS,
-            COLUMN_NAME_IMG_IDS
+            TABLE_NAME + "." + COLUMN_NAME_TITLE,
+            TABLE_NAME + "." + COLUMN_NAME_DESCRIPTION,
+            TABLE_NAME + "." + COLUMN_NAME_MAP_ID,
+            TABLE_NAME + "." + COLUMN_NAME_TYPE,
+            TABLE_NAME + "." + COLUMN_NAME_STANCE,
+            TABLE_NAME + "." + COLUMN_NAME_JUMP_THROW,
+            TABLE_NAME + "." + COLUMN_NAME_TAG_IDS,
+            TABLE_NAME + "." + COLUMN_NAME_IMG_IDS
     };
 
     //<editor-fold desc="private variables">
@@ -59,6 +62,25 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
         this.type = type;
         this.stance = stance;
         this.isJumpThrow = isJumpThrow;
+    }
+
+    public static UtilityGrenade fromCursor(Cursor cursor)
+    {
+
+        final List<String> imgIds = Arrays.asList(DbUtils.splitImgIds(
+                cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_IMG_IDS))
+        ));
+        final Map map = null;
+        return new UtilityGrenade(
+                imgIds,
+                null,
+                map,
+                cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TITLE)),
+                cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_DESCRIPTION)),
+                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TYPE)),
+                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_STANCE)),
+                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_JUMP_THROW)) == 1
+        );
     }
 
     public int getType()

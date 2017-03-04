@@ -14,8 +14,8 @@ import com.roundel.csgodashboard.entities.Maps;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -68,7 +68,7 @@ public class DbUtils
         values.put(UtilityGrenade.COLUMN_NAME_DESCRIPTION, utilityGrenade.getDescription());
         values.put(UtilityGrenade.COLUMN_NAME_MAP_ID, utilityGrenade.getMap().getId());
         values.put(UtilityGrenade.COLUMN_NAME_IMG_IDS, joinImgIds(utilityGrenade.getImageIds()));
-        values.put(UtilityGrenade.COLUMN_NAME_JUMP_THROW, utilityGrenade.isJumpThrow());
+        values.put(UtilityGrenade.COLUMN_NAME_JUMP_THROW, utilityGrenade.isJumpThrow() ? 1 : 0);
         values.put(UtilityGrenade.COLUMN_NAME_STANCE, utilityGrenade.getStance());
         values.put(UtilityGrenade.COLUMN_NAME_TYPE, utilityGrenade.getType());
         values.put(UtilityGrenade.COLUMN_NAME_TAG_IDS, joinTagIds(tagIds));
@@ -145,9 +145,11 @@ public class DbUtils
         builder.setTables(UtilityGrenade.TABLE_NAME +
                 " LEFT JOIN " + Map.TABLE_NAME +
                 " ON " +
-                UtilityGrenade.COLUMN_NAME_MAP_ID + " = " + Map._ID
+                UtilityGrenade.TABLE_NAME + "." + UtilityGrenade.COLUMN_NAME_MAP_ID +
+                " = " +
+                Map.TABLE_NAME + "." + Map._ID
         );
-        return db.rawQuery(builder.buildQuery(
+        Cursor primaryCursor = db.rawQuery(builder.buildQuery(
                 projection,
                 selection,
                 null,
@@ -155,6 +157,7 @@ public class DbUtils
                 orderColumn + " COLLATE LOCALIZED " + order,
                 null
         ), selectionArgs);
+        return primaryCursor;
     }
 
     public static Cursor queryGrenades(SQLiteDatabase db, String[] projection)
@@ -164,7 +167,7 @@ public class DbUtils
                 projection,
                 null,
                 null,
-                UtilityGrenade._ID,
+                UtilityGrenade.TABLE_NAME + "." + UtilityGrenade._ID,
                 ORDER_ASCENDING
         );
     }
@@ -173,7 +176,7 @@ public class DbUtils
     {
         return queryGrenades(
                 db,
-                UtilityGrenade.PROJECTION_ALL
+                concatenateArrays(UtilityGrenade.PROJECTION_DATA, Map.PROJECTION_DATA)
         );
     }
 
@@ -181,7 +184,7 @@ public class DbUtils
     {
         Cursor cursor = queryGrenades(
                 db,
-                UtilityGrenade.PROJECTION_DATA,
+                concatenateArrays(UtilityGrenade.PROJECTION_DATA, Map.PROJECTION_DATA),
                 UtilityGrenade._ID + " = ?",
                 new String[]{String.valueOf(id)},
                 UtilityGrenade._ID,
@@ -191,25 +194,13 @@ public class DbUtils
         {
             //TODO: Finish the method
 
-            final Tags tags = queryTags(
+            final Tags tags = DbUtils.queryTags(
                     db,
-                    splitTagIds(
+                    DbUtils.splitTagIds(
                             cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS))
                     )
             );
-            final List<String> imgIds = Arrays.asList(splitImgIds(
-                    cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_IMG_IDS))
-            ));
-            return new UtilityGrenade(
-                    imgIds,
-                    tags,
-                    null,
-                    null,
-                    null,
-                    0,
-                    0,
-                    false
-            );
+            return UtilityGrenade.fromCursor(cursor);
         }
         return null;
     }
@@ -307,18 +298,18 @@ public class DbUtils
     }
     //</editor-fold>
 
-    //<editor-fold desc="'private' support functions">
-    private static String[] splitImgIds(String string)
+    //<editor-fold desc="Support functions">
+    public static String[] splitImgIds(String string)
     {
         return string.split(ARRAY_DIVIDER);
     }
 
-    private static String joinImgIds(List<String> list)
+    public static String joinImgIds(List<String> list)
     {
         return TextUtils.join(ARRAY_DIVIDER, list);
     }
 
-    private static List<Long> splitTagIds(String string)
+    public static List<Long> splitTagIds(String string)
     {
         String[] split = string.split(ARRAY_DIVIDER);
         List<Long> list = new ArrayList<>();
@@ -331,7 +322,7 @@ public class DbUtils
         return list;
     }
 
-    private static String joinTagIds(List<Long> list)
+    public static String joinTagIds(List<Long> list)
     {
         return TextUtils.join(ARRAY_DIVIDER, list);
     }
@@ -389,6 +380,19 @@ public class DbUtils
         ids.addAll(queryTagIds(db, notUniqueTags));
 
         return ids;
+    }
+
+    private static <T> T[] concatenateArrays(T[] a, T[] b)
+    {
+        int aLen = a.length;
+        int bLen = b.length;
+
+        @SuppressWarnings("unchecked")
+        T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+
+        return c;
     }
     //</editor-fold>
 }

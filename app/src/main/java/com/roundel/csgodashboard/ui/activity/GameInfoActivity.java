@@ -1,4 +1,4 @@
-package com.roundel.csgodashboard.ui;
+package com.roundel.csgodashboard.ui.activity;
 
 /**
  * Created by Krzysiek on 2017-01-20.
@@ -207,7 +207,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
             case R.id.testBombD:
             {
-                defuseBomb();
+                Intent intent = new Intent(GameInfoActivity.this, UtilityActivity.class);
+                startActivity(intent);
                 break;
             }
             case R.id.viewLogs:
