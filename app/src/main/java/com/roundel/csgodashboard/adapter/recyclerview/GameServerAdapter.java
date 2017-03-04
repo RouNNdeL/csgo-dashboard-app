@@ -79,18 +79,13 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
 
             content.findViewById(R.id.game_server_connect).setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             content.setActivated(isExpanded);
-            content.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    mExpandedPosition = isExpanded ? -1 : position;
-                    Transition transition = new AutoTransition();
-                    transition.setDuration(150);
-                    transition.setInterpolator(new FastOutLinearInInterpolator());
-                    TransitionManager.beginDelayedTransition(mRecyclerView, transition);
-                    notifyDataSetChanged();
-                }
+            content.setOnClickListener(v -> {
+                mExpandedPosition = isExpanded ? -1 : position;
+                Transition transition = new AutoTransition();
+                transition.setDuration(150);
+                transition.setInterpolator(new FastOutLinearInInterpolator());
+                TransitionManager.beginDelayedTransition(mRecyclerView, transition);
+                notifyDataSetChanged();
             });
         }
     }
@@ -143,7 +138,7 @@ public class GameServerAdapter extends RecyclerView.Adapter<GameServerAdapter.Vi
     {
         //<editor-fold desc="private variables">
         private View content;
-//</editor-fold>
+        //</editor-fold>
 
         public ViewHolder(View content)
         {

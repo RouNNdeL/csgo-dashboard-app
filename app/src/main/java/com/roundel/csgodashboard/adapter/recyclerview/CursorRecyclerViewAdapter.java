@@ -18,6 +18,7 @@ package com.roundel.csgodashboard.adapter.recyclerview;
 
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.provider.BaseColumns;
 import android.support.v7.widget.RecyclerView;
 
 /**
@@ -32,13 +33,13 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
     private boolean mDataValid;
     private int mRowIdColumn;
     private DataSetObserver mDataSetObserver;
-//</editor-fold>
+    //</editor-fold>
 
     public CursorRecyclerViewAdapter(Cursor cursor)
     {
         mCursor = cursor;
         mDataValid = cursor != null;
-        mRowIdColumn = mDataValid ? mCursor.getColumnIndex("_id") : -1;
+        mRowIdColumn = mDataValid ? mCursor.getColumnIndex(BaseColumns._ID) : -1;
         mDataSetObserver = new NotifyingDataSetObserver();
         if(mCursor != null)
         {
@@ -63,7 +64,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         {
             return mCursor.getLong(mRowIdColumn);
         }
-        return 0;
+        return -1;
     }
 
     @Override

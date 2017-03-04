@@ -10,12 +10,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.makeramen.roundedimageview.RoundedImageView;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.utility.Utilities;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
+import com.roundel.csgodashboard.view.CircleRectView;
 
 /**
  * Created by Krzysiek on 2017-03-04.
@@ -26,7 +26,8 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
 
     //<editor-fold desc="private variables">
     private Context mContext;
-//</editor-fold>
+    private View.OnClickListener mOnItemClickListener;
+    //</editor-fold>
 
     public UtilityGrenadeAdapter(Context context, Cursor cursor)
     {
@@ -37,7 +38,7 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor)
     {
-        RoundedImageView mapImageView = (RoundedImageView) viewHolder.itemView.findViewById(R.id.utility_grenade_map_img);
+        CircleRectView mapImageView = (CircleRectView) viewHolder.itemView.findViewById(R.id.utility_grenade_map_img);
 
         TextView titleTextView = (TextView) viewHolder.itemView.findViewById(R.id.utility_grenade_title);
         TextView mapTextView = (TextView) viewHolder.itemView.findViewById(R.id.utility_grenade_map);
@@ -57,15 +58,36 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
     }
 
     @Override
+    public long getItemId(int position)
+    {
+        final Cursor cursor = getCursor();
+        if(cursor.moveToPosition(position))
+        {
+            return cursor.getLong(
+                    cursor.getColumnIndex(UtilityGrenade.TABLE_NAME + "." + UtilityGrenade._ID)
+            );
+        }
+        return -1;
+    }
+
+    @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.utility_entry_grenade, parent, false);
+        if(mOnItemClickListener != null)
+        {
+            view.setOnClickListener(mOnItemClickListener);
+        }
         return new ViewHolder(view);
+    }
+
+    public void setOnItemClickListener(View.OnClickListener onItemClickListener)
+    {
+        mOnItemClickListener = onItemClickListener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
-
         public ViewHolder(View itemView)
         {
             super(itemView);

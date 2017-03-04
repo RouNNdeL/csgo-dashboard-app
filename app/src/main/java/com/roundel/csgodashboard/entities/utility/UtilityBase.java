@@ -48,7 +48,7 @@ public class UtilityBase
         List<Uri> list = new ArrayList<>();
         for(String id : imageIds)
         {
-            list.add(Uri.parse(Utilities.getImgPath(context) + id));
+            list.add(Uri.parse("file://" + Utilities.getImgPath(context) + id));
         }
         return list;
     }

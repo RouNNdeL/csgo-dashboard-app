@@ -42,4 +42,8 @@
     <declare-styleable name="TagLayout">
         <attr name="editable" format="boolean"/>
     </declare-styleable>
+
+    <declare-styleable name="CircleRectView">
+        <attr name="cornerRadius" format="dimension"/>
+    </declare-styleable>
 </resources>

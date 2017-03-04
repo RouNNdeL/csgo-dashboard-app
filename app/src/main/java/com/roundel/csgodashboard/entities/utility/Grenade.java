@@ -59,7 +59,7 @@ public class Grenade implements BaseColumns
             case TYPE_HE:
                 return new Grenade(type, namesList[3], R.drawable.ic_csgo_he_grenade);
             default:
-                throw new IllegalArgumentException("Has to be one of {TYPE_SMOKE, TYPE_FLASHBANG, TYPE_MOLOTOV, TYPE_HE}");
+                throw new IllegalArgumentException("Has to be one of {TYPE_SMOKE, TYPE_FLASHBANG, TYPE_MOLOTOV, TYPE_HE}, was " + type);
         }
     }
 

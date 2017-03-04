@@ -2,6 +2,8 @@ package com.roundel.csgodashboard.ui.activity;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -11,7 +13,9 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.roundel.csgodashboard.R;
+import com.roundel.csgodashboard.anim.CircleToRectTransition;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
@@ -19,19 +23,22 @@ import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
+import com.roundel.csgodashboard.view.CircleRectView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ViewNadeActivity extends AppCompatActivity
 {
-    public static final String EXTRA_GRENADE_ID = "com.roundel.csgodashboard.extra.GRENADE_ID";
+    public static final String EXTRA_UTILITY_ID = "com.roundel.csgodashboard.extra.GRENADE_ID";
 
     //<editor-fold desc="private variables">
     @BindView(R.id.view_nade_toolbar) Toolbar mToolbar;
-    @BindView(R.id.view_nade_backdrop) ImageView mBackdrop;
+    @BindView(R.id.view_nade_backdrop) CircleRectView mBackdrop;
     @BindView(R.id.view_nade_collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
     @BindView(R.id.view_nade_appbar) AppBarLayout mAppbar;
     @BindView(R.id.view_nade_map) TextView mMap;
@@ -54,6 +61,15 @@ public class ViewNadeActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            CircleToRectTransition transition = new CircleToRectTransition();
+            transition.setDuration(500);
+            transition.addTarget(R.id.utility_grenade_map_img);
+            transition.addTarget(R.id.view_nade_backdrop);
+            getWindow().setSharedElementEnterTransition(transition);
+            getWindow().setSharedElementExitTransition(transition);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_nade);
 
@@ -62,9 +78,9 @@ public class ViewNadeActivity extends AppCompatActivity
         setSupportActionBar(mToolbar);
 
         Intent intent = getIntent();
-        int utilityId = intent.getIntExtra(EXTRA_GRENADE_ID, -1);
+        int utilityId = intent.getIntExtra(EXTRA_UTILITY_ID, -1);
         if(utilityId < 0)
-            throw new IllegalStateException("You need to provide a valid utility id in int extra" + EXTRA_GRENADE_ID);
+            throw new IllegalStateException("You need to provide a valid utility id in int extra" + EXTRA_UTILITY_ID);
 
         mDbHelper = new DbHelper(this);
         mReadableDatabase = mDbHelper.getReadableDatabase();
@@ -80,9 +96,12 @@ public class ViewNadeActivity extends AppCompatActivity
     {
         final Map map = mUtilityData.getMap();
         final Stance stance = Stance.fromType(mUtilityData.getStance(), this);
-        final Grenade grenade = Grenade.fromType(mUtilityData.getStance(), this);
+        final Grenade grenade = Grenade.fromType(mUtilityData.getType(), this);
 
-        getSupportActionBar().setTitle(mUtilityData.getTitle());
+        if(getSupportActionBar() != null)
+        {
+            getSupportActionBar().setTitle(mUtilityData.getTitle());
+        }
 
         mMap.setText(map.getName());
         mStance.setText(stance.getTitle());
@@ -93,5 +112,9 @@ public class ViewNadeActivity extends AppCompatActivity
 
         mTagAdapter = new TagAdapter(mUtilityData.getTags(), this);
         mTagContainer.setAdapter(mTagAdapter);
+
+        final List<Uri> imgUris = mUtilityData.getImgUris(this);
+        if(imgUris.size() > 0)
+            Glide.with(this).load(imgUris.get(0)).into(mBackdrop);
     }
 }

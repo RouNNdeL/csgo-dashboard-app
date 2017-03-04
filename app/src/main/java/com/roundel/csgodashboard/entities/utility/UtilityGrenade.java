@@ -1,6 +1,7 @@
 package com.roundel.csgodashboard.entities.utility;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 import com.roundel.csgodashboard.db.DbUtils;
@@ -70,16 +71,21 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
         final List<String> imgIds = Arrays.asList(DbUtils.splitImgIds(
                 cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_IMG_IDS))
         ));
-        final Map map = null;
+        final Map map = new Map(
+                (int) cursor.getLong(cursor.getColumnIndex(Map.TABLE_NAME + "." + Map._ID)),
+                cursor.getString(cursor.getColumnIndex(Map.TABLE_NAME + "." + Map.COLUMN_NAME_CODE_NAME)),
+                cursor.getString(cursor.getColumnIndex(Map.TABLE_NAME + "." + Map.COLUMN_NAME_NAME)),
+                Uri.parse(cursor.getString(cursor.getColumnIndex(Map.TABLE_NAME + "." + Map.COLUMN_NAME_IMG_URI)))
+        );
         return new UtilityGrenade(
                 imgIds,
                 null,
                 map,
-                cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TITLE)),
-                cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_DESCRIPTION)),
-                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TYPE)),
-                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_STANCE)),
-                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_JUMP_THROW)) == 1
+                cursor.getString(cursor.getColumnIndex(UtilityGrenade.TABLE_NAME + "." + UtilityGrenade.COLUMN_NAME_TITLE)),
+                cursor.getString(cursor.getColumnIndex(UtilityGrenade.TABLE_NAME + "." + UtilityGrenade.COLUMN_NAME_DESCRIPTION)),
+                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.TABLE_NAME + "." + UtilityGrenade.COLUMN_NAME_TYPE)),
+                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.TABLE_NAME + "." + UtilityGrenade.COLUMN_NAME_STANCE)),
+                cursor.getInt(cursor.getColumnIndex(UtilityGrenade.TABLE_NAME + "." + UtilityGrenade.COLUMN_NAME_JUMP_THROW)) == 1
         );
     }
 

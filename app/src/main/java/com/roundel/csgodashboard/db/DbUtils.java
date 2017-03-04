@@ -16,6 +16,8 @@ import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -62,7 +64,7 @@ public class DbUtils
     {
         ContentValues values = new ContentValues(8);
 
-        List<Long> tagIds = insertTags(db, utilityGrenade.getTags());
+        HashSet<Long> tagIds = insertTags(db, utilityGrenade.getTags());
 
         values.put(UtilityGrenade.COLUMN_NAME_TITLE, utilityGrenade.getTitle());
         values.put(UtilityGrenade.COLUMN_NAME_DESCRIPTION, utilityGrenade.getDescription());
@@ -176,7 +178,7 @@ public class DbUtils
     {
         return queryGrenades(
                 db,
-                concatenateArrays(UtilityGrenade.PROJECTION_DATA, Map.PROJECTION_DATA)
+                concatenateArrays(UtilityGrenade.PROJECTION_ALL, Map.PROJECTION_DATA)
         );
     }
 
@@ -184,10 +186,10 @@ public class DbUtils
     {
         Cursor cursor = queryGrenades(
                 db,
-                concatenateArrays(UtilityGrenade.PROJECTION_DATA, Map.PROJECTION_DATA),
-                UtilityGrenade._ID + " = ?",
+                concatenateArrays(UtilityGrenade.PROJECTION_DATA, Map.PROJECTION_ALL),
+                UtilityGrenade.TABLE_NAME + "." + UtilityGrenade._ID + " = ?",
                 new String[]{String.valueOf(id)},
-                UtilityGrenade._ID,
+                UtilityGrenade.TABLE_NAME + "." + UtilityGrenade._ID,
                 ORDER_ASCENDING
         );
         if(cursor.moveToFirst())
@@ -200,7 +202,9 @@ public class DbUtils
                             cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS))
                     )
             );
-            return UtilityGrenade.fromCursor(cursor);
+            final UtilityGrenade utilityGrenade = UtilityGrenade.fromCursor(cursor);
+            utilityGrenade.setTags(tags);
+            return utilityGrenade;
         }
         return null;
     }
@@ -213,7 +217,7 @@ public class DbUtils
         Cursor cursor = queryTags(
                 db,
                 new String[]{Tags.COLUMN_NAME_NAME},
-                buildTagQuery(ids),
+                buildTagQuery(ids.size()),
                 tagSelectionArgsFromIdList(ids),
                 Tags._ID,
                 ORDER_ASCENDING
@@ -231,7 +235,7 @@ public class DbUtils
         Cursor cursor = queryTags(
                 db,
                 new String[]{Tags._ID},
-                buildTagIdQuery(names),
+                buildTagIdQuery(names.size()),
                 names.toArray(new String[names.size()]),
                 Tags._ID,
                 ORDER_ASCENDING
@@ -322,33 +326,39 @@ public class DbUtils
         return list;
     }
 
-    public static String joinTagIds(List<Long> list)
+    public static String joinTagIds(HashSet<Long> list)
     {
         return TextUtils.join(ARRAY_DIVIDER, list);
     }
 
-    private static String buildTagQuery(List<Long> list)
+    private static String buildTagQuery(int size)
     {
         StringBuilder builder = new StringBuilder();
-        for(int i = 0; i < list.size(); i++)
+        for(int i = 0; i < size; i++)
         {
-            builder.append(Tags._ID + " = ?");
-            if(i < list.size() - 1)
-                builder.append(" OR ");
+            builder.append("?");
+            if(i <= size - 2)
+                builder.append(",");
         }
-        return builder.toString();
+        return String.format(
+                Tags._ID + " IN(%s)",
+                builder.toString()
+        );
     }
 
-    private static String buildTagIdQuery(List<String> list)
+    private static String buildTagIdQuery(int size)
     {
         StringBuilder builder = new StringBuilder();
-        for(int i = 0; i < list.size(); i++)
+        for(int i = 0; i < size; i++)
         {
-            builder.append(Tags.COLUMN_NAME_NAME + " = ?");
-            if(i < list.size() - 1)
-                builder.append(" OR ");
+            builder.append("?");
+            if(i <= size - 2)
+                builder.append(",");
         }
-        return builder.toString();
+        return String.format(
+                Tags.COLUMN_NAME_NAME + " IN(%s)",
+                builder.toString()
+        );
     }
 
     private static String[] tagSelectionArgsFromIdList(List<Long> ids)
@@ -358,12 +368,12 @@ public class DbUtils
         {
             tmp.add(String.valueOf(id));
         }
-        return (String[]) tmp.toArray();
+        return tmp.toArray(new String[tmp.size()]);
     }
 
-    private static List<Long> insertTags(SQLiteDatabase db, Tags tags)
+    private static HashSet<Long> insertTags(SQLiteDatabase db, Tags tags)
     {
-        List<Long> ids = new ArrayList<>();
+        HashSet<Long> ids = new HashSet<>();
         List<String> notUniqueTags = new ArrayList<>();
         for(String tag : tags)
         {
@@ -393,6 +403,22 @@ public class DbUtils
         System.arraycopy(b, 0, c, aLen, bLen);
 
         return c;
+    }
+
+    private static String joinWithQuotes(String delimiter, String quotes, Iterable tokens)
+    {
+        StringBuilder builder = new StringBuilder();
+        Iterator<?> it = tokens.iterator();
+        if(it.hasNext())
+        {
+            builder.append(quotes).append(it.next()).append(quotes);
+            while(it.hasNext())
+            {
+                builder.append(delimiter);
+                builder.append(quotes).append(it.next()).append(quotes);
+            }
+        }
+        return builder.toString();
     }
     //</editor-fold>
 }
