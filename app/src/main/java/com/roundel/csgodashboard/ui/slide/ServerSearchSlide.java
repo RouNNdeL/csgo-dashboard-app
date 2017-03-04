@@ -1,7 +1,6 @@
 package com.roundel.csgodashboard.ui.slide;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.wifi.WifiInfo;
@@ -188,23 +187,11 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 builder.setMessage("On some networks the app might not be able to automatically detect a PC. " +
                         "You can however attempt a manual connection by supplying an IP and a port shown by the server running on you PC." +
                         "\n\nDo you want to attempt the manual connection?");
-                builder.setPositiveButton("Manual", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                        animateToManualConnection();
-                    }
+                builder.setPositiveButton("Manual", (dialog, which) -> {
+                    dialog.dismiss();
+                    animateToManualConnection();
                 });
-                builder.setNegativeButton("cancel", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                });
+                builder.setNegativeButton("cancel", (dialog, which) -> dialog.dismiss());
                 builder.create().show();
 
                 break;
@@ -228,14 +215,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         Log.d("ServerDiscoveryThread", server.getHost() + ":" + server.getPort());
         try
         {
-            getActivity().runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    addServer(server);
-                }
-            });
+            getActivity().runOnUiThread(() -> addServer(server));
         }
         catch(NullPointerException e)
         {
@@ -250,14 +230,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         try
         {
-            getActivity().runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    isRefreshing = true;
-                    mAdapter.setRefreshing(true);
-                }
+            getActivity().runOnUiThread(() -> {
+                isRefreshing = true;
+                mAdapter.setRefreshing(true);
             });
         }
         catch(NullPointerException e)
@@ -280,14 +255,9 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         try
         {
-            getActivity().runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    isRefreshing = false;
-                    mAdapter.setRefreshing(false);
-                }
+            getActivity().runOnUiThread(() -> {
+                isRefreshing = false;
+                mAdapter.setRefreshing(false);
             });
         }
         catch(NullPointerException e)
@@ -417,27 +387,17 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private void onConnectionSuccessful(final GameServer gameServer)
     {
         //Remember to run UI operations with Activity.runOnUiThread();
-        getActivity().runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                setStatusIconSuccess();
-                setStatusConnectedSuccessfully();
+        getActivity().runOnUiThread(() -> {
+            setStatusIconSuccess();
+            setStatusConnectedSuccessfully();
 
-                new Handler().postDelayed(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Intent intent = new Intent(getContext(), GameInfoActivity.class);
-                        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_NAME, gameServer.getName());
-                        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_HOST, gameServer.getHost());
-                        intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_PORT, gameServer.getPort());
-                        getContext().startActivity(intent);
-                    }
-                }, mStartActivityDelay);
-            }
+            new Handler().postDelayed(() -> {
+                Intent intent = new Intent(getContext(), GameInfoActivity.class);
+                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_NAME, gameServer.getName());
+                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_HOST, gameServer.getHost());
+                intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_PORT, gameServer.getPort());
+                getContext().startActivity(intent);
+            }, mStartActivityDelay);
         });
     }
 
@@ -445,15 +405,10 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         //isConnectingToServer = false;
         //Remember to run UI operations with Activity.runOnUiThread();
-        getActivity().runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                setStatusIconFailure();
+        getActivity().runOnUiThread(() -> {
+            setStatusIconFailure();
 
-                setStatusConnectionDeined();
-            }
+            setStatusConnectionDeined();
         });
     }
 
@@ -461,35 +416,16 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         //isConnectingToServer = false;
         if(getActivity() != null)
-        getActivity().runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                new Handler().postDelayed(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        setStatusIconFailure();
+            getActivity().runOnUiThread(() -> new Handler().postDelayed(() -> {
+                setStatusIconFailure();
 
-                        setStatusConnectionFailure();
-                    }
-                }, defaultTransitionDuration * 2);
-            }
-        });
+                setStatusConnectionFailure();
+            }, defaultTransitionDuration * 2));
     }
 
     private void onConnectionAllow()
     {
-        getActivity().runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                setStatusAllow();
-            }
-        });
+        getActivity().runOnUiThread(() -> setStatusAllow());
     }
 
     //<editor-fold desc="Connecting animation">

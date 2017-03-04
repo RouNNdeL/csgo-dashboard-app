@@ -200,17 +200,12 @@ public class FillingIcon extends View
     private void animateFillValue(float from, float to)
     {
         ValueAnimator animator = ValueAnimator.ofFloat(from, to);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
-        {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation)
+        animator.addUpdateListener(animation -> {
+            if(animation.getAnimatedValue() != null)
             {
-                if(animation.getAnimatedValue() != null)
-                {
-                    mFillValue = (float) animation.getAnimatedValue();
-                    computeFillBounds();
-                    invalidate();
-                }
+                mFillValue = (float) animation.getAnimatedValue();
+                computeFillBounds();
+                invalidate();
             }
         });
         int duration = (int) (mValueAnimationDuration * Math.abs(from - to));

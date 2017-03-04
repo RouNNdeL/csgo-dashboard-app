@@ -251,14 +251,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onBombPlanted(final long serverTimestamp)
     {
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                plantBomb(serverTimestamp + mServerTimeOffset);
-            }
-        });
+        runOnUiThread(() -> plantBomb(serverTimestamp + mServerTimeOffset));
         LogHelper.d(
                 "UpdateEvents",
                 "onBombPlanted: " +
@@ -271,42 +264,21 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onBombExploded(long serverTimestamp)
     {
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                explodeBomb();
-            }
-        });
+        runOnUiThread(() -> explodeBomb());
         LogHelper.d("RoundEvents", "onBombExploded: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
     public void onBombDefused(long serverTimestamp)
     {
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                defuseBomb();
-            }
-        });
+        runOnUiThread(() -> defuseBomb());
         LogHelper.d("RoundEvents", "onBombDefused: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
     @Override
     public void onRoundStart(final long serverTimestamp)
     {
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                startRound(serverTimestamp + mServerTimeOffset);
-            }
-        });
+        runOnUiThread(() -> startRound(serverTimestamp + mServerTimeOffset));
         LogHelper.d("RoundEvents", "onRoundStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
@@ -319,14 +291,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onFreezeTimeStart(final long serverTimestamp)
     {
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                startFreezeTime(serverTimestamp + mServerTimeOffset);
-            }
-        });
+        runOnUiThread(() -> startFreezeTime(serverTimestamp + mServerTimeOffset));
         LogHelper.d("RoundEvents", "onFreezeTimeStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
@@ -345,14 +310,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onWarmupStart(long serverTimestamp)
     {
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                startWarmup();
-            }
-        });
+        runOnUiThread(() -> startWarmup());
         LogHelper.d("RoundEvents", "onWarmupStart: " + (mGameState != null ? mGameState.toString() : "GameSate=null"));
     }
 
@@ -365,14 +323,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     private void startGameInfoListener()
     {
         mGameInfoServerThread = new GameInfoListeningThread();
-        mGameInfoServerThread.setOnServerStartedListener(new GameInfoListeningThread.OnServerStartedListener()
-        {
-            @Override
-            public void onServerStarted(int port)
-            {
-                updateServer(port);
-            }
-        });
+        mGameInfoServerThread.setOnServerStartedListener(port -> updateServer(port));
         mGameInfoServerThread.setOnDataListener(this);
         mGameInfoServerThread.start();
         LogHelper.i(TAG, "Starting the GameInfoListeningThread");
@@ -380,14 +331,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void startPinging()
     {
-        Runnable threadRunnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                ServerPingingThread serverPingingThread = new ServerPingingThread(mGameServer);
-                serverPingingThread.start();
-            }
+        Runnable threadRunnable = () -> {
+            ServerPingingThread serverPingingThread = new ServerPingingThread(mGameServer);
+            serverPingingThread.start();
         };
         if(mPingingHandler != null)
             mPingingHandler.cancel(false);
@@ -519,22 +465,17 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void update()
     {
-        runOnUiThread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                if(mGameState == null)
-                    return;
+        runOnUiThread(() -> {
+            if(mGameState == null)
+                return;
 
-                updateRoundNo();
-                updateScores();
-                updateTeam();
-                updateStats();
-                updateHealthArmor();
-                updateTeamNames();
-                updateMap();
-            }
+            updateRoundNo();
+            updateScores();
+            updateTeam();
+            updateStats();
+            updateHealthArmor();
+            updateTeamNames();
+            updateMap();
         });
     }
 
@@ -598,28 +539,18 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mBombTickScaleAnimator = ValueAnimator.ofFloat(1.0f, mBombTickingMaxScale);
         mBombTickingAnimator = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
 
-        mBombTickingAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
-        {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation)
+        mBombTickingAnimator.addUpdateListener(animation -> {
+            Integer color = (Integer) animation.getAnimatedValue();
+            if(color != null)
             {
-                Integer color = (Integer) animation.getAnimatedValue();
-                if(color != null)
-                {
-                    mBombView.setImageTintList(ColorStateList.valueOf(color));
-                    mBombTicksView.setImageTintList(ColorStateList.valueOf(color));
-                }
+                mBombView.setImageTintList(ColorStateList.valueOf(color));
+                mBombTicksView.setImageTintList(ColorStateList.valueOf(color));
             }
         });
 
-        mBombTickScaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
-        {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation)
-            {
-                mBombTicksView.setScaleX((float) animation.getAnimatedValue());
-                mBombTicksView.setScaleY((float) animation.getAnimatedValue());
-            }
+        mBombTickScaleAnimator.addUpdateListener(animation -> {
+            mBombTicksView.setScaleX((float) animation.getAnimatedValue());
+            mBombTicksView.setScaleY((float) animation.getAnimatedValue());
         });
 
         mBombTickingAnimator.setRepeatMode(ValueAnimator.REVERSE);
@@ -644,28 +575,18 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         ValueAnimator bombColor = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombDefused));
         ValueAnimator tickAlpha = ValueAnimator.ofFloat(1.0f, 0.0f);
 
-        bombColor.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
-        {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation)
+        bombColor.addUpdateListener(animation -> {
+            if(animation.getAnimatedValue() != null)
             {
-                if(animation.getAnimatedValue() != null)
-                {
-                    mBombView.setImageTintList(ColorStateList.valueOf((int) animation.getAnimatedValue()));
-                    mBombTicksView.setImageTintList(ColorStateList.valueOf((int) animation.getAnimatedValue()));
-                }
+                mBombView.setImageTintList(ColorStateList.valueOf((int) animation.getAnimatedValue()));
+                mBombTicksView.setImageTintList(ColorStateList.valueOf((int) animation.getAnimatedValue()));
             }
         });
 
-        tickAlpha.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
-        {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation)
+        tickAlpha.addUpdateListener(animation -> {
+            if(animation.getAnimatedValue() != null)
             {
-                if(animation.getAnimatedValue() != null)
-                {
-                    mBombTicksView.setAlpha((float) animation.getAnimatedValue());
-                }
+                mBombTicksView.setAlpha((float) animation.getAnimatedValue());
             }
         });
 
@@ -688,14 +609,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mRoundNumber.setVisibility(View.VISIBLE);
         mBombFrame.setVisibility(View.GONE);
 
-        new Handler().postDelayed(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                resetBomb();
-            }
-        }, mBombResetDelay);
+        new Handler().postDelayed(() -> resetBomb(), mBombResetDelay);
     }
 
     private void transitionShowBomb()

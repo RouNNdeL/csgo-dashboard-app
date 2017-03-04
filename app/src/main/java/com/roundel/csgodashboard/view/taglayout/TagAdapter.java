@@ -92,38 +92,33 @@ public class TagAdapter
                 final ImageView removeIcon = (ImageView) view.findViewById(R.id.utility_tag_remove);
 
                 removeIcon.setOnClickListener(mOnTagRemoveRequested);
-                view.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
+                view.setOnClickListener(v -> {
+                    int position1 = mParentTagLayout.indexOfChild(v);
+                    final boolean isExpanded = position1 == mExpandedPosition;
+
+                    final Transition transition = new AutoTransition();
+                    transition.setDuration(mExpandTransitionDuration);
+
+                    TransitionManager.beginDelayedTransition(mParentTagLayout, transition);
+                    removeIcon.setVisibility(View.VISIBLE);
+                    if(mExpandedPosition != -1)
                     {
-                        int position = mParentTagLayout.indexOfChild(v);
-                        final boolean isExpanded = position == mExpandedPosition;
-
-                        final Transition transition = new AutoTransition();
-                        transition.setDuration(mExpandTransitionDuration);
-
-                        TransitionManager.beginDelayedTransition(mParentTagLayout, transition);
-                        removeIcon.setVisibility(View.VISIBLE);
-                        if(mExpandedPosition != -1)
+                        View child = mParentTagLayout.getChildAt(mExpandedPosition);
+                        if(child != null)
                         {
-                            View child = mParentTagLayout.getChildAt(mExpandedPosition);
-                            if(child != null)
+                            final ImageView i = (ImageView) child.findViewById(R.id.utility_tag_remove);
+                            if(i != null)
                             {
-                                final ImageView i = (ImageView) child.findViewById(R.id.utility_tag_remove);
-                                if(i != null)
-                                {
-                                    i.setVisibility(View.GONE);
-                                    mExpandedPosition = -1;
-                                }
-                            }
-                            else
-                            {
+                                i.setVisibility(View.GONE);
                                 mExpandedPosition = -1;
                             }
                         }
-                        mExpandedPosition = isExpanded ? -1 : position;
+                        else
+                        {
+                            mExpandedPosition = -1;
+                        }
                     }
+                    mExpandedPosition = isExpanded ? -1 : position1;
                 });
             }
         }

@@ -106,14 +106,7 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
                                 Toast.makeText(context, R.string.setup_wifi_connected, Toast.LENGTH_SHORT).show();
                                 if(mSlideActionInterface != null)
                                 {
-                                    new Handler().postDelayed(new Runnable()
-                                    {
-                                        @Override
-                                        public void run()
-                                        {
-                                            mSlideActionInterface.onNextPageRequested(getParentFragment());
-                                        }
-                                    }, 250);
+                                    new Handler().postDelayed(() -> mSlideActionInterface.onNextPageRequested(getParentFragment()), 250);
                                 }
                             }
                         }

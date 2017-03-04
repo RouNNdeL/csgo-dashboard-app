@@ -98,14 +98,7 @@ public class ServerDiscoveryThread extends Thread
                 }
             }
 
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    socket.close();
-                }
-            }, discoveryTimeout);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> socket.close(), discoveryTimeout);
 
             //Wait for a response
             while(true)
