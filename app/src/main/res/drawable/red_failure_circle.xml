@@ -11,6 +11,6 @@
     <item
         android:width="36dp"
         android:height="36dp"
-        android:drawable="@drawable/ic_clear_black_24dp"
+        android:drawable="@drawable/ic_clear_white_24dp"
         android:gravity="center"/>
 </layer-list>
