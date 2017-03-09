@@ -110,7 +110,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         setSupportActionBar(mToolbar);
 
-        getSupportActionBar().setTitle("Add nade");
+        if(getSupportActionBar() != null)
+        {
+            getSupportActionBar().setTitle("Add nade");
+        }
 
         mUserData = UserData.fromContext(this);
         mUserDataMaps = mUserData.getMaps();

@@ -1,9 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <corners
-        android:radius="18dp"/>
-    <solid
-        android:color="@color/colorPrimary"/>
+    <item
+        android:bottom="@dimen/tag_stroke_width"
+        android:left="@dimen/tag_stroke_width"
+        android:right="@dimen/tag_stroke_width"
+        android:top="@dimen/tag_stroke_width">
 
-</shape>
+        <shape>
+
+            <corners
+                android:radius="@dimen/tag_corner_radius"/>
+            <solid
+                android:color="@color/list_tag_background"/>
+        </shape>
+
+    </item>
+
+    <item>
+
+        <shape>
+
+            <corners
+                android:radius="@dimen/tag_corner_radius"/>
+            <stroke
+                android:width="2dp"
+                android:color="@color/list_tag_stroke"/>
+        </shape>
+
+    </item>
+
+</layer-list>

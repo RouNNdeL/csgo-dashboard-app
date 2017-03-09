@@ -17,7 +17,6 @@
         android:layout_marginTop="16dp"
         android:scaleType="centerCrop"
         android:src="@color/colorPrimary"
-        android:transitionName="@string/transition_utility_grenade_map_img"
         app:cornerRadius="20dp"/>
 
     <LinearLayout

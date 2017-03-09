@@ -6,10 +6,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,9 +35,7 @@ public class ViewNadeActivity extends AppCompatActivity
     public static final String EXTRA_UTILITY_ID = "com.roundel.csgodashboard.extra.GRENADE_ID";
 
     //<editor-fold desc="private variables">
-    @BindView(R.id.view_nade_toolbar) Toolbar mToolbar;
     @BindView(R.id.view_nade_backdrop) CircleRectView mBackdrop;
-    @BindView(R.id.view_nade_collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
     @BindView(R.id.view_nade_appbar) AppBarLayout mAppbar;
     @BindView(R.id.view_nade_map) TextView mMap;
     @BindView(R.id.view_nade_grenade_icon) ImageView mGrenadeIcon;
@@ -48,7 +44,7 @@ public class ViewNadeActivity extends AppCompatActivity
     @BindView(R.id.view_nade_stance) TextView mStance;
     @BindView(R.id.view_nade_tag_container) TagLayout mTagContainer;
     @BindView(R.id.view_nade_description) TextView mDescription;
-    @BindView(R.id.view_nade_coordinator_layout) CoordinatorLayout mCoordinatorLayout;
+    @BindView(R.id.view_nade_root) NestedScrollView mCoordinatorLayout;
 
     private TagAdapter mTagAdapter;
 
@@ -75,17 +71,18 @@ public class ViewNadeActivity extends AppCompatActivity
 
         ButterKnife.bind(this);
 
-        setSupportActionBar(mToolbar);
-
         Intent intent = getIntent();
         int utilityId = intent.getIntExtra(EXTRA_UTILITY_ID, -1);
         if(utilityId < 0)
-            throw new IllegalStateException("You need to provide a valid utility id in int extra" + EXTRA_UTILITY_ID);
+            throw new RuntimeException("You need to provide a valid utility_grenade_id in integer extra " + EXTRA_UTILITY_ID);
 
         mDbHelper = new DbHelper(this);
         mReadableDatabase = mDbHelper.getReadableDatabase();
 
         mUtilityData = DbUtils.queryGrenadeById(mReadableDatabase, utilityId);
+        if(mUtilityData == null)
+            throw new RuntimeException("You need to provide a valid utility_grenade_id in integer extra " + EXTRA_UTILITY_ID);
+
         fillActivity();
     }
 

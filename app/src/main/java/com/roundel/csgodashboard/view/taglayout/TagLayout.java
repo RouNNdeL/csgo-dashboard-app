@@ -17,6 +17,7 @@ public class TagLayout extends FlowLayout implements TagAdapter.OnDataChangedLis
     //<editor-fold desc="private variables">
     private TagAdapter mTagAdapter;
     private boolean mEditable;
+    private boolean mSelectable;
     //</editor-fold>
 
     public TagLayout(Context context, AttributeSet attrs, int defStyle)
@@ -27,6 +28,10 @@ public class TagLayout extends FlowLayout implements TagAdapter.OnDataChangedLis
         try
         {
             mEditable = array.getBoolean(R.styleable.TagLayout_editable, false);
+            mSelectable = array.getBoolean(R.styleable.TagLayout_selectable, false);
+
+            if(mEditable && mSelectable)
+                throw new IllegalStateException("The TagLayout cannot be editable and selectable at the same time");
         }
         finally
         {
@@ -62,7 +67,7 @@ public class TagLayout extends FlowLayout implements TagAdapter.OnDataChangedLis
         int lineHeight = 0;
 
         //This is to prevent tags jumping to the next line when expanded (remove icon is shown)
-        int removeIconSize = getResources().getDimensionPixelSize(R.dimen.utility_tag_icon_margin_start) +
+        int removeIconSize = getResources().getDimensionPixelSize(R.dimen.tag_icon_margin_start) +
                 getResources().getDimensionPixelSize(R.dimen.utility_tag_icon_size);
         sizeWidth -= removeIconSize;
 
@@ -162,5 +167,15 @@ public class TagLayout extends FlowLayout implements TagAdapter.OnDataChangedLis
     {
         mEditable = editable;
         refreshLayout();
+    }
+
+    public boolean isSelectable()
+    {
+        return mSelectable;
+    }
+
+    public void setSelectable(boolean selectable)
+    {
+        mSelectable = selectable;
     }
 }

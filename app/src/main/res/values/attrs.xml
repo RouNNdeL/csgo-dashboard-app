@@ -41,6 +41,7 @@
 
     <declare-styleable name="TagLayout">
         <attr name="editable" format="boolean"/>
+        <attr name="selectable" format="boolean"/>
     </declare-styleable>
 
     <declare-styleable name="CircleRectView">

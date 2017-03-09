@@ -1,5 +1,6 @@
 package com.roundel.csgodashboard.view.taglayout;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
@@ -8,13 +9,16 @@ import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.utility.Tags;
+import com.roundel.csgodashboard.util.LogHelper;
 import com.zhy.view.flowlayout.FlowLayout;
 
 /**
@@ -33,6 +37,8 @@ public class TagAdapter
     private Context mContext;
     private OnTagAddRequested mOnTagAddRequestedListener = new OnTagAddRequested();
     private OnTagRemoveRequested mOnTagRemoveRequested = new OnTagRemoveRequested();
+    private OnTagSelected mOnTagSelected = new OnTagSelected();
+    private OnTagExpanded mOnTagExpanded = new OnTagExpanded();
     private boolean mRequestFocus;
 
     private Tags mDataSet;
@@ -78,48 +84,31 @@ public class TagAdapter
             editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mTagNameMaxLength)});
             if(mRequestFocus)
                 editText.requestFocus();
+            view.setSelected(true);
         }
         else
         {
             view = mInflater.inflate(R.layout.utility_tag_layout, parent, false);
 
             final TextView name = (TextView) view.findViewById(R.id.utility_tag_name);
+            final TextView nameMock = (TextView) view.findViewById(R.id.utility_tag_name_mock);
+
             name.setText(getItem(position));
             name.setMaxEms(mTagNameMaxEms);
+            nameMock.setText(getItem(position));
+            nameMock.setMaxEms(mTagNameMaxEms);
 
             if(mParentTagLayout.isEditable())
             {
                 final ImageView removeIcon = (ImageView) view.findViewById(R.id.utility_tag_remove);
 
                 removeIcon.setOnClickListener(mOnTagRemoveRequested);
-                view.setOnClickListener(v -> {
-                    int position1 = mParentTagLayout.indexOfChild(v);
-                    final boolean isExpanded = position1 == mExpandedPosition;
-
-                    final Transition transition = new AutoTransition();
-                    transition.setDuration(mExpandTransitionDuration);
-
-                    TransitionManager.beginDelayedTransition(mParentTagLayout, transition);
-                    removeIcon.setVisibility(View.VISIBLE);
-                    if(mExpandedPosition != -1)
-                    {
-                        View child = mParentTagLayout.getChildAt(mExpandedPosition);
-                        if(child != null)
-                        {
-                            final ImageView i = (ImageView) child.findViewById(R.id.utility_tag_remove);
-                            if(i != null)
-                            {
-                                i.setVisibility(View.GONE);
-                                mExpandedPosition = -1;
-                            }
-                        }
-                        else
-                        {
-                            mExpandedPosition = -1;
-                        }
-                    }
-                    mExpandedPosition = isExpanded ? -1 : position1;
-                });
+                view.setOnClickListener(mOnTagExpanded);
+                view.setSelected(true);
+            }
+            else if(mParentTagLayout.isSelectable())
+            {
+                view.setOnTouchListener(mOnTagSelected);
             }
         }
         return view;
@@ -231,6 +220,75 @@ public class TagAdapter
         boolean onTagAdded(String name);
 
         void onTagRemoved(int position);
+    }
+
+    private class OnTagSelected implements View.OnTouchListener
+    {
+        @Override
+        public boolean onTouch(View v, MotionEvent event)
+        {
+            LogHelper.d(TAG, "MotionEvent action: " + event.getAction());
+            if(event.getAction() == MotionEvent.ACTION_UP)
+            {
+                final View tag = v.findViewById(R.id.utility_tag_layout);
+                final View tagMock = v.findViewById(R.id.utility_tag_layout_mock);
+
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+
+                int finalRadius = Math.max(v.getWidth(), v.getHeight());
+
+                Animator animator = ViewAnimationUtils.createCircularReveal(tag, x, y, 0, finalRadius);
+
+                tag.setSelected(!tag.isSelected());
+                tagMock.setSelected(!tag.isSelected());
+
+                animator.setDuration(250);
+                animator.start();
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private class OnTagExpanded implements View.OnClickListener
+    {
+
+        @Override
+        public void onClick(View v)
+        {
+            final ImageView removeIcon = (ImageView) v.findViewById(R.id.utility_tag_remove);
+            final ImageView removeIconMock = (ImageView) v.findViewById(R.id.utility_tag_remove_mock);
+            final int position = mParentTagLayout.indexOfChild(v);
+            final boolean isExpanded = position == mExpandedPosition;
+
+            final Transition transition = new AutoTransition();
+            transition.setDuration(mExpandTransitionDuration);
+
+            TransitionManager.beginDelayedTransition(mParentTagLayout, transition);
+            removeIcon.setVisibility(View.VISIBLE);
+            removeIconMock.setVisibility(View.VISIBLE);
+            if(mExpandedPosition != -1)
+            {
+                View child = mParentTagLayout.getChildAt(mExpandedPosition);
+                if(child != null)
+                {
+                    final ImageView i = (ImageView) child.findViewById(R.id.utility_tag_remove);
+                    final ImageView iMock = (ImageView) child.findViewById(R.id.utility_tag_remove_mock);
+                    if(i != null)
+                    {
+                        i.setVisibility(View.GONE);
+                        iMock.setVisibility(View.GONE);
+                        mExpandedPosition = -1;
+                    }
+                }
+                else
+                {
+                    mExpandedPosition = -1;
+                }
+            }
+            mExpandedPosition = isExpanded ? -1 : position;
+        }
     }
 
     private class OnTagAddRequested implements View.OnClickListener, View.OnKeyListener

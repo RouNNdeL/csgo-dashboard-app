@@ -1,40 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.design.widget.CoordinatorLayout
+<android.support.v4.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/view_nade_coordinator_layout"
+    android:id="@+id/view_nade_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
     android:fitsSystemWindows="false"
     android:paddingTop="0dp">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/view_nade_appbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/view_nade_collapsing_toolbar"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/view_nade_appbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/view_nade_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:transitionName="@string/transition_utility_grenade_title"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-            </android.support.v7.widget.Toolbar>
+            android:layout_height="300dp"
+            android:background="@null"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <com.roundel.csgodashboard.view.CircleRectView
                 android:id="@+id/view_nade_backdrop"
@@ -46,22 +31,24 @@
                 app:cornerRadius="0dp"
                 app:layout_collapseMode="parallax"
                 app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"/>
-        </android.support.design.widget.CollapsingToolbarLayout>
-    </android.support.design.widget.AppBarLayout>
 
-    <!--TODO: Find a way to fix the AppBar hiding when IME is shown-->
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/view_nade_scroll_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:transitionName="@string/transition_utility_grenade_root"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        </android.support.design.widget.AppBarLayout>
 
+        <!--TODO: Find a way to fix the AppBar hiding when IME is shown-->
+        <!--<
+            android:id="@+id/view_nade_scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:transitionName="@string/transition_utility_grenade_root"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?android:attr/colorBackground"
             android:orientation="vertical"
-            android:paddingBottom="32dp">
+            android:paddingBottom="32dp"
+            android:paddingTop="16dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -174,13 +161,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
-                android:layout_marginStart="@dimen/activity_horizontal_margin">
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                app:selectable="true">
 
             </com.roundel.csgodashboard.view.taglayout.TagLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:gravity="center">
 
                 <ImageView
@@ -209,7 +198,7 @@
             </RelativeLayout>
 
         </LinearLayout>
+    </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
 
-</android.support.design.widget.CoordinatorLayout>
+</android.support.v4.widget.NestedScrollView>
