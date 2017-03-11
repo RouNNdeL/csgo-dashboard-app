@@ -172,13 +172,10 @@
 
     <!--Stats-->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
+        style="@style/ListSubheader"
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
-        android:text="@string/game_info_stats_header"
-        android:textAppearance="@style/TextAppearance.ListSubHeader"/>
+        android:text="@string/game_info_stats_header"/>
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
@@ -300,13 +297,10 @@
 
     <!--Health and armor-->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
+        style="@style/ListSubheader"
         android:paddingEnd="8dp"
         android:paddingStart="8dp"
-        android:text="@string/game_info_health_and_armor"
-        android:textAppearance="@style/TextAppearance.ListSubHeader"/>
+        android:text="@string/game_info_health_and_armor"/>
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"

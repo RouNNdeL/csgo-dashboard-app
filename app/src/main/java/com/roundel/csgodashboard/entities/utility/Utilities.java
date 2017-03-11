@@ -15,8 +15,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * Created by Krzysiek on 2017-02-10.
@@ -75,7 +73,7 @@ public class Utilities extends ArrayList<UtilityBase>
         fos.close();
     }
 
-    public HashSet<String> getTags()
+    /*public HashSet<String> getTags()
     {
         HashSet<String> set = new HashSet<>();
 
@@ -85,15 +83,15 @@ public class Utilities extends ArrayList<UtilityBase>
         }
 
         return set;
-    }
+    }*/
 
-    public List<String> getOrderedTags()
+    public Tags getOrderedTags()
     {
-        List<String> list = new ArrayList<>();
+        Tags list = new Tags();
 
         for(UtilityBase utility : this)
         {
-            for(String tag : utility.getTags())
+            for(Tags.Tag tag : utility.getTags())
             {
                 if(!list.contains(tag))
                 {

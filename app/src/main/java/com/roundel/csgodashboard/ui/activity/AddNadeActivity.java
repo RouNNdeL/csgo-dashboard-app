@@ -158,9 +158,11 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mImageRecyclerView.setAdapter(mImageAdapter);
         mImageRecyclerView.setLayoutManager(mImageLayoutManager);
 
-        mTags.add("one-way");
-        mTags.add("mid");
-        mTags.add("b-site");
+        mTags.add(new Tags.Tag("hello"));
+        mTags.add(new Tags.Tag("this"));
+        mTags.add(new Tags.Tag("is"));
+        mTags.add(new Tags.Tag("a"));
+        mTags.add(new Tags.Tag("test"));
 
         mTagAdapter = new TagAdapter(mTags, this);
         mTagAdapter.setTagActionListener(this);
@@ -213,7 +215,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         if(!mTags.contains(name))
         {
-            mTags.add(name);
+            mTags.add(new Tags.Tag(name));
             mTagAdapter.notifyItemInserted(mTags.size() - 1);
             return true;
         }
@@ -262,8 +264,8 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     }
 
     /**
-     * @return {@code null} if the form is improperly filled, {@link UtilityGrenade} object containing the
-     * form's data if it is properly filled
+     * @return {@code null} if the form is improperly filled, {@link UtilityGrenade} object
+     * containing the form's data if it is properly filled
      */
     private UtilityGrenade validate()
     {

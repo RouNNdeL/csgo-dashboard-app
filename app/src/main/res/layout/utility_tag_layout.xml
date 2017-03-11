@@ -19,7 +19,8 @@
         android:paddingBottom="@dimen/tag_vertical_padding"
         android:paddingEnd="@dimen/tag_horizontal_padding"
         android:paddingStart="@dimen/tag_horizontal_padding"
-        android:paddingTop="@dimen/tag_vertical_padding">
+        android:paddingTop="@dimen/tag_vertical_padding"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/utility_tag_name_mock"

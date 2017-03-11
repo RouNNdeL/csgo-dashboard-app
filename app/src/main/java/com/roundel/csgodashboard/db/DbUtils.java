@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.LongSparseArray;
 
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.Maps;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Krzysiek on 2017-02-22.
@@ -52,10 +54,10 @@ public class DbUtils
         return db.insert(Tags.TABLE_NAME, null, values);
     }
 
-    public static long insertOrThrowTag(SQLiteDatabase db, String tag)
+    public static long insertOrThrowTag(SQLiteDatabase db, Tags.Tag tag)
     {
         ContentValues values = new ContentValues(1);
-        values.put(Tags.COLUMN_NAME_NAME, tag);
+        values.put(Tags.COLUMN_NAME_NAME, tag.getName());
 
         return db.insertOrThrow(Tags.TABLE_NAME, null, values);
     }
@@ -151,7 +153,7 @@ public class DbUtils
                 " = " +
                 Map.TABLE_NAME + "." + Map._ID
         );
-        Cursor primaryCursor = db.rawQuery(builder.buildQuery(
+        return db.rawQuery(builder.buildQuery(
                 projection,
                 selection,
                 null,
@@ -159,7 +161,6 @@ public class DbUtils
                 orderColumn + " COLLATE LOCALIZED " + order,
                 null
         ), selectionArgs);
-        return primaryCursor;
     }
 
     public static Cursor queryGrenades(SQLiteDatabase db, String[] projection)
@@ -196,9 +197,9 @@ public class DbUtils
         {
             //TODO: Finish the method
 
-            final Tags tags = DbUtils.queryTags(
+            final Tags tags = queryTags(
                     db,
-                    DbUtils.splitTagIds(
+                    splitTagIds(
                             cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS))
                     )
             );
@@ -211,32 +212,83 @@ public class DbUtils
     //</editor-fold>
 
     //<editor-fold desc="Tags query">
-    private static Tags queryTags(SQLiteDatabase db, List<Long> ids)
+    private static Tags queryTags(SQLiteDatabase db, HashSet<Long> ids)
     {
         Tags tags = new Tags();
         Cursor cursor = queryTags(
                 db,
-                new String[]{Tags.COLUMN_NAME_NAME},
+                new String[]{Tags._ID, Tags.COLUMN_NAME_NAME},
                 buildTagQuery(ids.size()),
-                tagSelectionArgsFromIdList(ids),
+                tagSelectionArgsFromIdSet(ids),
                 Tags._ID,
                 ORDER_ASCENDING
         );
         while(cursor.moveToNext())
         {
-            tags.add(cursor.getString(cursor.getColumnIndex(Tags.COLUMN_NAME_NAME)));
+            tags.add(new Tags.Tag(
+                            cursor.getLong(cursor.getColumnIndex(Tags._ID)),
+                            cursor.getString(cursor.getColumnIndex(Tags.COLUMN_NAME_NAME))
+                    )
+            );
         }
         return tags;
     }
 
-    private static List<Long> queryTagIds(SQLiteDatabase db, List<String> names)
+    private static LongSparseArray<String> queryTagsAsSparseArray(SQLiteDatabase db, HashSet<Long> ids)
     {
-        List<Long> ids = new ArrayList<>();
+        LongSparseArray<String> array = new LongSparseArray<>();
+        Cursor cursor = queryTags(
+                db,
+                new String[]{Tags._ID, Tags.COLUMN_NAME_NAME},
+                buildTagQuery(ids.size()),
+                tagSelectionArgsFromIdSet(ids),
+                Tags._ID,
+                ORDER_ASCENDING
+        );
+        while(cursor.moveToNext())
+        {
+            array.put(
+                    cursor.getLong(cursor.getColumnIndex(Tags._ID)),
+                    cursor.getString(cursor.getColumnIndex(Tags.COLUMN_NAME_NAME))
+            );
+        }
+        return array;
+    }
+
+    private static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db)
+    {
+        return queryTagsForGrenades(db, null, null);
+    }
+
+    private static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db, String selection, String[] selectionArgs)
+    {
+        return queryTagsForGrenades(db, selection, selectionArgs, UtilityGrenade._ID, ORDER_ASCENDING);
+    }
+
+    private static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db, String selection, String[] selectionArgs, String orderColumn, String order)
+    {
+        Cursor tagIds = queryGrenades(db, new String[]{UtilityGrenade.COLUMN_NAME_TAG_IDS}, selection, selectionArgs, orderColumn, order);
+        HashSet<Long> ids = new HashSet<>();
+
+        //Fetch all required ids
+        while(tagIds.moveToNext())
+        {
+            ids.addAll(splitTagIds(
+                    tagIds.getString(tagIds.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS)))
+            );
+        }
+
+        return queryTagsAsSparseArray(db, ids);
+    }
+
+    private static HashSet<Long> queryTagIds(SQLiteDatabase db, Tags tags)
+    {
+        HashSet<Long> ids = new HashSet<>();
         Cursor cursor = queryTags(
                 db,
                 new String[]{Tags._ID},
-                buildTagIdQuery(names.size()),
-                names.toArray(new String[names.size()]),
+                buildTagIdQuery(tags.size()),
+                tags.getNamesArray(),
                 Tags._ID,
                 ORDER_ASCENDING
         );
@@ -313,10 +365,10 @@ public class DbUtils
         return TextUtils.join(ARRAY_DIVIDER, list);
     }
 
-    public static List<Long> splitTagIds(String string)
+    public static HashSet<Long> splitTagIds(String string)
     {
         String[] split = string.split(ARRAY_DIVIDER);
-        List<Long> list = new ArrayList<>();
+        HashSet<Long> list = new HashSet<>();
 
         for(String s : split)
         {
@@ -363,19 +415,33 @@ public class DbUtils
 
     private static String[] tagSelectionArgsFromIdList(List<Long> ids)
     {
-        List<String> tmp = new ArrayList<>();
-        for(long id : ids)
+        List<String> tmp;
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
         {
-            tmp.add(String.valueOf(id));
+            tmp = ids.stream().map(String::valueOf).collect(Collectors.toList());
+        }
+        else
+        {
+            tmp = new ArrayList<>();
+            //noinspection Convert2streamapi
+            for(long id : ids)
+            {
+                tmp.add(String.valueOf(id));
+            }
         }
         return tmp.toArray(new String[tmp.size()]);
+    }
+
+    private static String[] tagSelectionArgsFromIdSet(HashSet<Long> ids)
+    {
+        return tagSelectionArgsFromIdList(new ArrayList<>(ids));
     }
 
     private static HashSet<Long> insertTags(SQLiteDatabase db, Tags tags)
     {
         HashSet<Long> ids = new HashSet<>();
-        List<String> notUniqueTags = new ArrayList<>();
-        for(String tag : tags)
+        Tags notUniqueTags = new Tags();
+        for(Tags.Tag tag : tags)
         {
             try
             {

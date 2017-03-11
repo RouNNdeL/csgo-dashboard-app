@@ -3,7 +3,6 @@ package com.roundel.csgodashboard.ui.activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.widget.NestedScrollView;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.anim.CircleToRectTransition;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
@@ -57,7 +55,7 @@ public class ViewNadeActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
             CircleToRectTransition transition = new CircleToRectTransition();
             transition.setDuration(500);
@@ -65,7 +63,7 @@ public class ViewNadeActivity extends AppCompatActivity
             transition.addTarget(R.id.view_nade_backdrop);
             getWindow().setSharedElementEnterTransition(transition);
             getWindow().setSharedElementExitTransition(transition);
-        }
+        }*/
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_nade);
 

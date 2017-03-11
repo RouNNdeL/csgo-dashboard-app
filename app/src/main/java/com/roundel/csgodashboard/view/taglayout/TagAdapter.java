@@ -14,12 +14,14 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.utility.Tags;
-import com.roundel.csgodashboard.util.LogHelper;
 import com.zhy.view.flowlayout.FlowLayout;
+
+import java.util.List;
 
 /**
  * Created by Krzysiek on 2017-02-18.
@@ -47,6 +49,7 @@ public class TagAdapter
     private int mTagNameMinLength = 2;
     private int mTagNameMaxLength = 15;
     private int mTagNameMaxEms = 8;
+    private List<Long> mSelectedItemIds;
     //</editor-fold>
 
     public TagAdapter(Tags data, Context context)
@@ -57,9 +60,14 @@ public class TagAdapter
         mExpandTransitionDuration = context.getResources().getInteger(R.integer.tag_expand_transition_duration);
     }
 
-    public String getItem(int position)
+    public Tags.Tag getItem(int position)
     {
         return mDataSet.get(position);
+    }
+
+    private long getItemId(int position)
+    {
+        return getItem(position).getId();
     }
 
     public int getCount()
@@ -68,6 +76,11 @@ public class TagAdapter
             return mDataSet.size() + 1;
         else
             return mDataSet.size();
+    }
+
+    public List<Long> getSelectedItemIds()
+    {
+        return mSelectedItemIds;
     }
 
     public View getView(FlowLayout parent, int position)
@@ -91,12 +104,9 @@ public class TagAdapter
             view = mInflater.inflate(R.layout.utility_tag_layout, parent, false);
 
             final TextView name = (TextView) view.findViewById(R.id.utility_tag_name);
-            final TextView nameMock = (TextView) view.findViewById(R.id.utility_tag_name_mock);
 
-            name.setText(getItem(position));
+            name.setText(getItem(position).getName());
             name.setMaxEms(mTagNameMaxEms);
-            nameMock.setText(getItem(position));
-            nameMock.setMaxEms(mTagNameMaxEms);
 
             if(mParentTagLayout.isEditable())
             {
@@ -108,7 +118,18 @@ public class TagAdapter
             }
             else if(mParentTagLayout.isSelectable())
             {
+                final TextView nameMock = (TextView) view.findViewById(R.id.utility_tag_name_mock);
+                final LinearLayout mock = (LinearLayout) view.findViewById(R.id.utility_tag_layout_mock);
+
                 view.setOnTouchListener(mOnTagSelected);
+
+                mock.setVisibility(View.VISIBLE);
+                nameMock.setText(getItem(position).getName());
+                nameMock.setMaxEms(mTagNameMaxEms);
+            }
+            else
+            {
+                view.setSelected(true);
             }
         }
         return view;
@@ -227,7 +248,6 @@ public class TagAdapter
         @Override
         public boolean onTouch(View v, MotionEvent event)
         {
-            LogHelper.d(TAG, "MotionEvent action: " + event.getAction());
             if(event.getAction() == MotionEvent.ACTION_UP)
             {
                 final View tag = v.findViewById(R.id.utility_tag_layout);
@@ -242,6 +262,11 @@ public class TagAdapter
 
                 tag.setSelected(!tag.isSelected());
                 tagMock.setSelected(!tag.isSelected());
+
+                if(tag.isSelected())
+                {
+                    mSelectedItemIds.add(getItemId(mParentTagLayout.indexOfChild(v)));
+                }
 
                 animator.setDuration(250);
                 animator.start();
@@ -316,7 +341,8 @@ public class TagAdapter
         @Override
         public void onClick(View v)
         {
-            final View parent = (View) v.getParent();
+            //Two View#getParent() calls are required, because of the mock view used for the CircularRevelAnimation
+            final View parent = (View) v.getParent().getParent();
             onTagRemoved(parent);
         }
     }

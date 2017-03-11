@@ -31,7 +31,10 @@ public class LogActivity extends AppCompatActivity implements LogHelper.LogListe
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Logs");
+        if(getSupportActionBar() != null)
+        {
+            getSupportActionBar().setTitle("Logs");
+        }
 
         LogHelper.setLogListener(this);
 
