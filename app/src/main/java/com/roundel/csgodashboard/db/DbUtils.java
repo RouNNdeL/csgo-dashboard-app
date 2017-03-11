@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -143,6 +144,18 @@ public class DbUtils
     //</editor-fold>
 
     //<editor-fold desc="Grenades query">
+    public static Cursor queryGrenadesWithoutMaps(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs, String orderColumn, String order)
+    {
+        return db.query(
+                UtilityGrenade.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                orderColumn + " COLLATE LOCALIZED " + order
+        );
+    }
     public static Cursor queryGrenades(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs, String orderColumn, String order)
     {
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
@@ -255,19 +268,19 @@ public class DbUtils
         return array;
     }
 
-    private static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db)
+    public static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db)
     {
         return queryTagsForGrenades(db, null, null);
     }
 
-    private static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db, String selection, String[] selectionArgs)
+    public static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db, String selection, String[] selectionArgs)
     {
         return queryTagsForGrenades(db, selection, selectionArgs, UtilityGrenade._ID, ORDER_ASCENDING);
     }
 
-    private static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db, String selection, String[] selectionArgs, String orderColumn, String order)
+    public static LongSparseArray<String> queryTagsForGrenades(SQLiteDatabase db, String selection, String[] selectionArgs, String orderColumn, String order)
     {
-        Cursor tagIds = queryGrenades(db, new String[]{UtilityGrenade.COLUMN_NAME_TAG_IDS}, selection, selectionArgs, orderColumn, order);
+        Cursor tagIds = queryGrenadesWithoutMaps(db, new String[]{UtilityGrenade.COLUMN_NAME_TAG_IDS}, selection, selectionArgs, orderColumn, order);
         HashSet<Long> ids = new HashSet<>();
 
         //Fetch all required ids
@@ -485,6 +498,59 @@ public class DbUtils
             }
         }
         return builder.toString();
+    }
+
+    /**
+     * @param array that the values are going to be fetched from
+     * @param ids   of tags to be displayed
+     *
+     * @return {@link String} of tag names split with a comma (ex. 'tag1, tag2, tag3')
+     */
+    public static String formatTagNames(LongSparseArray<String> array, HashSet<Long> ids)
+    {
+        return formatTagNames(array, ids, ", ");
+    }
+
+    /**
+     * @param array     that the values are going to be fetched from
+     * @param ids       of tags to be displayed
+     * @param delimiter the sequence of characters to be used between each element added to the
+     *                  formatted {@link String} value
+     *
+     * @return {@link String} of tag names split with a comma (ex. 'tag1, tag2, tag3')
+     */
+    public static String formatTagNames(LongSparseArray<String> array, HashSet<Long> ids, CharSequence delimiter)
+    {
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
+        {
+            StringJoiner joiner = new StringJoiner(delimiter);
+            for(int i = 0; i < array.size(); i++)
+            {
+                final long key = array.keyAt(i);
+                if(ids.contains(key))
+                {
+                    joiner.add(array.get(key));
+                }
+            }
+
+            return joiner.toString();
+        }
+        else
+        {
+            StringBuilder builder = new StringBuilder();
+            for(int i = 0; i < array.size(); i++)
+            {
+                final long key = array.keyAt(i);
+                if(ids.contains(key))
+                {
+                    builder.append(array.get(key));
+                    builder.append(delimiter);
+                }
+            }
+
+            builder.setLength(builder.length() - delimiter.length());
+            return builder.toString();
+        }
     }
     //</editor-fold>
 }

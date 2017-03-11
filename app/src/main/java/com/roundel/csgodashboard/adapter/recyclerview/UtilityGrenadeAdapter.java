@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,13 +27,15 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
 
     //<editor-fold desc="private variables">
     private Context mContext;
+    private LongSparseArray<String> mTagArray;
     private View.OnClickListener mOnItemClickListener;
     //</editor-fold>
 
-    public UtilityGrenadeAdapter(Context context, Cursor cursor)
+    public UtilityGrenadeAdapter(Context context, Cursor cursor, LongSparseArray<String> tagArray)
     {
         super(cursor);
         this.mContext = context;
+        this.mTagArray = tagArray;
     }
 
     @Override
@@ -53,8 +56,12 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
 
         titleTextView.setText(cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TITLE)));
         mapTextView.setText(cursor.getString(cursor.getColumnIndex(Map.COLUMN_NAME_NAME)));
-        tagsTextView.setText("Loading tags...");
-
+        tagsTextView.setText(DbUtils.formatTagNames(
+                mTagArray,
+                DbUtils.splitTagIds(
+                        cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS))
+                )
+        ));
     }
 
     @Override

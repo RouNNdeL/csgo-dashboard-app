@@ -4,10 +4,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -63,8 +60,13 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
         mDbHelper = new DbHelper(getContext());
         mReadableDataBase = mDbHelper.getReadableDatabase();
 
-        mAdapter = new UtilityGrenadeAdapter(getContext(), DbUtils.queryGrenades(mReadableDataBase));
+        mAdapter = new UtilityGrenadeAdapter(
+                getContext(),
+                DbUtils.queryGrenades(mReadableDataBase),
+                DbUtils.queryTagsForGrenades(mReadableDataBase)
+        );
         mAdapter.setOnItemClickListener(this);
+
         mLayoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -91,7 +93,7 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
         //Change window transitions
 
         //Set transition options
-        final View child = mRecyclerView.getChildAt(position);
+       /* final View child = mRecyclerView.getChildAt(position);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 getActivity(),
                 Pair.create(
@@ -100,6 +102,8 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
                 )
         );
 
-        ActivityCompat.startActivity(getContext(), intent, options.toBundle());
+        ActivityCompat.startActivity(getContext(), intent, options.toBundle());*/
+
+        startActivity(intent);
     }
 }
