@@ -35,6 +35,9 @@
             android:name=".ui.activity.UtilityActivity"
             android:label="@string/title_activity_utility"
             android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
         </activity>
     </application>
 
