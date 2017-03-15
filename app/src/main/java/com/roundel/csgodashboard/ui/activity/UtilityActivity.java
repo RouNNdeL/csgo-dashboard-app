@@ -1,5 +1,6 @@
 package com.roundel.csgodashboard.ui.activity;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -12,19 +13,31 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 
 import com.roundel.csgodashboard.R;
+import com.roundel.csgodashboard.adapter.spinner.GrenadeAdapter;
+import com.roundel.csgodashboard.db.DbHelper;
+import com.roundel.csgodashboard.db.DbUtils;
+import com.roundel.csgodashboard.entities.Map;
+import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.ui.fragment.UtilityGrenadeFragment;
+import com.roundel.csgodashboard.view.taglayout.TagAdapter;
+import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class UtilityActivity extends AppCompatActivity
+public class UtilityActivity extends AppCompatActivity implements SearchView.OnQueryTextListener
 {
 
     //<editor-fold desc="private variables">
@@ -41,6 +54,7 @@ public class UtilityActivity extends AppCompatActivity
      * FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
+    private SQLiteDatabase mReadableDatabase;
     //</editor-fold>
 
     @Override
@@ -53,8 +67,9 @@ public class UtilityActivity extends AppCompatActivity
 
         setSupportActionBar(mToolbar);
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mReadableDatabase = new DbHelper(this).getReadableDatabase();
 
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.utility_tablayout);
@@ -74,6 +89,7 @@ public class UtilityActivity extends AppCompatActivity
 
         MenuItem searchItem = menu.findItem(R.id.menu_utility_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(this);
 
         return true;
     }
@@ -85,9 +101,72 @@ public class UtilityActivity extends AppCompatActivity
         {
             case R.id.menu_utility_search:
                 return true;
+            case R.id.menu_utility_filter:
+                showGrenadeFilterDialog();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText)
+    {
+        return false;
+    }
+
+    private void showGrenadeFilterDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(R.layout.dialog_filter_grenade);
+        builder.setPositiveButton("Ok", (dialog, which) ->
+        {
+
+        }).setNegativeButton("Cancel", (dialog, which) ->
+        {
+
+        }).setTitle("Search filter");
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        final Spinner mapSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_map);
+        final Spinner grenadeSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_grenade);
+        final Spinner jumpthrowSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_jumpthrow);
+        final TagLayout tagLayout = (TagLayout) dialog.findViewById(R.id.utility_grenade_filter_taglayout);
+
+        SimpleCursorAdapter mapAdapter = new SimpleCursorAdapter(
+                this,
+                R.layout.list_simple_one_line_no_ripple,
+                DbUtils.queryMaps(
+                        this.mReadableDatabase,
+                        new String[]{Map._ID, Map.COLUMN_NAME_NAME}
+                ),
+                new String[]{Map.COLUMN_NAME_NAME},
+                new int[]{R.id.list_text_primary},
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
+        );
+        GrenadeAdapter grenadeAdapter = new GrenadeAdapter(
+                this,
+                R.layout.list_simple_one_line_no_ripple,
+                R.id.list_text_primary,
+                Grenade.getDefaultGrenadeList(this)
+        );
+        ArrayAdapter<String> jumpthrowAdapter = new ArrayAdapter<>(
+                this, R.layout.list_simple_one_line_no_ripple,
+                R.id.list_text_primary,
+                new String[]{"Any", "Yes", "No"}
+        );
+        TagAdapter tagAdapter = new TagAdapter(DbUtils.queryAllTags(mReadableDatabase), this);
+
+        mapSpinner.setAdapter(mapAdapter);
+        grenadeSpinner.setAdapter(grenadeAdapter);
+        jumpthrowSpinner.setAdapter(jumpthrowAdapter);
+        tagLayout.setAdapter(tagAdapter);
     }
 
     /**

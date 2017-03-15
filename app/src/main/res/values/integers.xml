@@ -9,4 +9,6 @@
     <integer name="tag_remove_transition_duration">200</integer>
     <integer name="default_transition_duration">250</integer>
     <integer name="filling_icon_anim_duration">500</integer>
+    <integer name="dialog_weight_name">3</integer>
+    <integer name="dialog_weight_spinner">7</integer>
 </resources>

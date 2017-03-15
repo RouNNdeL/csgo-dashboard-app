@@ -35,6 +35,10 @@ public class DbUtils
 
     private static final String ARRAY_DIVIDER = ";";
 
+    //Used to be able to perform a LIKE (GLOB) query on the tag list
+    // ex. _2_;_4_;_8_ can be queried with tag_ids GLOB *_2_* (for tag with id 2)
+    private static final String TAG_IDENTIFIER = "_";
+
     //<editor-fold desc="Inserts">
     public static long insertMap(SQLiteDatabase db, Map map)
     {
@@ -156,6 +160,7 @@ public class DbUtils
                 orderColumn + " COLLATE LOCALIZED " + order
         );
     }
+
     public static Cursor queryGrenades(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs, String orderColumn, String order)
     {
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
@@ -233,6 +238,28 @@ public class DbUtils
                 new String[]{Tags._ID, Tags.COLUMN_NAME_NAME},
                 buildTagQuery(ids.size()),
                 tagSelectionArgsFromIdSet(ids),
+                Tags._ID,
+                ORDER_ASCENDING
+        );
+        while(cursor.moveToNext())
+        {
+            tags.add(new Tags.Tag(
+                            cursor.getLong(cursor.getColumnIndex(Tags._ID)),
+                            cursor.getString(cursor.getColumnIndex(Tags.COLUMN_NAME_NAME))
+                    )
+            );
+        }
+        return tags;
+    }
+
+    public static Tags queryAllTags(SQLiteDatabase db)
+    {
+        Tags tags = new Tags();
+        Cursor cursor = queryTags(
+                db,
+                new String[]{Tags._ID, Tags.COLUMN_NAME_NAME},
+                null,
+                null,
                 Tags._ID,
                 ORDER_ASCENDING
         );
@@ -385,7 +412,10 @@ public class DbUtils
 
         for(String s : split)
         {
-            list.add(Long.valueOf(s));
+            list.add(Long.valueOf(s.substring(
+                    TAG_IDENTIFIER.length(),
+                    s.length() - TAG_IDENTIFIER.length()
+            )));
         }
 
         return list;
@@ -393,7 +423,20 @@ public class DbUtils
 
     public static String joinTagIds(HashSet<Long> list)
     {
-        return TextUtils.join(ARRAY_DIVIDER, list);
+
+        StringBuilder builder = new StringBuilder();
+        Iterator<Long> iterator = list.iterator();
+        if(iterator.hasNext())
+        {
+            builder.append(TAG_IDENTIFIER).append(iterator.next()).append(TAG_IDENTIFIER);
+            while(iterator.hasNext())
+            {
+                builder.append(ARRAY_DIVIDER);
+                builder.append(TAG_IDENTIFIER).append(iterator.next()).append(TAG_IDENTIFIER);
+            }
+        }
+        return builder.toString();
+
     }
 
     private static String buildTagQuery(int size)

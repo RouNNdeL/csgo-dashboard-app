@@ -1,6 +1,8 @@
 package com.roundel.csgodashboard.adapter.spinner;
 
 import android.content.Context;
+import android.support.annotation.IdRes;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,14 +25,18 @@ public class GrenadeAdapter extends ArrayAdapter<Grenade>
 
     //<editor-fold desc="private variables">
     private LayoutInflater inflater;
-//</editor-fold>
+    @LayoutRes private int resource;
+    @IdRes private int textViewId;
+    //</editor-fold>
 
 
-    public GrenadeAdapter(Context context, int resource, int textViewResourceId, List<Grenade> objects)
+    public GrenadeAdapter(Context context, @LayoutRes int resource, @IdRes int textViewResourceId, List<Grenade> objects)
     {
         super(context, resource, textViewResourceId, objects);
 
-        inflater = LayoutInflater.from(context);
+        this.textViewId = textViewResourceId;
+        this.resource = resource;
+        this.inflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -46,16 +52,17 @@ public class GrenadeAdapter extends ArrayAdapter<Grenade>
     @Override
     public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent)
     {
-        final View root = inflater.inflate(R.layout.list_icon_one_line_no_ripple, parent, false);
+        final View root = inflater.inflate(resource, parent, false);
         final Grenade grenade = getItem(position);
 
-        TextView name = (TextView) root.findViewById(R.id.list_text_primary);
+        TextView name = (TextView) root.findViewById(textViewId);
         ImageView icon = (ImageView) root.findViewById(R.id.list_icon);
 
         if(grenade != null)
         {
             name.setText(grenade.getName());
-            icon.setImageDrawable(getContext().getDrawable(grenade.getIcon()));
+            if(icon != null)
+                icon.setImageDrawable(getContext().getDrawable(grenade.getIcon()));
         }
 
         return root;

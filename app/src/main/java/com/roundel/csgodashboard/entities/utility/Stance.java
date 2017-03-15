@@ -54,8 +54,8 @@ public class Stance implements BaseColumns
 
     public static Stance fromType(int type, Context context)
     {
-        String[] stanceTitleArray = context.getResources().getStringArray(R.array.add_nade_stance_options);
-        String[] stanceDescriptionArray = context.getResources().getStringArray(R.array.add_nade_stance_descriptions);
+        String[] stanceTitleArray = context.getResources().getStringArray(R.array.stance_options);
+        String[] stanceDescriptionArray = context.getResources().getStringArray(R.array.stance_descriptions);
         switch(type)
         {
             case TYPE_STANDING:

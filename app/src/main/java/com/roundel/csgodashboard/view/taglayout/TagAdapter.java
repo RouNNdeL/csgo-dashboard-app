@@ -21,6 +21,7 @@ import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.zhy.view.flowlayout.FlowLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,7 +50,7 @@ public class TagAdapter
     private int mTagNameMinLength = 2;
     private int mTagNameMaxLength = 15;
     private int mTagNameMaxEms = 8;
-    private List<Long> mSelectedItemIds;
+    private List<Long> mSelectedItemIds = new ArrayList<>();
     //</editor-fold>
 
     public TagAdapter(Tags data, Context context)

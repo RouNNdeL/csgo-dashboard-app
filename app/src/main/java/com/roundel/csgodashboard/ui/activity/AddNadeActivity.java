@@ -273,7 +273,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         int stanceId = (int) mStanceSpinner.getSelectedItemId();
         int grenadeId = (int) mGrenadeSpinner.getSelectedItemId();
 
-        boolean isJumpthrow = mJumpthrowCheckbox.isSelected();
+        boolean isJumpthrow = mJumpthrowCheckbox.isChecked();
 
         String title = mTitleEditText.getText().toString();
         String description = mDescriptionEditText.getText().toString();

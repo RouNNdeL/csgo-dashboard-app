@@ -3,75 +3,75 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingBottom="16dp"
     android:paddingEnd="16dp"
     android:paddingStart="16dp"
     android:paddingTop="16dp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:gravity="center"
+            android:layout_weight="@integer/dialog_weight_name"
+            android:gravity="center_vertical|start"
             android:text="Map"
             android:textAppearance="@style/TextAppearance.ListSubHeader"/>
 
         <Spinner
             android:id="@+id/utility_grenade_filter_map"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"/>
+            android:layout_weight="@integer/dialog_weight_spinner"/>
 
-    </RelativeLayout>
+    </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:gravity="center"
+            android:layout_weight="@integer/dialog_weight_name"
+            android:gravity="center_vertical|start"
             android:text="Grenade"
             android:textAppearance="@style/TextAppearance.ListSubHeader"/>
 
         <Spinner
             android:id="@+id/utility_grenade_filter_grenade"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"/>
+            android:layout_weight="@integer/dialog_weight_spinner"/>
 
-    </RelativeLayout>
+    </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:orientation="horizontal">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:gravity="center"
+            android:layout_weight="@integer/dialog_weight_name"
+            android:gravity="center_vertical|start"
             android:text="Jumpthrow"
             android:textAppearance="@style/TextAppearance.ListSubHeader"/>
 
         <Spinner
             android:id="@+id/utility_grenade_filter_jumpthrow"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"/>
+            android:layout_weight="@integer/dialog_weight_spinner"/>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <TextView
         style="@style/ListSubheader"
@@ -79,6 +79,7 @@
         android:text="Tags"/>
 
     <com.roundel.csgodashboard.view.taglayout.TagLayout
+        android:id="@+id/utility_grenade_filter_taglayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:selectable="true"/>

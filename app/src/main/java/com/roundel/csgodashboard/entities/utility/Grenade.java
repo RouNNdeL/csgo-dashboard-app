@@ -47,7 +47,7 @@ public class Grenade implements BaseColumns
 
     public static Grenade fromType(int type, Context context)
     {
-        String[] namesList = context.getResources().getStringArray(R.array.add_nade_grenade_names);
+        String[] namesList = context.getResources().getStringArray(R.array.grenade_names);
         switch(type)
         {
             case TYPE_SMOKE:
