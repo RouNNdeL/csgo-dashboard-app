@@ -29,8 +29,11 @@ import com.roundel.csgodashboard.adapter.spinner.GrenadeAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
+import com.roundel.csgodashboard.entities.utility.FilterGrenade;
 import com.roundel.csgodashboard.entities.utility.Grenade;
+import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.ui.fragment.UtilityGrenadeFragment;
+import com.roundel.csgodashboard.util.LogHelper;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
@@ -47,6 +50,16 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     @BindView(R.id.utility_viewpager) ViewPager mViewPager;
     @BindView(R.id.utility_fab) FloatingActionButton mFab;
     @BindView(R.id.main_content) CoordinatorLayout mCoordinatorLayout;
+
+
+    //Filter dialog Views and Adpaters
+
+    private Spinner mMapSpinner;
+    private Spinner mGrenadeSpinner;
+    private Spinner mJumpthrowSpinner;
+    private TagLayout mTagLayout;
+
+    private TagAdapter mTagAdapter;
     /**
      * The {@link PagerAdapter} that will provide fragments for each of the sections. We use a
      * {@link FragmentPagerAdapter} derivative, which will keep every loaded fragment in memory. If
@@ -55,6 +68,8 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private SQLiteDatabase mReadableDatabase;
+
+    private FilterGrenade mGrenadeFilter;
     //</editor-fold>
 
     @Override
@@ -117,6 +132,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     @Override
     public boolean onQueryTextChange(String newText)
     {
+        mGrenadeFilter.setSearchQuery(newText);
         return false;
     }
 
@@ -126,6 +142,21 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         builder.setView(R.layout.dialog_filter_grenade);
         builder.setPositiveButton("Ok", (dialog, which) ->
         {
+            Boolean jumpthrow;
+            if(mJumpthrowSpinner.getSelectedItemId() == 1)
+                jumpthrow = true;
+            else if(mJumpthrowSpinner.getSelectedItemId() == 2)
+                jumpthrow = false;
+            else
+                jumpthrow = null;
+
+            mGrenadeFilter = new FilterGrenade();
+            mGrenadeFilter.setMapId(mMapSpinner.getSelectedItemId());
+            mGrenadeFilter.setType((int) mGrenadeSpinner.getSelectedItemId());
+            mGrenadeFilter.setTagIds(mTagAdapter.getSelectedItemIds());
+            mGrenadeFilter.setJumpThrow(jumpthrow);
+
+            LogHelper.d("FilterQuery", DbUtils.buildQueryFromGrenadeFilter(mGrenadeFilter, new Tags()).toString());
 
         }).setNegativeButton("Cancel", (dialog, which) ->
         {
@@ -134,10 +165,10 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        final Spinner mapSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_map);
-        final Spinner grenadeSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_grenade);
-        final Spinner jumpthrowSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_jumpthrow);
-        final TagLayout tagLayout = (TagLayout) dialog.findViewById(R.id.utility_grenade_filter_taglayout);
+        mMapSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_map);
+        mGrenadeSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_grenade);
+        mJumpthrowSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_jumpthrow);
+        mTagLayout = (TagLayout) dialog.findViewById(R.id.utility_grenade_filter_taglayout);
 
         SimpleCursorAdapter mapAdapter = new SimpleCursorAdapter(
                 this,
@@ -161,12 +192,12 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
                 R.id.list_text_primary,
                 new String[]{"Any", "Yes", "No"}
         );
-        TagAdapter tagAdapter = new TagAdapter(DbUtils.queryAllTags(mReadableDatabase), this);
+        mTagAdapter = new TagAdapter(DbUtils.queryAllTags(mReadableDatabase), this);
 
-        mapSpinner.setAdapter(mapAdapter);
-        grenadeSpinner.setAdapter(grenadeAdapter);
-        jumpthrowSpinner.setAdapter(jumpthrowAdapter);
-        tagLayout.setAdapter(tagAdapter);
+        mMapSpinner.setAdapter(mapAdapter);
+        mGrenadeSpinner.setAdapter(grenadeAdapter);
+        mJumpthrowSpinner.setAdapter(jumpthrowAdapter);
+        mTagLayout.setAdapter(mTagAdapter);
     }
 
     /**

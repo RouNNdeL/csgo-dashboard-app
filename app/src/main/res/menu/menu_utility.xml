@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="com.roundel.csgodashboard.ui.activity.UtilityActivity">
+      tools:context="com.rou=ndel.csgodashboard.ui.activity.UtilityActivity">
     <item
         android:id="@+id/menu_utility_search"
         android:icon="@drawable/ic_search_white_24dp"
@@ -13,5 +13,5 @@
         android:id="@+id/menu_utility_filter"
         android:icon="@drawable/ic_filter_list_white_24dp"
         android:title="Filter"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom|collapseActionView"/>
 </menu>

@@ -9,7 +9,6 @@ public class FilterGrenade extends FilterBase
 
     //<editor-fold desc="private variables">
     private Integer type;
-    private Integer stance;
     private Boolean isJumpThrow;
     //</editor-fold>
 
@@ -21,16 +20,6 @@ public class FilterGrenade extends FilterBase
     public void setType(Integer type)
     {
         this.type = type;
-    }
-
-    public Integer getStance()
-    {
-        return stance;
-    }
-
-    public void setStance(Integer stance)
-    {
-        this.stance = stance;
     }
 
     public Boolean getJumpThrow()

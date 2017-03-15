@@ -12,11 +12,13 @@ import android.util.LongSparseArray;
 
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.Maps;
+import com.roundel.csgodashboard.entities.utility.FilterGrenade;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -595,5 +597,179 @@ public class DbUtils
             return builder.toString();
         }
     }
+
+    /**
+     * @param filter
+     * @param matchingTagIds a set of tag ids that match the free text query
+     *
+     * @return
+     */
+    public static Query buildQueryFromGrenadeFilter(FilterGrenade filter, HashSet<Long> matchingTagIds)
+    {
+        StringBuilder builder = new StringBuilder();
+        List<String> selectionArgs = new ArrayList<>();
+
+        boolean addAnd = false;
+
+        if(filter.getSearchQuery() != null)
+        {
+            builder.append(UtilityGrenade.TABLE_NAME)
+                    .append(".")
+                    .append(UtilityGrenade.COLUMN_NAME_TITLE)
+                    .append(" GLOB ?");
+            selectionArgs.add("*" + filter.getSearchQuery() + "*");
+            addAnd = true;
+        }
+
+        if(filter.getJumpThrow() != null)
+        {
+            if(addAnd)
+                builder.append(" AND ");
+            builder.append(UtilityGrenade.TABLE_NAME)
+                    .append(".")
+                    .append(UtilityGrenade.COLUMN_NAME_JUMP_THROW)
+                    .append(" = ?");
+            selectionArgs.add(String.valueOf(filter.getJumpThrow() ? 1 : 0));
+            addAnd = true;
+        }
+
+        if(filter.getType() != null)
+        {
+            if(addAnd)
+                builder.append(" AND ");
+            builder.append(UtilityGrenade.TABLE_NAME)
+                    .append(".")
+                    .append(UtilityGrenade.COLUMN_NAME_TYPE)
+                    .append(" = ?");
+            selectionArgs.add(String.valueOf(filter.getType()));
+            addAnd = true;
+        }
+
+        if(filter.getMapId() != null)
+        {
+            if(addAnd)
+                builder.append(" AND ");
+            builder.append(UtilityGrenade.TABLE_NAME)
+                    .append(".")
+                    .append(UtilityGrenade.COLUMN_NAME_MAP_ID)
+                    .append(" = ?");
+            selectionArgs.add(String.valueOf(filter.getMapId()));
+            addAnd = true;
+        }
+
+        if(filter.getTagIds() != null && filter.getTagIds().size() > 0)
+        {
+            if(addAnd)
+                builder.append(" AND ");
+
+            builder.append("(");
+
+            Iterator<Long> iterator = filter.getTagIds().iterator();
+
+            if(iterator.hasNext())
+            {
+                builder.append(UtilityGrenade.TABLE_NAME)
+                        .append(".")
+                        .append(UtilityGrenade.COLUMN_NAME_TAG_IDS)
+                        .append(" GLOB ?");
+                selectionArgs.add("*" + TAG_IDENTIFIER + iterator.next() + TAG_IDENTIFIER + "*");
+                while(iterator.hasNext())
+                {
+                    builder.append(" OR ");
+                    builder.append(UtilityGrenade.TABLE_NAME)
+                            .append(".")
+                            .append(UtilityGrenade.COLUMN_NAME_TAG_IDS)
+                            .append(" GLOB ?");
+                    selectionArgs.add("*" + TAG_IDENTIFIER + iterator.next() + TAG_IDENTIFIER + "*");
+                }
+            }
+
+            builder.append(")");
+            addAnd = true;
+        }
+
+        if(matchingTagIds != null && matchingTagIds.size() > 0)
+        {
+            if(addAnd)
+                builder.append(" AND ");
+
+            builder.append("(");
+
+            Iterator<Long> iterator = matchingTagIds.iterator();
+
+            if(iterator.hasNext())
+            {
+                builder.append(UtilityGrenade.TABLE_NAME)
+                        .append(".")
+                        .append(UtilityGrenade.COLUMN_NAME_TAG_IDS)
+                        .append(" GLOB ?");
+                selectionArgs.add("*" + TAG_IDENTIFIER + iterator.next() + TAG_IDENTIFIER + "*");
+                while(iterator.hasNext())
+                {
+                    builder.append(" OR ");
+                    builder.append(UtilityGrenade.TABLE_NAME)
+                            .append(".")
+                            .append(UtilityGrenade.COLUMN_NAME_TAG_IDS)
+                            .append(" GLOB ?");
+                    selectionArgs.add("*" + TAG_IDENTIFIER + iterator.next() + TAG_IDENTIFIER + "*");
+                }
+            }
+
+            builder.append(")");
+            addAnd = true;
+        }
+
+        return new Query(builder.toString(), selectionArgs);
+    }
     //</editor-fold>
+
+    public static class Query
+    {
+        //<editor-fold desc="private variables">
+        private String selection;
+        private String[] selectionArgs;
+        //</editor-fold>
+
+        private Query(String selection, String[] selectionArgs)
+        {
+            this.selection = selection;
+            this.selectionArgs = selectionArgs;
+        }
+
+        private Query(String selection, List<String> selectionArgs)
+        {
+            this(selection, selectionArgs.toArray(new String[selectionArgs.size()]));
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Query{" +
+                    "selection='" + selection + '\'' +
+                    ", selectionArgs=" + Arrays.toString(selectionArgs) +
+                    '}';
+        }
+
+        public String getSelection()
+        {
+
+
+            return selection;
+        }
+
+        public void setSelection(String selection)
+        {
+            this.selection = selection;
+        }
+
+        public String[] getSelectionArgs()
+        {
+            return selectionArgs;
+        }
+
+        public void setSelectionArgs(String[] selectionArgs)
+        {
+            this.selectionArgs = selectionArgs;
+        }
+    }
 }

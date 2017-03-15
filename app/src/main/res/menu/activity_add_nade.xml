@@ -3,6 +3,7 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+
         android:id="@+id/menu_add_nade_done"
         android:icon="@drawable/ic_done_white_24dp"
         android:title="Done"

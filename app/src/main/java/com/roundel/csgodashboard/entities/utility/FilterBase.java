@@ -1,5 +1,7 @@
 package com.roundel.csgodashboard.entities.utility;
 
+import java.util.HashSet;
+
 /**
  * Created by Krzysiek on 2017-02-24.
  */
@@ -8,39 +10,39 @@ public class FilterBase
     private static final String TAG = FilterBase.class.getSimpleName();
 
     //<editor-fold desc="private variables">
-    private Tags tags;
-    private Integer mapId;
-    private String title;
+    private HashSet<Long> tagIds;
+    private Long mapId;
+    private String searchQuery;
     //</editor-fold>
 
 
-    public Tags getTags()
+    public HashSet<Long> getTagIds()
     {
-        return tags;
+        return tagIds;
     }
 
-    public void setTags(Tags tags)
+    public void setTagIds(HashSet<Long> tagIds)
     {
-        this.tags = tags;
+        this.tagIds = tagIds;
     }
 
-    public Integer getMapId()
+    public Long getMapId()
     {
         return mapId;
     }
 
-    public void setMapId(Integer mapId)
+    public void setMapId(Long mapId)
     {
         this.mapId = mapId;
     }
 
-    public String getTitle()
+    public String getSearchQuery()
     {
-        return title;
+        return searchQuery;
     }
 
-    public void setTitle(String title)
+    public void setSearchQuery(String searchQuery)
     {
-        this.title = title;
+        this.searchQuery = searchQuery;
     }
 }
