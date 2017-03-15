@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -42,6 +44,7 @@ public class ViewNadeActivity extends AppCompatActivity
     @BindView(R.id.view_nade_stance) TextView mStance;
     @BindView(R.id.view_nade_tag_container) TagLayout mTagContainer;
     @BindView(R.id.view_nade_description) TextView mDescription;
+    @BindView(R.id.view_nade_jumpthrow) RelativeLayout mJumpthrow;
     @BindView(R.id.view_nade_root) NestedScrollView mCoordinatorLayout;
 
     private TagAdapter mTagAdapter;
@@ -104,6 +107,7 @@ public class ViewNadeActivity extends AppCompatActivity
         mGrenade.setText(grenade.getName());
         mGrenadeIcon.setImageResource(grenade.getIcon());
         mDescription.setText(mUtilityData.getDescription());
+        mJumpthrow.setVisibility(mUtilityData.isJumpThrow() ? View.VISIBLE : View.GONE);
 
         mTagAdapter = new TagAdapter(mUtilityData.getTags(), this);
         mTagContainer.setAdapter(mTagAdapter);
