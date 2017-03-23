@@ -30,9 +30,9 @@ public class GrenadeAdapter extends ArrayAdapter<Grenade>
     //</editor-fold>
 
 
-    public GrenadeAdapter(Context context, @LayoutRes int resource, @IdRes int textViewResourceId, List<Grenade> objects)
+    public GrenadeAdapter(Context context, @LayoutRes int resource, @IdRes int textViewResourceId, List<Grenade> grenades)
     {
-        super(context, resource, textViewResourceId, objects);
+        super(context, resource, textViewResourceId, grenades);
 
         this.textViewId = textViewResourceId;
         this.resource = resource;
@@ -73,5 +73,15 @@ public class GrenadeAdapter extends ArrayAdapter<Grenade>
     public View getView(int position, View convertView, @NonNull ViewGroup parent)
     {
         return getDropDownView(position, convertView, parent);
+    }
+
+    public int getItemPosition(long id)
+    {
+        for(int i = 0; i < getCount(); i++)
+        {
+            if(getItemId(i) == id)
+                return i;
+        }
+        return -1;
     }
 }

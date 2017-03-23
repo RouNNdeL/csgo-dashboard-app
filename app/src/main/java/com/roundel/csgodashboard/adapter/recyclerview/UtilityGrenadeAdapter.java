@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.style.BackgroundColorSpan;
 import android.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +28,8 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
     private static final String TAG = UtilityGrenadeAdapter.class.getSimpleName();
 
     //<editor-fold desc="private variables">
+    private boolean mHighlight;
+    private String mHighlightText;
     private Context mContext;
     private LongSparseArray<String> mTagArray;
     private View.OnClickListener mOnItemClickListener;
@@ -54,14 +58,56 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
 
         Glide.with(mContext).load(mainImgUri).into(mapImageView);
 
-        titleTextView.setText(cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TITLE)));
+        final String title = cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TITLE));
+        if(mHighlight && mHighlightText != null && mHighlightText.length() > 0)
+        {
+            int start = title.indexOf(mHighlightText);
+            int end = start + mHighlightText.length();
+            if(start >= 0)
+            {
+                Spannable spanTitle = Spannable.Factory.getInstance().newSpannable(title);
+                spanTitle.setSpan(
+                        new BackgroundColorSpan(mContext.getColor(R.color.textHighlightDark)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
+                titleTextView.setText(spanTitle);
+            }
+            else
+            {
+                titleTextView.setText(title);
+            }
+        }
+        else
+        {
+            titleTextView.setText(title);
+        }
         mapTextView.setText(cursor.getString(cursor.getColumnIndex(Map.COLUMN_NAME_NAME)));
-        tagsTextView.setText(DbUtils.formatTagNames(
+        final String tags = DbUtils.formatTagNames(
                 mTagArray,
                 DbUtils.splitTagIds(
                         cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS))
                 )
-        ));
+        );
+        if(mHighlight && mHighlightText != null && mHighlightText.length() > 0)
+        {
+            int start = tags.indexOf(mHighlightText);
+            int end = start + mHighlightText.length();
+            if(start >= 0)
+            {
+                Spannable spanTags = Spannable.Factory.getInstance().newSpannable(tags);
+                spanTags.setSpan(
+                        new BackgroundColorSpan(mContext.getColor(R.color.textHighlightDark)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                );
+                tagsTextView.setText(spanTags);
+            }
+            else
+            {
+                tagsTextView.setText(tags);
+            }
+        }
+        else
+        {
+            tagsTextView.setText(tags);
+        }
     }
 
     @Override
@@ -88,9 +134,25 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
         return new ViewHolder(view);
     }
 
+    public void swapData(Cursor utilityCursor, LongSparseArray<String> tagArray)
+    {
+        mTagArray = tagArray;
+        changeCursor(utilityCursor);
+    }
+
     public void setOnItemClickListener(View.OnClickListener onItemClickListener)
     {
         mOnItemClickListener = onItemClickListener;
+    }
+
+    public void setHighlightText(String highlightText)
+    {
+        mHighlightText = highlightText;
+    }
+
+    public void setHighlight(boolean highlight)
+    {
+        mHighlight = highlight;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder

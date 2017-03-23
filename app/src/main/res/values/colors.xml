@@ -40,4 +40,5 @@
 
     <color name="greenSuccess">@color/backgroundGreen</color>
     <color name="redFailure">#E53935</color>
+    <color name="textHighlightDark">#FF5C6BC0</color>
 </resources>

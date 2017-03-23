@@ -15,6 +15,7 @@ import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.adapter.recyclerview.UtilityGrenadeAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
+import com.roundel.csgodashboard.entities.utility.FilterGrenade;
 import com.roundel.csgodashboard.ui.activity.ViewNadeActivity;
 
 import butterknife.BindView;
@@ -78,10 +79,21 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
     public void onClick(View v)
     {
         final int position = mRecyclerView.getChildAdapterPosition(v);
-        if(position < -1)
+        if(position <= -1)
             throw new IllegalStateException("Child is not part of the RecyclerView");
 
         viewNade(position);
+    }
+
+    public void onFilterChanged(FilterGrenade newFilter)
+    {
+        DbUtils.Query query = DbUtils.buildQueryFromGrenadeFilter(mReadableDataBase, newFilter);
+        mAdapter.setHighlight(true);
+        mAdapter.setHighlightText(newFilter.getSearchQuery());
+        mAdapter.swapData(
+                DbUtils.queryGrenades(mReadableDataBase, query.selection, query.selectionArgs),
+                DbUtils.queryTagsForGrenades(mReadableDataBase, query.selection, query.selectionArgs)
+        );
     }
 
     private void viewNade(int position)

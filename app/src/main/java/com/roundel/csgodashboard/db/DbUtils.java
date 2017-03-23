@@ -195,6 +195,18 @@ public class DbUtils
         );
     }
 
+    public static Cursor queryGrenades(SQLiteDatabase db, String selection, String[] selectionArgs)
+    {
+        return queryGrenades(
+                db,
+                concatenateArrays(UtilityGrenade.PROJECTION_ALL, Map.PROJECTION_DATA),
+                selection,
+                selectionArgs,
+                UtilityGrenade.TABLE_NAME + "." + UtilityGrenade._ID,
+                ORDER_ASCENDING
+        );
+    }
+
     public static Cursor queryGrenades(SQLiteDatabase db)
     {
         return queryGrenades(
@@ -252,6 +264,23 @@ public class DbUtils
             );
         }
         return tags;
+    }
+
+    private static HashSet<Long> queryTagIdsByName(SQLiteDatabase db, String name)
+    {
+        Cursor cursor = queryTags(
+                db,
+                new String[]{Tags._ID},
+                Tags.COLUMN_NAME_NAME + " GLOB ?",
+                new String[]{"*" + name + "*"}
+        );
+
+        HashSet<Long> ids = new HashSet<>();
+        while(cursor.moveToNext())
+        {
+            ids.add(cursor.getLong(cursor.getColumnIndex(Tags._ID)));
+        }
+        return ids;
     }
 
     public static Tags queryAllTags(SQLiteDatabase db)
@@ -339,6 +368,11 @@ public class DbUtils
             ids.add(cursor.getLong(cursor.getColumnIndex(Tags._ID)));
         }
         return ids;
+    }
+
+    public static Cursor queryTags(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs)
+    {
+        return queryTags(db, projection, selection, selectionArgs, Tags._ID, ORDER_ASCENDING);
     }
 
     public static Cursor queryTags(SQLiteDatabase db, String[] projection, String selection, String[] selectionArgs, String orderColumn, String order)
@@ -599,17 +633,29 @@ public class DbUtils
     }
 
     /**
-     * @param filter
-     * @param matchingTagIds a set of tag ids that match the free text query
-     *
-     * @return
+     * @param filter {@link FilterGrenade} object containing filter properties
+     * @return a {@link Query} object containing a selection {@link String} and selection arguments {@link String}[]
      */
-    public static Query buildQueryFromGrenadeFilter(FilterGrenade filter, HashSet<Long> matchingTagIds)
+    public static Query buildQueryFromGrenadeFilter(SQLiteDatabase db, FilterGrenade filter)
+    {
+        HashSet<Long> tagIds = null;
+        if(filter.getSearchQuery() != null)
+            tagIds = queryTagIdsByName(db, filter.getSearchQuery());
+        return buildQueryFromGrenadeFilter(filter, tagIds);
+    }
+
+    /**
+     * @param filter {@link FilterGrenade} object containing filter properties
+     * @param matchingTagIds a {@link HashSet} of tag ids that match the free text query
+     *
+     * @return a {@link Query} object containing a selection {@link String} and selection arguments {@link String}[]
+     */
+    private static Query buildQueryFromGrenadeFilter(FilterGrenade filter, HashSet<Long> matchingTagIds)
     {
         StringBuilder builder = new StringBuilder();
         List<String> selectionArgs = new ArrayList<>();
 
-        boolean addAnd = false;
+        boolean appendJoiner = false;
 
         if(filter.getSearchQuery() != null)
         {
@@ -618,48 +664,48 @@ public class DbUtils
                     .append(UtilityGrenade.COLUMN_NAME_TITLE)
                     .append(" GLOB ?");
             selectionArgs.add("*" + filter.getSearchQuery() + "*");
-            addAnd = true;
+            appendJoiner = true;
         }
 
         if(filter.getJumpThrow() != null)
         {
-            if(addAnd)
+            if(appendJoiner)
                 builder.append(" AND ");
             builder.append(UtilityGrenade.TABLE_NAME)
                     .append(".")
                     .append(UtilityGrenade.COLUMN_NAME_JUMP_THROW)
                     .append(" = ?");
             selectionArgs.add(String.valueOf(filter.getJumpThrow() ? 1 : 0));
-            addAnd = true;
+            appendJoiner = true;
         }
 
         if(filter.getType() != null)
         {
-            if(addAnd)
+            if(appendJoiner)
                 builder.append(" AND ");
             builder.append(UtilityGrenade.TABLE_NAME)
                     .append(".")
                     .append(UtilityGrenade.COLUMN_NAME_TYPE)
                     .append(" = ?");
             selectionArgs.add(String.valueOf(filter.getType()));
-            addAnd = true;
+            appendJoiner = true;
         }
 
         if(filter.getMapId() != null)
         {
-            if(addAnd)
+            if(appendJoiner)
                 builder.append(" AND ");
             builder.append(UtilityGrenade.TABLE_NAME)
                     .append(".")
                     .append(UtilityGrenade.COLUMN_NAME_MAP_ID)
                     .append(" = ?");
             selectionArgs.add(String.valueOf(filter.getMapId()));
-            addAnd = true;
+            appendJoiner = true;
         }
 
         if(filter.getTagIds() != null && filter.getTagIds().size() > 0)
         {
-            if(addAnd)
+            if(appendJoiner)
                 builder.append(" AND ");
 
             builder.append("(");
@@ -685,13 +731,13 @@ public class DbUtils
             }
 
             builder.append(")");
-            addAnd = true;
+            appendJoiner = true;
         }
 
         if(matchingTagIds != null && matchingTagIds.size() > 0)
         {
-            if(addAnd)
-                builder.append(" AND ");
+            if(appendJoiner)
+                builder.append(" OR ");
 
             builder.append("(");
 
@@ -716,7 +762,7 @@ public class DbUtils
             }
 
             builder.append(")");
-            addAnd = true;
+            appendJoiner = true;
         }
 
         return new Query(builder.toString(), selectionArgs);
@@ -725,9 +771,9 @@ public class DbUtils
 
     public static class Query
     {
+        public String selection;
+        public String[] selectionArgs;
         //<editor-fold desc="private variables">
-        private String selection;
-        private String[] selectionArgs;
         //</editor-fold>
 
         private Query(String selection, String[] selectionArgs)
@@ -748,28 +794,6 @@ public class DbUtils
                     "selection='" + selection + '\'' +
                     ", selectionArgs=" + Arrays.toString(selectionArgs) +
                     '}';
-        }
-
-        public String getSelection()
-        {
-
-
-            return selection;
-        }
-
-        public void setSelection(String selection)
-        {
-            this.selection = selection;
-        }
-
-        public String[] getSelectionArgs()
-        {
-            return selectionArgs;
-        }
-
-        public void setSelectionArgs(String[] selectionArgs)
-        {
-            this.selectionArgs = selectionArgs;
         }
     }
 }

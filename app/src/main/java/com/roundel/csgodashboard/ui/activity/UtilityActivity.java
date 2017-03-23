@@ -1,6 +1,7 @@
 package com.roundel.csgodashboard.ui.activity;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -20,20 +21,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.CursorAdapter;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 
 import com.roundel.csgodashboard.R;
-import com.roundel.csgodashboard.adapter.spinner.GrenadeAdapter;
+import com.roundel.csgodashboard.adapter.spinner.AnyGrenadeAdapter;
+import com.roundel.csgodashboard.adapter.spinner.AnyMapAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.utility.FilterGrenade;
 import com.roundel.csgodashboard.entities.utility.Grenade;
-import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.ui.fragment.UtilityGrenadeFragment;
-import com.roundel.csgodashboard.util.LogHelper;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
@@ -69,7 +67,8 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private SQLiteDatabase mReadableDatabase;
 
-    private FilterGrenade mGrenadeFilter;
+    private FilterGrenade mGrenadeFilter = new FilterGrenade();
+    ;
     //</editor-fold>
 
     @Override
@@ -133,6 +132,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     public boolean onQueryTextChange(String newText)
     {
         mGrenadeFilter.setSearchQuery(newText);
+        mSectionsPagerAdapter.mUtilityGrenadeFragment.onFilterChanged(mGrenadeFilter);
         return false;
     }
 
@@ -150,13 +150,29 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
             else
                 jumpthrow = null;
 
-            mGrenadeFilter = new FilterGrenade();
-            mGrenadeFilter.setMapId(mMapSpinner.getSelectedItemId());
-            mGrenadeFilter.setType((int) mGrenadeSpinner.getSelectedItemId());
+            Long mapId = null;
+            if(mMapSpinner.getSelectedItemId() >= 0)
+                mapId = mMapSpinner.getSelectedItemId();
+
+            Integer type = null;
+            if(mGrenadeSpinner.getSelectedItemId() >= 0)
+            {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                {
+                    type = Math.toIntExact(mGrenadeSpinner.getSelectedItemId());
+                }
+                else
+                {
+                    type = (int) mGrenadeSpinner.getSelectedItemId();
+                }
+            }
+
+            mGrenadeFilter.setMapId(mapId);
+            mGrenadeFilter.setType(type);
             mGrenadeFilter.setTagIds(mTagAdapter.getSelectedItemIds());
             mGrenadeFilter.setJumpThrow(jumpthrow);
 
-            LogHelper.d("FilterQuery", DbUtils.buildQueryFromGrenadeFilter(mGrenadeFilter, new Tags()).toString());
+            mSectionsPagerAdapter.mUtilityGrenadeFragment.onFilterChanged(mGrenadeFilter);
 
         }).setNegativeButton("Cancel", (dialog, which) ->
         {
@@ -165,23 +181,24 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         AlertDialog dialog = builder.create();
         dialog.show();
 
+        setupDialog(dialog);
+    }
+
+    private void setupDialog(AlertDialog dialog)
+    {
         mMapSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_map);
         mGrenadeSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_grenade);
         mJumpthrowSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_jumpthrow);
         mTagLayout = (TagLayout) dialog.findViewById(R.id.utility_grenade_filter_taglayout);
 
-        SimpleCursorAdapter mapAdapter = new SimpleCursorAdapter(
+        AnyMapAdapter mapAdapter = new AnyMapAdapter(
                 this,
-                R.layout.list_simple_one_line_no_ripple,
                 DbUtils.queryMaps(
                         this.mReadableDatabase,
                         new String[]{Map._ID, Map.COLUMN_NAME_NAME}
-                ),
-                new String[]{Map.COLUMN_NAME_NAME},
-                new int[]{R.id.list_text_primary},
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
+                )
         );
-        GrenadeAdapter grenadeAdapter = new GrenadeAdapter(
+        AnyGrenadeAdapter grenadeAdapter = new AnyGrenadeAdapter(
                 this,
                 R.layout.list_simple_one_line_no_ripple,
                 R.id.list_text_primary,
@@ -198,6 +215,18 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         mGrenadeSpinner.setAdapter(grenadeAdapter);
         mJumpthrowSpinner.setAdapter(jumpthrowAdapter);
         mTagLayout.setAdapter(mTagAdapter);
+
+        //Setup default values, when have been set in the FilterGrenade
+        mGrenadeSpinner.setSelection(grenadeAdapter.getItemPosition(
+                mGrenadeFilter.getType() == null ? -1 : mGrenadeFilter.getType()
+        ));
+        mMapSpinner.setSelection(mapAdapter.getItemPosition(
+                mGrenadeFilter.getMapId() == null ? -1 : mGrenadeFilter.getMapId()
+        ));
+        mJumpthrowSpinner.setSelection(
+                mGrenadeFilter.getJumpThrow() == null ? 0 : mGrenadeFilter.getJumpThrow() ? 1 : 2
+        );
+        mTagAdapter.setSelectedItemIds(mGrenadeFilter.getTagIds());
     }
 
     /**
@@ -206,6 +235,9 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter
     {
+        //<editor-fold desc="private variables">
+        private UtilityGrenadeFragment mUtilityGrenadeFragment;
+//</editor-fold>
 
         public SectionsPagerAdapter(FragmentManager fm)
         {
@@ -215,8 +247,10 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         @Override
         public Fragment getItem(int position)
         {
-            return UtilityGrenadeFragment.newInstance();
-
+            if(position == 0)
+                return mUtilityGrenadeFragment = UtilityGrenadeFragment.newInstance();
+            else
+                return null;
         }
 
         @Override

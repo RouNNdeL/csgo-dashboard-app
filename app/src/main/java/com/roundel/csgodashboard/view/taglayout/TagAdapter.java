@@ -83,6 +83,22 @@ public class TagAdapter
         return mSelectedItemIds;
     }
 
+    public void setSelectedItemIds(HashSet<Long> selectedItemIds)
+    {
+        if(selectedItemIds == null)
+            return;
+        for(int i = 0; i < getCount(); i++)
+        {
+            if(selectedItemIds.contains(getItem(i).getId()))
+            {
+                View p = mParentTagLayout.getChildAt(i);
+                p.findViewById(R.id.utility_tag_layout).setSelected(true);
+                p.findViewById(R.id.utility_tag_layout_mock).setSelected(false);
+            }
+        }
+        mSelectedItemIds = selectedItemIds;
+    }
+
     public View getView(FlowLayout parent, int position)
     {
         View view;
@@ -266,6 +282,10 @@ public class TagAdapter
                 if(tag.isSelected())
                 {
                     mSelectedItemIds.add(getItemId(mParentTagLayout.indexOfChild(v)));
+                }
+                else
+                {
+                    mSelectedItemIds.remove(getItemId(mParentTagLayout.indexOfChild(v)));
                 }
 
                 animator.setDuration(250);
