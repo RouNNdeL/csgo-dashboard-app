@@ -20,4 +20,6 @@
     <dimen name="tag_vertical_padding">4dp</dimen>
     <dimen name="tag_horizontal_padding">12dp</dimen>
     <dimen name="tag_corner_radius">18dp</dimen>
+    <dimen name="span_corner_radius">2dp</dimen>
+    <dimen name="span_text_padding">0dp</dimen>
 </resources>

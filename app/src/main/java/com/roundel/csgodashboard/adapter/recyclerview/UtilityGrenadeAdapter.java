@@ -4,8 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
-import android.text.style.BackgroundColorSpan;
+import android.text.Spanned;
 import android.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.github.iojjj.rcbs.RoundedCornersBackgroundSpan;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
@@ -65,10 +65,12 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
             int end = start + mHighlightText.length();
             if(start >= 0)
             {
-                Spannable spanTitle = Spannable.Factory.getInstance().newSpannable(title);
-                spanTitle.setSpan(
-                        new BackgroundColorSpan(mContext.getColor(R.color.textHighlightDark)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                );
+                Spanned spanTitle =
+                        new RoundedCornersBackgroundSpan.EntireTextBuilder(mContext, title)
+                                .setCornersRadiusRes(R.dimen.span_corner_radius)
+                                .setTextPaddingRes(R.dimen.span_text_padding)
+                                .addBackgroundRes(R.color.textHighlightDark, start, end).build();
+
                 titleTextView.setText(spanTitle);
             }
             else
@@ -80,7 +82,10 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
         {
             titleTextView.setText(title);
         }
+
         mapTextView.setText(cursor.getString(cursor.getColumnIndex(Map.COLUMN_NAME_NAME)));
+
+        //TODO: Prioritize tags matched by the search
         final String tags = DbUtils.formatTagNames(
                 mTagArray,
                 DbUtils.splitTagIds(
@@ -93,10 +98,11 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
             int end = start + mHighlightText.length();
             if(start >= 0)
             {
-                Spannable spanTags = Spannable.Factory.getInstance().newSpannable(tags);
-                spanTags.setSpan(
-                        new BackgroundColorSpan(mContext.getColor(R.color.textHighlightDark)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                );
+                Spanned spanTags =
+                        new RoundedCornersBackgroundSpan.EntireTextBuilder(mContext, tags)
+                                .setCornersRadiusRes(R.dimen.span_corner_radius)
+                                .setTextPaddingRes(R.dimen.span_text_padding)
+                                .addBackgroundRes(R.color.textHighlightDark, start, end).build();
                 tagsTextView.setText(spanTags);
             }
             else
