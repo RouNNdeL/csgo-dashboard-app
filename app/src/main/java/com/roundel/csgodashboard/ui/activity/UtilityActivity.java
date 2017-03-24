@@ -1,12 +1,11 @@
 package com.roundel.csgodashboard.ui.activity;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,9 +19,12 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.adapter.spinner.AnyGrenadeAdapter;
 import com.roundel.csgodashboard.adapter.spinner.AnyMapAdapter;
@@ -32,6 +34,7 @@ import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.utility.FilterGrenade;
 import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.ui.fragment.UtilityGrenadeFragment;
+import com.roundel.csgodashboard.view.OverlayView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
@@ -40,18 +43,20 @@ import butterknife.ButterKnife;
 
 public class UtilityActivity extends AppCompatActivity implements SearchView.OnQueryTextListener
 {
+    private static final String TAG = UtilityActivity.class.getSimpleName();
 
     //<editor-fold desc="private variables">
     @BindView(R.id.utility_toolbar) Toolbar mToolbar;
     @BindView(R.id.utility_tablayout) TabLayout mTabLayout;
     @BindView(R.id.utility_appbar) AppBarLayout mAppbar;
     @BindView(R.id.utility_viewpager) ViewPager mViewPager;
-    @BindView(R.id.utility_fab) FloatingActionButton mFab;
-    @BindView(R.id.main_content) CoordinatorLayout mCoordinatorLayout;
-
+    @BindView(R.id.utility_fab_menu) FloatingActionMenu mFabMenu;
+    @BindView(R.id.utility_fab_grenade) FloatingActionButton mFabGrenade;
+    @BindView(R.id.utility_fab_boost) FloatingActionButton mFabBoost;
+    @BindView(R.id.utility_coordinator) CoordinatorLayout mCoordinatorLayout;
+    @BindView(R.id.utility_overlay) OverlayView mOverlay;
 
     //Filter dialog Views and Adpaters
-
     private Spinner mMapSpinner;
     private Spinner mGrenadeSpinner;
     private Spinner mJumpthrowSpinner;
@@ -86,15 +91,39 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        mFabMenu.setOnMenuToggleListener((boolean opened) -> mOverlay.setInterceptEvents(opened));
+
+        mOverlay.setOnClickListener((View v) ->
+        {
+            mFabMenu.close(true);
+        });
+
+        mFabGrenade.setOnClickListener(v ->
+        {
+            startActivity(new Intent(UtilityActivity.this, AddNadeActivity.class));
+            mFabMenu.close(true);
+        });
+
         TabLayout tabLayout = (TabLayout) findViewById(R.id.utility_tablayout);
         tabLayout.setupWithViewPager(mViewPager);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.utility_fab);
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
-
     }
 
+    @Override
+    protected void onResume()
+    {
+        if(mSectionsPagerAdapter.mUtilityGrenadeFragment != null)
+            mSectionsPagerAdapter.mUtilityGrenadeFragment.updateData(mGrenadeFilter);
+        super.onResume();
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if(mFabMenu.isOpened())
+            mFabMenu.close(true);
+        else
+            super.onBackPressed();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -132,7 +161,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     public boolean onQueryTextChange(String newText)
     {
         mGrenadeFilter.setSearchQuery(newText);
-        mSectionsPagerAdapter.mUtilityGrenadeFragment.onFilterChanged(mGrenadeFilter);
+        mSectionsPagerAdapter.mUtilityGrenadeFragment.updateData(mGrenadeFilter);
         return false;
     }
 
@@ -172,7 +201,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
             mGrenadeFilter.setTagIds(mTagAdapter.getSelectedItemIds());
             mGrenadeFilter.setJumpThrow(jumpthrow);
 
-            mSectionsPagerAdapter.mUtilityGrenadeFragment.onFilterChanged(mGrenadeFilter);
+            mSectionsPagerAdapter.mUtilityGrenadeFragment.updateData(mGrenadeFilter);
 
         }).setNegativeButton("Cancel", (dialog, which) ->
         {

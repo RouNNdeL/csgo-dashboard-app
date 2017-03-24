@@ -4,9 +4,9 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.1"
     defaultConfig {
-        /*jackOptions {
+        jackOptions {
             enabled true
-        }*/
+        }
         applicationId "com.roundel.csgodashboard"
         minSdkVersion 23
         targetSdkVersion 25
@@ -16,24 +16,13 @@ android {
     }
     buildTypes {
         release {
-            //minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             minifyEnabled true
         }
     }
-    /*compileOptions {
+    compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
-    }*/
-}
-
-repositories {
-    mavenCentral()
-    maven {
-        url "https://jitpack.io"
-    }
-    maven {
-        url "http://dl.bintray.com/journeyapps/maven"
     }
 }
 
@@ -42,10 +31,11 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.1.1'
-    compile 'com.android.support:design:25.1.1'
-    compile 'com.android.support:cardview-v7:25.1.1'
-    compile 'com.android.support:recyclerview-v7:25.1.1'
+
+    compile 'com.android.support:appcompat-v7:25.3.0'
+    compile 'com.android.support:design:25.3.0'
+    compile 'com.android.support:cardview-v7:25.3.0'
+    compile 'com.android.support:recyclerview-v7:25.3.0'
 
     compile 'com.makeramen:roundedimageview:2.3.0'
 
@@ -63,7 +53,9 @@ dependencies {
 
     compile 'com.github.iojjj:rcbs:1.0.0'
 
-    //compile 'com.github.chrisbanes:PhotoView:2.0.0'
+    compile 'com.github.chrisbanes:PhotoView:2.0.0'
+
+    compile 'com.github.clans:fab:1.6.4'
 
     compile 'com.jakewharton:butterknife:8.5.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'

@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_content"
+    android:id="@+id/utility_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -39,12 +39,47 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/utility_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <com.roundel.csgodashboard.view.OverlayView
+        android:id="@+id/utility_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:translationZ="4dp"/>
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/utility_fab_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="end|bottom"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email"/>
+        android:layout_margin="0dp"
+        android:padding="@dimen/fab_margin"
+        android:translationZ="6dp"
+        app:menu_backgroundColor="#cfffffff"
+        app:menu_colorNormal="?android:attr/colorAccent"
+        app:menu_colorPressed="?android:attr/colorAccent"
+        app:menu_fab_size="normal">
+
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/utility_fab_boost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_stance_running"
+            app:fab_colorNormal="?android:attr/colorAccent"
+            app:fab_colorPressed="?android:attr/colorAccent"
+            app:fab_label="Boost"
+            app:fab_size="mini"/>
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/utility_fab_grenade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_csgo_smoke_grenade"
+            app:fab_colorNormal="?android:attr/colorAccent"
+            app:fab_colorPressed="?android:attr/colorAccent"
+            app:fab_label="Grenade"
+            app:fab_size="mini"/>
+
+    </com.github.clans.fab.FloatingActionMenu>
+
 
 </android.support.design.widget.CoordinatorLayout>

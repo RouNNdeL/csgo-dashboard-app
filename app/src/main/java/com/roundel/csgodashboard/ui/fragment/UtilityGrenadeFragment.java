@@ -85,7 +85,7 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
         viewNade(position);
     }
 
-    public void onFilterChanged(FilterGrenade newFilter)
+    public void updateData(FilterGrenade newFilter)
     {
         DbUtils.Query query = DbUtils.buildQueryFromGrenadeFilter(mReadableDataBase, newFilter);
         mAdapter.setHighlight(true);
