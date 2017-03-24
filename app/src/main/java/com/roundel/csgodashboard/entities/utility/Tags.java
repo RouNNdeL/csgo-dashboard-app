@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -104,6 +105,16 @@ public class Tags extends ArrayList<Tags.Tag> implements BaseColumns
             map.put(tag.getId(), tag.getName());
         }
         return map;
+    }
+
+    public boolean contains(String string)
+    {
+        for(Tag t : this)
+        {
+            if(Objects.equals(t.getName(), string))
+                return true;
+        }
+        return false;
     }
 
     public static class Tag

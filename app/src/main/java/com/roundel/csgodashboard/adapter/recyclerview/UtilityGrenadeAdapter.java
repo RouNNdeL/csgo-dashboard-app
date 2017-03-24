@@ -27,6 +27,9 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
 {
     private static final String TAG = UtilityGrenadeAdapter.class.getSimpleName();
 
+    private static final int TYPE_TAGS = 0;
+    private static final int TYPE_NO_TAGS = 1;
+
     //<editor-fold desc="private variables">
     private boolean mHighlight;
     private String mHighlightText;
@@ -92,28 +95,45 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
                         cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS))
                 )
         );
-        if(mHighlight && mHighlightText != null && mHighlightText.length() > 0)
+        if(tags.length() > 0)
         {
-            int start = tags.indexOf(mHighlightText);
-            int end = start + mHighlightText.length();
-            if(start >= 0)
+            if(mHighlight && mHighlightText != null && mHighlightText.length() > 0)
             {
-                Spanned spanTags =
-                        new RoundedCornersBackgroundSpan.EntireTextBuilder(mContext, tags)
-                                .setCornersRadiusRes(R.dimen.span_corner_radius)
-                                .setTextPaddingRes(R.dimen.span_text_padding)
-                                .addBackgroundRes(R.color.textHighlightDark, start, end).build();
-                tagsTextView.setText(spanTags);
+                int start = tags.indexOf(mHighlightText);
+                int end = start + mHighlightText.length();
+                if(start >= 0)
+                {
+                    Spanned spanTags =
+                            new RoundedCornersBackgroundSpan.EntireTextBuilder(mContext, tags)
+                                    .setCornersRadiusRes(R.dimen.span_corner_radius)
+                                    .setTextPaddingRes(R.dimen.span_text_padding)
+                                    .addBackgroundRes(R.color.textHighlightDark, start, end).build();
+                    tagsTextView.setText(spanTags);
+                }
+                else
+                {
+                    tagsTextView.setText(tags);
+                }
             }
             else
             {
                 tagsTextView.setText(tags);
             }
         }
-        else
+    }
+
+    @Override
+    public int getItemViewType(int position)
+    {
+        final Cursor cursor = getCursor();
+        if(cursor.moveToPosition(position))
         {
-            tagsTextView.setText(tags);
+            if(cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_TAG_IDS)).length() > 0)
+                return TYPE_TAGS;
+            else
+                return TYPE_NO_TAGS;
         }
+        return -1;
     }
 
     @Override
@@ -132,7 +152,18 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.utility_entry_grenade, parent, false);
+        View view;
+        switch(viewType)
+        {
+            case TYPE_TAGS:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.utility_entry_grenade, parent, false);
+                break;
+            case TYPE_NO_TAGS:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.utility_entry_grenade_no_tags, parent, false);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown view type: " + viewType);
+        }
         if(mOnItemClickListener != null)
         {
             view.setOnClickListener(mOnItemClickListener);

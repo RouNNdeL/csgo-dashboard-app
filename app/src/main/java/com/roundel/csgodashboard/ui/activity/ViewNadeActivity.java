@@ -46,6 +46,7 @@ public class ViewNadeActivity extends AppCompatActivity
     @BindView(R.id.view_nade_description) TextView mDescription;
     @BindView(R.id.view_nade_jumpthrow) RelativeLayout mJumpthrow;
     @BindView(R.id.view_nade_root) NestedScrollView mCoordinatorLayout;
+    @BindView(R.id.view_nade_tag_header) TextView mTagHeader;
 
     private TagAdapter mTagAdapter;
 
@@ -109,8 +110,17 @@ public class ViewNadeActivity extends AppCompatActivity
         mDescription.setText(mUtilityData.getDescription());
         mJumpthrow.setVisibility(mUtilityData.isJumpThrow() ? View.VISIBLE : View.GONE);
 
-        mTagAdapter = new TagAdapter(mUtilityData.getTags(), this);
-        mTagContainer.setAdapter(mTagAdapter);
+        final Tags tags = mUtilityData.getTags();
+        if(tags.size() > 0)
+        {
+            mTagAdapter = new TagAdapter(tags, this);
+            mTagContainer.setAdapter(mTagAdapter);
+        }
+        else
+        {
+            mTagContainer.setVisibility(View.GONE);
+            mTagHeader.setVisibility(View.GONE);
+        }
 
         final List<Uri> imgUris = mUtilityData.getImgUris(this);
         if(imgUris.size() > 0)

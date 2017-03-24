@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="88dp"
+    android:layout_height="72dp"
     android:background="?android:attr/selectableItemBackground"
     android:transitionName="@string/transition_utility_grenade_root">
 
@@ -71,31 +71,6 @@
                 android:textColor="@color/colorMaterialLight70"
                 android:textSize="14sp"
                 android:transitionName="@string/transition_utility_grenade_map"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:gravity="center">
-
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginEnd="4dp"
-                android:src="@drawable/ic_list_black_24dp"
-                android:tint="@color/colorMaterialLight70"/>
-
-            <TextView
-                android:id="@+id/utility_grenade_tags"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="fill"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="utility_grenade_tags"
-                android:textColor="@color/colorMaterialLight70"
-                android:textSize="14sp"/>
         </LinearLayout>
 
     </LinearLayout>

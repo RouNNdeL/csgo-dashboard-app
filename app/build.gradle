@@ -4,9 +4,9 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.1"
     defaultConfig {
-        jackOptions {
+        /*jackOptions {
             enabled true
-        }
+        }*/
         applicationId "com.roundel.csgodashboard"
         minSdkVersion 23
         targetSdkVersion 25
@@ -21,10 +21,10 @@ android {
             minifyEnabled true
         }
     }
-    compileOptions {
+    /*compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
-    }
+    }*/
 }
 
 repositories {
@@ -61,10 +61,11 @@ dependencies {
 
     compile 'com.google.code.gson:gson:2.8.0'
 
-    compile 'com.jakewharton:butterknife:8.5.1'
-
     compile 'com.github.iojjj:rcbs:1.0.0'
 
+    //compile 'com.github.chrisbanes:PhotoView:2.0.0'
+
+    compile 'com.jakewharton:butterknife:8.5.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     //compile project(':library')
     testCompile 'junit:junit:4.12'

@@ -5,7 +5,6 @@
     <item
 
         android:id="@+id/menu_add_nade_done"
-        android:icon="@drawable/ic_done_white_24dp"
         android:title="Done"
         app:showAsAction="always"/>
 </menu>

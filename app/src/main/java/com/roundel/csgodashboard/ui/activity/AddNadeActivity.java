@@ -1,6 +1,7 @@
 package com.roundel.csgodashboard.ui.activity;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,8 +33,6 @@ import com.roundel.csgodashboard.adapter.spinner.StanceAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
-import com.roundel.csgodashboard.entities.Maps;
-import com.roundel.csgodashboard.entities.UserData;
 import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
 import com.roundel.csgodashboard.entities.utility.Tags;
@@ -91,8 +91,8 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     private List<Uri> mImageList = new ArrayList<>();
     private Tags mTags = new Tags();
 
-    private UserData mUserData;
-    private Maps mUserDataMaps;
+    private int mMapCount;
+
     private SimpleCursorAdapter mMapAdapter;
 
     private DbHelper mDbHelper;
@@ -115,9 +115,6 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
             getSupportActionBar().setTitle("Add nade");
         }
 
-        mUserData = UserData.fromContext(this);
-        mUserDataMaps = mUserData.getMaps();
-
         mDbHelper = new DbHelper(this);
         mReadableDatabase = mDbHelper.getReadableDatabase();
         mWritableDatabase = mDbHelper.getWritableDatabase();
@@ -138,13 +135,15 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         );
         mGrenadeSpinner.setAdapter(mGrenadeAdapter);
 
+        final Cursor queryMaps = DbUtils.queryMaps(
+                this.mReadableDatabase,
+                new String[]{Map._ID, Map.COLUMN_NAME_NAME}
+        );
+        mMapCount = queryMaps.getCount();
         mMapAdapter = new SimpleCursorAdapter(
                 this,
                 R.layout.list_simple_one_line_no_ripple,
-                DbUtils.queryMaps(
-                        this.mReadableDatabase,
-                        new String[]{Map._ID, Map.COLUMN_NAME_NAME}
-                ),
+                queryMaps,
                 new String[]{Map.COLUMN_NAME_NAME},
                 new int[]{R.id.list_text_primary},
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
@@ -157,12 +156,6 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mImageLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mImageRecyclerView.setAdapter(mImageAdapter);
         mImageRecyclerView.setLayoutManager(mImageLayoutManager);
-
-        mTags.add(new Tags.Tag("hello"));
-        mTags.add(new Tags.Tag("this"));
-        mTags.add(new Tags.Tag("is"));
-        mTags.add(new Tags.Tag("a"));
-        mTags.add(new Tags.Tag("test"));
 
         mTagAdapter = new TagAdapter(mTags, this);
         mTagAdapter.setTagActionListener(this);
@@ -237,6 +230,23 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mTagAdapter.notifyItemRemoved(position);
     }
 
+    @Override
+    public void onBackPressed()
+    {
+        if(anyData())
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Are you sure you want to discard this grenade?")
+                    .setPositiveButton("Keep editing", (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton("Discard", ((dialog, which) -> super.onBackPressed()));
+            builder.show();
+        }
+        else
+        {
+            super.onBackPressed();
+        }
+    }
+
     private void submit()
     {
         final UtilityGrenade utilityGrenade = validate();
@@ -255,7 +265,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
                 }
             }
 
-            //Update the Uris to point to the new location in the App's memory
+            //Update the Ids to point to the new location in the App's memory
             utilityGrenade.setImageIds(copiedIds);
 
             DbUtils.insertGrenade(mWritableDatabase, utilityGrenade);
@@ -269,6 +279,8 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
      */
     private UtilityGrenade validate()
     {
+        boolean valid = true;
+
         int mapId = (int) mMapSpinner.getSelectedItemId();
         int stanceId = (int) mStanceSpinner.getSelectedItemId();
         int grenadeId = (int) mGrenadeSpinner.getSelectedItemId();
@@ -278,9 +290,52 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         String title = mTitleEditText.getText().toString();
         String description = mDescriptionEditText.getText().toString();
 
-        //We pass null as the imageUris param because it is going to be updated
-        // when we copy the Uris into the App's memory
-        return new UtilityGrenade(null, mTags, Map.referenceOnly(mapId), title, description, grenadeId, stanceId, isJumpthrow);
+        if(title.length() == 0)
+        {
+            mTitleContainer.setErrorEnabled(true);
+            mTitleContainer.setError("Title is required");
+            valid = false;
+        }
+        else
+        {
+            mTitleContainer.setErrorEnabled(false);
+        }
+
+        if(mImageList.size() == 0)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Required fields")
+                    .setMessage("You need to chose at least one image to add your grenade")
+                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+            builder.show();
+            valid = false;
+        }
+
+        if(valid)
+        {
+            //We pass null as the imageIds param because it is going to be updated
+            // when we copy the Uris into the App's memory
+            return new UtilityGrenade(null, mTags, Map.referenceOnly(mapId), title, description, grenadeId, stanceId, isJumpthrow);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private boolean anyData()
+    {
+        boolean anyData = false;
+
+        if(mTitleEditText.length() > 0 ||
+                mDescriptionEditText.length() > 0 ||
+                mImageList.size() > 0 ||
+                mTags.size() > 0)
+        {
+            anyData = true;
+        }
+
+        return anyData;
     }
 
     /**
@@ -305,7 +360,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         return file.getName();
     }
 
-    public byte[] getBytes(InputStream inputStream) throws IOException
+    private byte[] getBytes(InputStream inputStream) throws IOException
     {
         ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
         int bufferSize = 1024;
@@ -344,7 +399,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
         {
-            if(position >= mUserDataMaps.size())
+            if(position >= mMapCount)
             {
                 //TODO: Start a AddMapActivity
             }

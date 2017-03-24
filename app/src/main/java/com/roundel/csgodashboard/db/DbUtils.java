@@ -448,6 +448,8 @@ public class DbUtils
 
         for(String s : split)
         {
+            if(s.length() == 0)
+                continue;
             list.add(Long.valueOf(s.substring(
                     TAG_IDENTIFIER.length(),
                     s.length() - TAG_IDENTIFIER.length()
