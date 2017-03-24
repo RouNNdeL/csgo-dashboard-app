@@ -5,6 +5,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 
+import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.utility.Grenade;
 
 import java.util.List;
@@ -15,6 +16,11 @@ import java.util.List;
 
 public class AnyGrenadeAdapter extends GrenadeAdapter
 {
+    public AnyGrenadeAdapter(Context context, List<Grenade> grenades)
+    {
+        this(context, R.layout.list_simple_one_line_no_ripple, R.id.list_text_primary, grenades);
+    }
+
     public AnyGrenadeAdapter(Context context, @LayoutRes int resource, @IdRes int textViewResourceId, List<Grenade> grenades)
     {
         super(context, resource, textViewResourceId, grenades);

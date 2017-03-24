@@ -1,6 +1,7 @@
 package com.roundel.csgodashboard.ui.activity;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.utility.FilterGrenade;
 import com.roundel.csgodashboard.entities.utility.Grenade;
+import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.ui.fragment.UtilityGrenadeFragment;
 import com.roundel.csgodashboard.view.OverlayView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
@@ -72,8 +74,10 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private SQLiteDatabase mReadableDatabase;
 
+    private Cursor mMapCursor;
+    private Tags mTags;
+
     private FilterGrenade mGrenadeFilter = new FilterGrenade();
-    ;
     //</editor-fold>
 
     @Override
@@ -93,10 +97,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
 
         mFabMenu.setOnMenuToggleListener((boolean opened) -> mOverlay.setInterceptEvents(opened));
 
-        mOverlay.setOnClickListener((View v) ->
-        {
-            mFabMenu.close(true);
-        });
+        mOverlay.setOnClickListener((View v) -> mFabMenu.close(true));
 
         mFabGrenade.setOnClickListener(v ->
         {
@@ -111,6 +112,11 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     @Override
     protected void onResume()
     {
+        mMapCursor = DbUtils.queryMaps(
+                this.mReadableDatabase,
+                new String[]{Map._ID, Map.COLUMN_NAME_NAME}
+        );
+        mTags = DbUtils.queryAllTags(mReadableDatabase);
         if(mSectionsPagerAdapter.mUtilityGrenadeFragment != null)
             mSectionsPagerAdapter.mUtilityGrenadeFragment.updateData(mGrenadeFilter);
         super.onResume();
@@ -169,76 +175,31 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(R.layout.dialog_filter_grenade);
-        builder.setPositiveButton("Ok", (dialog, which) ->
-        {
-            Boolean jumpthrow;
-            if(mJumpthrowSpinner.getSelectedItemId() == 1)
-                jumpthrow = true;
-            else if(mJumpthrowSpinner.getSelectedItemId() == 2)
-                jumpthrow = false;
-            else
-                jumpthrow = null;
-
-            Long mapId = null;
-            if(mMapSpinner.getSelectedItemId() >= 0)
-                mapId = mMapSpinner.getSelectedItemId();
-
-            Integer type = null;
-            if(mGrenadeSpinner.getSelectedItemId() >= 0)
-            {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                {
-                    type = Math.toIntExact(mGrenadeSpinner.getSelectedItemId());
-                }
-                else
-                {
-                    type = (int) mGrenadeSpinner.getSelectedItemId();
-                }
-            }
-
-            mGrenadeFilter.setMapId(mapId);
-            mGrenadeFilter.setType(type);
-            mGrenadeFilter.setTagIds(mTagAdapter.getSelectedItemIds());
-            mGrenadeFilter.setJumpThrow(jumpthrow);
-
-            mSectionsPagerAdapter.mUtilityGrenadeFragment.updateData(mGrenadeFilter);
-
-        }).setNegativeButton("Cancel", (dialog, which) ->
-        {
-
-        }).setTitle("Search filter");
+        builder.setPositiveButton("Ok", (dialog, which) -> filterGrenade())
+                .setNegativeButton("Cancel", (dialog, which) ->
+                {})
+                .setTitle("Search filter");
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        setupDialog(dialog);
+        setupGrenadeDialog(dialog);
     }
 
-    private void setupDialog(AlertDialog dialog)
+    private void setupGrenadeDialog(AlertDialog dialog)
     {
         mMapSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_map);
         mGrenadeSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_grenade);
         mJumpthrowSpinner = (Spinner) dialog.findViewById(R.id.utility_grenade_filter_jumpthrow);
         mTagLayout = (TagLayout) dialog.findViewById(R.id.utility_grenade_filter_taglayout);
 
-        AnyMapAdapter mapAdapter = new AnyMapAdapter(
-                this,
-                DbUtils.queryMaps(
-                        this.mReadableDatabase,
-                        new String[]{Map._ID, Map.COLUMN_NAME_NAME}
-                )
-        );
-        AnyGrenadeAdapter grenadeAdapter = new AnyGrenadeAdapter(
-                this,
-                R.layout.list_simple_one_line_no_ripple,
-                R.id.list_text_primary,
-                Grenade.getDefaultGrenadeList(this)
-        );
+        AnyMapAdapter mapAdapter = new AnyMapAdapter(this, mMapCursor);
+        AnyGrenadeAdapter grenadeAdapter = new AnyGrenadeAdapter(this, Grenade.getDefaultGrenadeList(this));
         ArrayAdapter<String> jumpthrowAdapter = new ArrayAdapter<>(
                 this, R.layout.list_simple_one_line_no_ripple,
                 R.id.list_text_primary,
                 new String[]{"Any", "Yes", "No"}
         );
-        mTagAdapter = new TagAdapter(DbUtils.queryAllTags(mReadableDatabase), this);
+        mTagAdapter = new TagAdapter(mTags, this);
 
         mMapSpinner.setAdapter(mapAdapter);
         mGrenadeSpinner.setAdapter(grenadeAdapter);
@@ -256,6 +217,41 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
                 mGrenadeFilter.getJumpThrow() == null ? 0 : mGrenadeFilter.getJumpThrow() ? 1 : 2
         );
         mTagAdapter.setSelectedItemIds(mGrenadeFilter.getTagIds());
+    }
+
+    private void filterGrenade()
+    {
+        Boolean jumpthrow;
+        if(mJumpthrowSpinner.getSelectedItemId() == 1)
+            jumpthrow = true;
+        else if(mJumpthrowSpinner.getSelectedItemId() == 2)
+            jumpthrow = false;
+        else
+            jumpthrow = null;
+
+        Long mapId = null;
+        if(mMapSpinner.getSelectedItemId() >= 0)
+            mapId = mMapSpinner.getSelectedItemId();
+
+        Integer type = null;
+        if(mGrenadeSpinner.getSelectedItemId() >= 0)
+        {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            {
+                type = Math.toIntExact(mGrenadeSpinner.getSelectedItemId());
+            }
+            else
+            {
+                type = (int) mGrenadeSpinner.getSelectedItemId();
+            }
+        }
+
+        mGrenadeFilter.setMapId(mapId);
+        mGrenadeFilter.setType(type);
+        mGrenadeFilter.setTagIds(mTagAdapter.getSelectedItemIds());
+        mGrenadeFilter.setJumpThrow(jumpthrow);
+
+        mSectionsPagerAdapter.mUtilityGrenadeFragment.updateData(mGrenadeFilter);
     }
 
     /**
