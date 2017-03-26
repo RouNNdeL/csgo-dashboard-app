@@ -15,6 +15,7 @@ import com.roundel.csgodashboard.entities.Maps;
 import com.roundel.csgodashboard.entities.utility.FilterGrenade;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
+import com.roundel.csgodashboard.util.LogHelper;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -636,7 +637,9 @@ public class DbUtils
 
     /**
      * @param filter {@link FilterGrenade} object containing filter properties
-     * @return a {@link Query} object containing a selection {@link String} and selection arguments {@link String}[]
+     *
+     * @return a {@link Query} object containing a selection {@link String} and selection arguments
+     * {@link String}[]
      */
     public static Query buildQueryFromGrenadeFilter(SQLiteDatabase db, FilterGrenade filter)
     {
@@ -647,10 +650,11 @@ public class DbUtils
     }
 
     /**
-     * @param filter {@link FilterGrenade} object containing filter properties
+     * @param filter         {@link FilterGrenade} object containing filter properties
      * @param matchingTagIds a {@link HashSet} of tag ids that match the free text query
      *
-     * @return a {@link Query} object containing a selection {@link String} and selection arguments {@link String}[]
+     * @return a {@link Query} object containing a selection {@link String} and selection arguments
+     * {@link String}[]
      */
     private static Query buildQueryFromGrenadeFilter(FilterGrenade filter, HashSet<Long> matchingTagIds)
     {
@@ -767,7 +771,9 @@ public class DbUtils
             appendJoiner = true;
         }
 
-        return new Query(builder.toString(), selectionArgs);
+        final Query query = new Query(builder.toString(), selectionArgs);
+        LogHelper.d(TAG, query.toString());
+        return query;
     }
     //</editor-fold>
 

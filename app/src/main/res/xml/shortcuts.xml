@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shortcuts>
-
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
+           xmlns:tools="http://schemas.android.com/tools">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_server_setup"
+        android:shortcutId="serverSetup"
+        android:shortcutLongLabel="@string/shortcut_server_setup_long"
+        android:shortcutShortLabel="@string/shortcut_server_setup_short"
+        tools:ignore="UnusedAttribute">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.roundel.csgodashboard.ui.activity.ServerSetupActivity"
+            android:targetPackage="com.roundel.csgodashboard"/>
+    </shortcut>
 </shortcuts>

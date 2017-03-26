@@ -55,7 +55,7 @@
     <string name="transition_utility_grenade_map_img">utility_grenade_map_img</string>
     <string name="transition_utility_grenade_root">utility_grenade_root</string>
     <string name="shortcut_server_setup_short">Connect to server</string>
-    <string name="shortcut_server_setup_long">Start the server setup process</string>
+    <string name="shortcut_server_setup_long">Connect to server</string>
 
     <string name="title_activity_gallery"/>
     <string name="dummy_button">Dummy Button</string>
