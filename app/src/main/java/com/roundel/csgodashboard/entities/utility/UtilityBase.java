@@ -2,11 +2,13 @@ package com.roundel.csgodashboard.entities.utility;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 
 import com.roundel.csgodashboard.entities.Map;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Krzysiek on 2017-02-10.
@@ -45,12 +47,20 @@ public class UtilityBase
 
     public List<Uri> getImgUris(Context context)
     {
-        List<Uri> list = new ArrayList<>();
-        for(String id : imageIds)
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
         {
-            list.add(Uri.parse("file://" + Utilities.getImgPath(context) + id));
+            return imageIds.stream().map(id -> Uri.parse("file://" + Utilities.getImgPath(context) + id)).collect(Collectors.toList());
         }
-        return list;
+        else
+        {
+            List<Uri> list = new ArrayList<>();
+            //noinspection Convert2streamapi
+            for(String id : imageIds)
+            {
+                list.add(Uri.parse("file://" + Utilities.getImgPath(context) + id));
+            }
+            return list;
+        }
     }
 
     public Tags getTags()
@@ -70,7 +80,7 @@ public class UtilityBase
 
     public void setMap(Map map)
     {
-        map = map;
+        this.map = map;
     }
 
     public String getTitle()

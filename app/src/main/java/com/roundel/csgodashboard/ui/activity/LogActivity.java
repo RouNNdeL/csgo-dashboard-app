@@ -45,7 +45,7 @@ public class LogActivity extends AppCompatActivity implements LogHelper.LogListe
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.activity_log, menu);
+        inflater.inflate(R.menu.menu_log, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

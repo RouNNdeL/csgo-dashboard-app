@@ -262,7 +262,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     {
         //<editor-fold desc="private variables">
         private UtilityGrenadeFragment mUtilityGrenadeFragment;
-//</editor-fold>
+        //</editor-fold>
 
         public SectionsPagerAdapter(FragmentManager fm)
         {

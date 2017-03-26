@@ -21,6 +21,7 @@ import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
+import com.roundel.csgodashboard.util.ListUtils;
 import com.roundel.csgodashboard.view.CircleRectView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
@@ -29,6 +30,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ViewNadeActivity extends AppCompatActivity
 {
@@ -125,5 +127,18 @@ public class ViewNadeActivity extends AppCompatActivity
         final List<Uri> imgUris = mUtilityData.getImgUris(this);
         if(imgUris.size() > 0)
             Glide.with(this).load(imgUris.get(0)).into(mBackdrop);
+    }
+
+    @OnClick({R.id.view_nade_backdrop})
+    public void onViewClicked(View view)
+    {
+        switch(view.getId())
+        {
+            case R.id.view_nade_backdrop:
+                final Intent intent = new Intent(ViewNadeActivity.this, GalleryActivity.class);
+                intent.putExtra(GalleryActivity.EXTRA_PHOTO_URIS, ListUtils.join(mUtilityData.getImgUris(this)));
+                startActivity(intent);
+                break;
+        }
     }
 }

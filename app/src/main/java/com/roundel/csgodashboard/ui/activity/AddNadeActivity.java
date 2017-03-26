@@ -166,7 +166,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.activity_add_nade, menu);
+        inflater.inflate(R.menu.menu_add_nade, menu);
         return super.onCreateOptionsMenu(menu);
     }
 

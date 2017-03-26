@@ -3,21 +3,34 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="android:windowActivityTransitions">true</item>
-        <item name="android:windowSharedElementEnterTransition">@transition/utility_grenade</item>
-        <item name="android:windowEnterTransition">@android:transition/slide_bottom</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@android:color/primary_text_dark</item>
-        <item name="toolbarStyle">@style/Widget.AppCompat.Toolbar</item>
+        <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
         <item name="android:textColorPrimaryInverse">@android:color/primary_text_light</item>
     </style>
 
-    <style name="ToolBarStyle" parent="Theme.AppCompat">
-        <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="android:textColorSecondary">@android:color/white</item>
-        <item name="actionMenuTextColor">@android:color/white</item>
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimaryInverse">@android:color/primary_text_dark</item>
+        <item name="toolbarStyle">@style/AppTheme.Light.Toolbar</item>
+        <item name="android:textColorPrimary">@android:color/primary_text_light</item>
+    </style>
+
+    <style name="AppTheme.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:textColorPrimary">@color/colorMaterialDark87</item>
+        <item name="android:textColorSecondary">@color/colorMaterialDark54</item>
+        <item name="actionMenuTextColor">@color/colorMaterialDark87</item>
+    </style>
+
+    <style name="AppTheme.Light.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:textColorPrimary">@color/colorMaterialLight100</item>
+        <item name="android:textColorSecondary">@color/colorMaterialLight87</item>
+        <item name="actionMenuTextColor">@color/colorMaterialLight100</item>
     </style>
 
     <style name="PrimaryAccent" parent="ThemeOverlay.AppCompat.Light">
@@ -124,6 +137,42 @@
         <item name="android:layout_height">48dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textAppearance">@style/TextAppearance.ListSubHeader</item>
+    </style>
+
+    <style name="AppTheme.Fullscreen">
+        <item name="android:homeAsUpIndicator">@drawable/ic_arrow_back_white_24dp</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    </style>
+
+    <style name="AppTheme.Light.Fullscreen">
+        <item name="android:homeAsUpIndicator">@drawable/ic_arrow_back_white_24dp</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+        <item name="drawerArrowStyle">@style/WhiteDrawerArrowStyle</item>
+    </style>
+
+    <style name="AppTheme.Gallery" parent="AppTheme.Light.Fullscreen">
+        <item name="android:colorEdgeEffect">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+    </style>
+
+    <style name="WhiteDrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@android:color/white</item>
+    </style>
+
+    <style name="WhiteIconToolbar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
     </style>
 
 </resources>
