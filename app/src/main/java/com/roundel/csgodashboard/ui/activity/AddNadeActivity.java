@@ -61,7 +61,8 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     private static final String TAG = AddNadeActivity.class.getSimpleName();
 
     private static final int IMAGE_REQUEST_CODE = 1237;
-    private static final int MAX_IMAGE_COUNT = 50;
+    private static final int MAX_IMAGE_COUNT = 500;
+    private static final int MIN_TAG_LENGTH = 2;
 
     //<editor-fold desc="private variables">
     @BindView(R.id.add_nade_toolbar) Toolbar mToolbar;

@@ -16,12 +16,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.zhy.view.flowlayout.FlowLayout;
 
 import java.util.HashSet;
+import java.util.Locale;
 
 /**
  * Created by Krzysiek on 2017-02-18.
@@ -49,6 +51,10 @@ public class TagAdapter
     private int mTagNameMinLength = 2;
     private int mTagNameMaxLength = 15;
     private int mTagNameMaxEms = 8;
+    private boolean mToastIllegalTagNameLengths = true;
+    private String mTagLengthMaxToast = "The tag can be at most %d characters long";
+    ;
+    private String mTagLengthMinToast = "The tag has to be at least %d characters long";
     private HashSet<Long> mSelectedItemIds = new HashSet<>();
     //</editor-fold>
 
@@ -158,14 +164,30 @@ public class TagAdapter
         {
             String tagName = editText.getText().toString().toLowerCase();
 
-            if(mTagActionListener != null &&
-                    !TextUtils.isEmpty(tagName) &&
-                    tagName.length() >= mTagNameMinLength &&
-                    tagName.length() <= mTagNameMaxLength)
+            if(mTagActionListener != null)
             {
-                if(mTagActionListener.onTagAdded(tagName))
+                if(!TextUtils.isEmpty(tagName) && tagName.length() >= mTagNameMinLength && tagName.length() <= mTagNameMaxLength)
                 {
-                    editText.setText("");
+                    if(mTagActionListener.onTagAdded(tagName))
+                    {
+                        editText.setText("");
+                    }
+                }
+                else if(mToastIllegalTagNameLengths && !TextUtils.isEmpty(tagName) && tagName.length() < mTagNameMinLength)
+                {
+                    Toast.makeText(
+                            mContext,
+                            String.format(Locale.getDefault(), mTagLengthMinToast, mTagNameMinLength),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+                else if(mToastIllegalTagNameLengths && !TextUtils.isEmpty(tagName))
+                {
+                    Toast.makeText(
+                            mContext,
+                            String.format(Locale.getDefault(), mTagLengthMaxToast, mTagNameMaxLength),
+                            Toast.LENGTH_SHORT
+                    ).show();
                 }
             }
 
@@ -236,6 +258,17 @@ public class TagAdapter
     {
         this.mTagActionListener = mTagActionListener;
     }
+
+    public boolean isToastIllegalTagNameLengths()
+    {
+        return mToastIllegalTagNameLengths;
+    }
+
+    public void setToastIllegalTagNameLengths(boolean toastIllegalTagNameLengths)
+    {
+        mToastIllegalTagNameLengths = toastIllegalTagNameLengths;
+    }
+
 
     interface OnDataChangedListener
     {
