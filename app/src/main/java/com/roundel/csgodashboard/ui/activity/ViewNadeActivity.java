@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -18,7 +19,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.github.clans.fab.FloatingActionButton;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
@@ -64,7 +64,6 @@ public class ViewNadeActivity extends AppCompatActivity
     private DbHelper mDbHelper;
     private SQLiteDatabase mReadableDatabase;
     private UtilityGrenade mUtilityData;
-    //TODO: Find a View that this listener should be attached to
     private final View.OnClickListener mOnBackdropClickListener = (v) ->
     {
         startNadeActivity();
@@ -88,6 +87,7 @@ public class ViewNadeActivity extends AppCompatActivity
 
         mBackdrop.setOnClickListener(mOnBackdropClickListener);
         mFab.setOnClickListener(mOnFabClickListener);
+        //TODO: Show the edit MenuItem when the AppBAr is collapsed
 
         Intent intent = getIntent();
         mUtilityId = intent.getIntExtra(EXTRA_GRENADE_ID, -1);

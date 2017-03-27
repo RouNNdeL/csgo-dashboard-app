@@ -233,7 +233,7 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-    <com.github.clans.fab.FloatingActionButton
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/view_nade_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
