@@ -247,8 +247,6 @@ public class DbUtils
         );
         if(cursor.moveToFirst())
         {
-            //TODO: Finish the method
-
             final Tags tags = queryTags(
                     db,
                     splitTagIds(

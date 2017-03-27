@@ -289,7 +289,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         }
         else if(isInManualMode && !isConnectingToServer)
         {
-            //TODo: Change title back to SearchingWifi when exiting connecting state
             setTitleSearchingWifi();
             animateToAutoConnection();
             return false;

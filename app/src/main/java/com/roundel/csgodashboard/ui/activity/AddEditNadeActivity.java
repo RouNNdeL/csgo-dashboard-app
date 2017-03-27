@@ -187,7 +187,6 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
         switch(item.getItemId())
         {
             case R.id.menu_add_nade_done:
-                //TODO: Validate the form, then save it's state and finish the Activity
                 submit();
                 return true;
         }

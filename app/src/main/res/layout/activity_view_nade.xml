@@ -51,14 +51,6 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <!--TODO: Find a way to fix the AppBar hiding when IME is shown-->
-        <!--<
-            android:id="@+id/view_nade_scroll_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:transitionName="@string/transition_utility_grenade_root"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
