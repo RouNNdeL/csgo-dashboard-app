@@ -34,7 +34,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class ViewNadeActivity extends AppCompatActivity
 {
@@ -63,7 +62,13 @@ public class ViewNadeActivity extends AppCompatActivity
     private DbHelper mDbHelper;
     private SQLiteDatabase mReadableDatabase;
     private UtilityGrenade mUtilityData;
-    private Tags mTags;
+    //TODO: Find a View that this listener should be attached to
+    private final View.OnClickListener mOnBackdropClickListener = (v) ->
+    {
+        final Intent intent = new Intent(ViewNadeActivity.this, GalleryActivity.class);
+        intent.putExtra(GalleryActivity.EXTRA_PHOTO_URIS, ListUtils.join(mUtilityData.getImgUris(this)));
+        startActivity(intent);
+    };
     private int mUtilityId;
     //</editor-fold>
 
@@ -85,6 +90,8 @@ public class ViewNadeActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
+
+        mBackdrop.setOnClickListener(mOnBackdropClickListener);
 
         Intent intent = getIntent();
         mUtilityId = intent.getIntExtra(EXTRA_GRENADE_ID, -1);
@@ -173,18 +180,5 @@ public class ViewNadeActivity extends AppCompatActivity
         final List<Uri> imgUris = mUtilityData.getImgUris(this);
         if(imgUris.size() > 0)
             Glide.with(this).load(imgUris.get(0)).into(mBackdrop);
-    }
-
-    @OnClick({R.id.view_nade_backdrop})
-    public void onViewClicked(View view)
-    {
-        switch(view.getId())
-        {
-            case R.id.view_nade_backdrop:
-                final Intent intent = new Intent(ViewNadeActivity.this, GalleryActivity.class);
-                intent.putExtra(GalleryActivity.EXTRA_PHOTO_URIS, ListUtils.join(mUtilityData.getImgUris(this)));
-                startActivity(intent);
-                break;
-        }
     }
 }

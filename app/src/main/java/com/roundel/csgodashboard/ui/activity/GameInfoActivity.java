@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.transition.AutoTransition;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
@@ -55,16 +56,14 @@ import butterknife.ButterKnife;
 public class GameInfoActivity extends AppCompatActivity implements View.OnClickListener, GameInfoListeningThread.OnDataListener, RoundEvents, ServerUpdateThread.OnOffsetDetermined
 {
     private static final String TAG = GameInfoActivity.class.getSimpleName();
-
     public static final String EXTRA_GAME_SERVER_HOST = "com.roundel.csgodashboard.extra.GAME_SERVER_HOST";
     public static final String EXTRA_GAME_SERVER_NAME = "com.roundel.csgodashboard.extra.GAME_SERVER_NAME";
     public static final String EXTRA_GAME_SERVER_PORT = "com.roundel.csgodashboard.extra.GAME_SERVER_PORT";
-
+    private static final int BOMB_RESET_DELAY = 1000;
+    private static final float BOMB_TICKING_MAX_SCALE = 1.15f;
+    private static final int PINGING_PERIOD = 5000;
+    private static final int PINGING_INITIAL_DELAY = 5000;
     private final ScheduledExecutorService mPingingScheduler = Executors.newScheduledThreadPool(1);
-    private final int mBombResetDelay = 1000;
-    private final float mBombTickingMaxScale = 1.15f;
-    private final int mPingingPeriod = 5000;
-    private final int mPingingDelay = 5000;
 
     //<editor-fold desc="private variables">
     @BindView(R.id.game_info_round_time) TextView mRoundTime;
@@ -90,7 +89,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.game_info_name_away) TextView mNameAway;
     @BindView(R.id.game_info_backdrop) ImageView mBackdrop;
     @BindView(R.id.game_info_toolbar) Toolbar mToolbar;
-    @BindView(R.id.game_info_collapsing_toolbar) Toolbar mCollapsingToolbar;
+    @BindView(R.id.game_info_collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
     @BindView(R.id.game_info_appbar) AppBarLayout mAppbar;
 
     @BindColor(R.color.yellowT) int mColorYellowT;
@@ -117,9 +116,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private CountDownTimer mTimer;
 
-    private int mRoundTimeMillis = 116000;
+    private int mRoundTimeMillis = 115000;
     private int mBombTimeMillis = 40000;
-    private int mFreezeTimeMillis = 16000;
+    private int mFreezeTimeMillis = 15000;
 
     private long mServerTimeOffset;
     //</editor-fold>
@@ -336,7 +335,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         };
         if(mPingingHandler != null)
             mPingingHandler.cancel(false);
-        mPingingHandler = mPingingScheduler.scheduleAtFixedRate(threadRunnable, mPingingDelay, mPingingPeriod, TimeUnit.MILLISECONDS);
+        mPingingHandler = mPingingScheduler.scheduleAtFixedRate(threadRunnable, PINGING_INITIAL_DELAY, PINGING_PERIOD, TimeUnit.MILLISECONDS);
         LogHelper.i(TAG, "Scheduled the mPingingHandler for 5s");
     }
 
@@ -532,7 +531,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             mBombTickScaleAnimator.cancel();
 
 
-        mBombTickScaleAnimator = ValueAnimator.ofFloat(1.0f, mBombTickingMaxScale);
+        mBombTickScaleAnimator = ValueAnimator.ofFloat(1.0f, BOMB_TICKING_MAX_SCALE);
         mBombTickingAnimator = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
 
         mBombTickingAnimator.addUpdateListener(animation ->
@@ -609,7 +608,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mRoundNumber.setVisibility(View.VISIBLE);
         mBombFrame.setVisibility(View.GONE);
 
-        new Handler().postDelayed(this::resetBomb, mBombResetDelay);
+        new Handler().postDelayed(this::resetBomb, BOMB_RESET_DELAY);
     }
 
     private void transitionShowBomb()

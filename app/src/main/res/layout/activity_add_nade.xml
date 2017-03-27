@@ -9,7 +9,8 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground"
     android:fitsSystemWindows="false"
-    android:paddingTop="0dp">
+    android:paddingTop="0dp"
+    tools:context=".ui.activity.AddEditNadeActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/add_nade_appbar"
@@ -177,6 +178,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/add_nade_hitbox_jumpthrow"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"

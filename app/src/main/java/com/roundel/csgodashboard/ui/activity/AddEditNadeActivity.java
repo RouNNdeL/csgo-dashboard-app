@@ -55,6 +55,7 @@ import java.util.Objects;
 import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter.TagActionListener
 {
@@ -419,6 +420,12 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
             byteBuffer.write(buffer, 0, len);
         }
         return byteBuffer.toByteArray();
+    }
+
+    @OnClick(R.id.add_nade_hitbox_jumpthrow)
+    void onClick(View v)
+    {
+        mJumpthrowCheckbox.setChecked(!mJumpthrowCheckbox.isChecked());
     }
 
     private class OnAddPhotoListener implements View.OnClickListener
