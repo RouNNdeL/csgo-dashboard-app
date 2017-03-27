@@ -34,7 +34,7 @@ import butterknife.OnClick;
 
 public class ViewNadeActivity extends AppCompatActivity
 {
-    public static final String EXTRA_UTILITY_ID = "com.roundel.csgodashboard.extra.GRENADE_ID";
+    public static final String EXTRA_GRENADE_ID = "com.roundel.csgodashboard.extra.GRENADE_ID";
 
     //<editor-fold desc="private variables">
     @BindView(R.id.view_nade_backdrop) CircleRectView mBackdrop;
@@ -76,16 +76,14 @@ public class ViewNadeActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         Intent intent = getIntent();
-        int utilityId = intent.getIntExtra(EXTRA_UTILITY_ID, -1);
-        if(utilityId < 0)
-            throw new RuntimeException("You need to provide a valid utility_grenade_id in integer extra " + EXTRA_UTILITY_ID);
+        int utilityId = intent.getIntExtra(EXTRA_GRENADE_ID, -1);
 
         mDbHelper = new DbHelper(this);
         mReadableDatabase = mDbHelper.getReadableDatabase();
 
         mUtilityData = DbUtils.queryGrenadeById(mReadableDatabase, utilityId);
         if(mUtilityData == null)
-            throw new RuntimeException("You need to provide a valid utility_grenade_id in integer extra " + EXTRA_UTILITY_ID);
+            throw new RuntimeException("You need to provide a valid utility_grenade_id in integer extra " + EXTRA_GRENADE_ID);
 
         fillActivity();
     }
@@ -97,7 +95,7 @@ public class ViewNadeActivity extends AppCompatActivity
     {
         final Map map = mUtilityData.getMap();
         final Stance stance = Stance.fromType(mUtilityData.getStance(), this);
-        final Grenade grenade = Grenade.fromType(mUtilityData.getType(), this);
+        final Grenade grenade = Grenade.fromType(mUtilityData.getGrenadeId(), this);
 
         if(getSupportActionBar() != null)
         {

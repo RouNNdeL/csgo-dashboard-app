@@ -40,7 +40,7 @@ import butterknife.ButterKnife;
  */
 public class GalleryActivity extends AppCompatActivity
 {
-    public static final String EXTRA_PHOTO_URIS = "com.roundel.csgodashboard.extra.EXTRA_PHOTO_URIS";
+    public static final String EXTRA_PHOTO_URIS = "com.roundel.csgodashboard.extra.PHOTO_URIS";
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -56,6 +56,18 @@ public class GalleryActivity extends AppCompatActivity
 
     private final Handler mHideHandler = new Handler();
     private final DetailOnPageChangeListener mOnPageChangeListener = new DetailOnPageChangeListener();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnClickListener mDelayHideTouchListener = (view) ->
+    {
+        if(AUTO_HIDE)
+        {
+            delayedHide(AUTO_HIDE_DELAY_MILLIS);
+        }
+    };
     @BindView(R.id.gallery_viewpager) ViewPager mViewPager;
     @BindView(R.id.gallery_content_controls) View mControlsView;
     @BindView(R.id.gallery_root) FrameLayout mRootView;
@@ -102,18 +114,6 @@ public class GalleryActivity extends AppCompatActivity
         }
     };
     private final Runnable mHideRunnable = this::hide;
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnClickListener mDelayHideTouchListener = (view) ->
-    {
-        if(AUTO_HIDE)
-        {
-            delayedHide(AUTO_HIDE_DELAY_MILLIS);
-        }
-    };
     private List<Uri> mImgUris;
     private PhotoViewPagerAdapter mViewPagerAdapter;
 

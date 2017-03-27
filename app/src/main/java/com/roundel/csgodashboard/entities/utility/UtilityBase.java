@@ -35,6 +35,32 @@ public class UtilityBase
         this.description = description;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o) return true;
+        if(!(o instanceof UtilityBase)) return false;
+
+        UtilityBase that = (UtilityBase) o;
+
+        if(!tags.equals(that.tags)) return false;
+        if(!map.equals(that.map)) return false;
+        if(!title.equals(that.title)) return false;
+        return description.equals(that.description);
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = imageIds.hashCode();
+        result = 31 * result + tags.hashCode();
+        result = 31 * result + map.hashCode();
+        result = 31 * result + title.hashCode();
+        result = 31 * result + description.hashCode();
+        return result;
+    }
+
     public List<String> getImageIds()
     {
         return imageIds;

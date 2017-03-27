@@ -1,103 +1,44 @@
 package com.roundel.csgodashboard.adapter.spinner;
 
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
+import android.database.Cursor;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.widget.CursorAdapter;
 
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.entities.Map;
-import com.roundel.csgodashboard.entities.Maps;
 
 /**
- * Created by Krzysiek on 2017-02-22.
+ * Created by Krzysiek on 2017-03-23.
  */
-public class MapAdapter extends BaseAdapter
+
+public class MapAdapter extends SimpleCursorAdapter
 {
-    private static final String TAG = MapAdapter.class.getSimpleName();
-
-    private static final int TYPE_MAP = 0;
-    private static final int TYPE_ADD_MAP = 1;
-
-    //<editor-fold desc="private variables">
-    private Maps mDataSet;
-    private LayoutInflater mLayoutInflater;
-    //</editor-fold>
-
-    public MapAdapter(Maps mDataSet, Context context)
+    public MapAdapter(Context context, Cursor cursor)
     {
-        this.mDataSet = mDataSet;
-        this.mLayoutInflater = LayoutInflater.from(context);
+        super(
+                context,
+                R.layout.list_simple_one_line_no_ripple,
+                cursor,
+                new String[]{Map.COLUMN_NAME_NAME},
+                new int[]{R.id.list_text_primary},
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
+        );
     }
 
-    @Override
-    public int getCount()
+    public MapAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags)
     {
-        return mDataSet.size() + 1;
+        super(context, layout, c, from, to, flags);
     }
 
-    @Override
-    public Map getItem(int position)
+    public int getItemPosition(long id)
     {
-        if(position >= mDataSet.size())
+        for(int i = 0; i < getCount(); i++)
         {
-            return null;
-        }
-        return mDataSet.get(position);
-    }
-
-    @Override
-    public long getItemId(int position)
-    {
-        if(getItem(position) != null)
-        {
-            return getItem(position).getId();
+            final Object item = getItem(i);
+            if(item instanceof Cursor && ((Cursor) item).getLong(mRowIDColumn) == id)
+                return i;
         }
         return -1;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent)
-    {
-        return getDropDownView(position, convertView, parent);
-    }
-
-    @Override
-    public int getItemViewType(int position)
-    {
-        if(position >= mDataSet.size())
-        {
-            return TYPE_ADD_MAP;
-        }
-        else
-        {
-            return TYPE_MAP;
-        }
-    }
-
-    @Override
-    public View getDropDownView(int position, View convertView, ViewGroup parent)
-    {
-        View view;
-        final int viewType = getItemViewType(position);
-        if(viewType == TYPE_MAP)
-        {
-            view = mLayoutInflater.inflate(R.layout.list_simple_one_line_no_ripple, parent, false);
-            TextView mapName = (TextView) view.findViewById(R.id.list_text_primary);
-            mapName.setText(getItem(position).getName());
-        }
-        else if(viewType == TYPE_ADD_MAP)
-        {
-            view = mLayoutInflater.inflate(R.layout.list_simple_one_line_no_ripple, parent, false);
-            TextView textPrimary = (TextView) view.findViewById(R.id.list_text_primary);
-            textPrimary.setText("Add a new map");
-        }
-        else
-        {
-            throw new IllegalArgumentException("Unknown view type: " + viewType);
-        }
-        return view;
     }
 }

@@ -22,6 +22,9 @@ allprojects {
         maven {
             url "http://dl.bintray.com/journeyapps/maven"
         }
+        maven {
+            url "https://clojars.org/repo/"
+        }
     }
 }
 

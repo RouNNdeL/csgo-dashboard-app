@@ -82,7 +82,7 @@ public class DbUtils
         values.put(UtilityGrenade.COLUMN_NAME_IMG_IDS, joinImgIds(utilityGrenade.getImageIds()));
         values.put(UtilityGrenade.COLUMN_NAME_JUMP_THROW, utilityGrenade.isJumpThrow() ? 1 : 0);
         values.put(UtilityGrenade.COLUMN_NAME_STANCE, utilityGrenade.getStance());
-        values.put(UtilityGrenade.COLUMN_NAME_TYPE, utilityGrenade.getType());
+        values.put(UtilityGrenade.COLUMN_NAME_TYPE, utilityGrenade.getGrenadeId());
         values.put(UtilityGrenade.COLUMN_NAME_TAG_IDS, joinTagIds(tagIds));
 
         return db.insert(UtilityGrenade.TABLE_NAME, null, values);

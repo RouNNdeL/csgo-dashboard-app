@@ -93,7 +93,7 @@ public class TagAdapter
     {
         if(selectedItemIds == null)
             return;
-        for(int i = 0; i < getCount(); i++)
+        for(int i = 0; i < mDataSet.size(); i++)
         {
             if(selectedItemIds.contains(getItem(i).getId()))
             {

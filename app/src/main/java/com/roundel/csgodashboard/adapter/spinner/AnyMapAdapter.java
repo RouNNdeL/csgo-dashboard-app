@@ -3,7 +3,6 @@ package com.roundel.csgodashboard.adapter.spinner;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,7 @@ import com.roundel.csgodashboard.entities.Map;
  * Created by Krzysiek on 2017-03-23.
  */
 
-public class AnyMapAdapter extends SimpleCursorAdapter
+public class AnyMapAdapter extends MapAdapter
 {
     public AnyMapAdapter(Context context, Cursor cursor)
     {
@@ -85,16 +84,5 @@ public class AnyMapAdapter extends SimpleCursorAdapter
     public View getDropDownView(int position, View convertView, ViewGroup parent)
     {
         return getView(position, convertView, parent);
-    }
-
-    public int getItemPosition(long id)
-    {
-        for(int i = 0; i < getCount(); i++)
-        {
-            final Object item = getItem(i);
-            if(item instanceof Cursor && ((Cursor) item).getLong(mRowIDColumn) == id)
-                return i;
-        }
-        return -1;
     }
 }

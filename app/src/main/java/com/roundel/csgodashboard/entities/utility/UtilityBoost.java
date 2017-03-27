@@ -35,6 +35,29 @@ public class UtilityBoost extends UtilityBase implements BaseColumns
         this.isRunBoost = isRunBoost;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+        if(!super.equals(o)) return false;
+
+        UtilityBoost that = (UtilityBoost) o;
+
+        if(numberOfTeamMates != that.numberOfTeamMates) return false;
+        return isRunBoost == that.isRunBoost;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = super.hashCode();
+        result = 31 * result + numberOfTeamMates;
+        result = 31 * result + (isRunBoost ? 1 : 0);
+        return result;
+    }
+
     public int getNumberOfTeamMates()
     {
         return numberOfTeamMates;

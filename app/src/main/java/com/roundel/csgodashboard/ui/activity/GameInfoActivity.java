@@ -56,9 +56,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 {
     private static final String TAG = GameInfoActivity.class.getSimpleName();
 
-    public static final String EXTRA_GAME_SERVER_HOST = "EXTRA_GAME_SERVER_HOST";
-    public static final String EXTRA_GAME_SERVER_NAME = "EXTRA_GAME_SERVER_NAME";
-    public static final String EXTRA_GAME_SERVER_PORT = "EXTRA_GAME_SERVER_PORT";
+    public static final String EXTRA_GAME_SERVER_HOST = "com.roundel.csgodashboard.extra.GAME_SERVER_HOST";
+    public static final String EXTRA_GAME_SERVER_NAME = "com.roundel.csgodashboard.extra.GAME_SERVER_NAME";
+    public static final String EXTRA_GAME_SERVER_PORT = "com.roundel.csgodashboard.extra.GAME_SERVER_PORT";
 
     private final ScheduledExecutorService mPingingScheduler = Executors.newScheduledThreadPool(1);
     private final int mBombResetDelay = 1000;

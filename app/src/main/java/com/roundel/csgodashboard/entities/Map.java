@@ -88,6 +88,23 @@ public class Map implements BaseColumns
         return new Map(id);
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+
+        Map map = (Map) o;
+
+        return id == map.id;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return id;
+    }
 
     private String nameFromCodeName(String codeName, Context context)
     {

@@ -78,4 +78,15 @@ public class StanceAdapter extends ArrayAdapter<Stance>
         }
         return root;
     }
+
+    public int getItemPosition(long id)
+    {
+        for(int i = 0; i < getCount(); i++)
+        {
+            final Stance item = getItem(i);
+            if(item != null && item.getId() == id)
+                return i;
+        }
+        return -1;
+    }
 }

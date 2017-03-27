@@ -21,14 +21,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.CursorAdapter;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.adapter.recyclerview.UtilityImagesAdapter;
 import com.roundel.csgodashboard.adapter.spinner.GrenadeAdapter;
+import com.roundel.csgodashboard.adapter.spinner.MapAdapter;
 import com.roundel.csgodashboard.adapter.spinner.StanceAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
@@ -51,6 +50,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import butterknife.BindInt;
 import butterknife.BindView;
@@ -60,9 +60,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 {
     private static final String TAG = AddNadeActivity.class.getSimpleName();
 
+    public static final String EXTRA_GRENADE_ID = "com.roundel.csgodashboard.extra.GRENADE_ID";
+
     private static final int IMAGE_REQUEST_CODE = 1237;
     private static final int MAX_IMAGE_COUNT = 500;
-    private static final int MIN_TAG_LENGTH = 2;
 
     //<editor-fold desc="private variables">
     @BindView(R.id.add_nade_toolbar) Toolbar mToolbar;
@@ -94,11 +95,14 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
     private int mMapCount;
 
-    private SimpleCursorAdapter mMapAdapter;
+    private MapAdapter mMapAdapter;
+
+    private boolean mIsInEditMode;
 
     private DbHelper mDbHelper;
     private SQLiteDatabase mReadableDatabase;
     private SQLiteDatabase mWritableDatabase;
+    private UtilityGrenade mUtilityData;
     //</editor-fold>
 
     @Override
@@ -109,11 +113,13 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         ButterKnife.bind(this);
 
+        mIsInEditMode = Objects.equals(Intent.ACTION_EDIT, getIntent().getAction());
+
         setSupportActionBar(mToolbar);
 
         if(getSupportActionBar() != null)
         {
-            getSupportActionBar().setTitle("Add nade");
+            getSupportActionBar().setTitle("Add grenade");
         }
 
         mDbHelper = new DbHelper(this);
@@ -141,14 +147,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
                 new String[]{Map._ID, Map.COLUMN_NAME_NAME}
         );
         mMapCount = queryMaps.getCount();
-        mMapAdapter = new SimpleCursorAdapter(
-                this,
-                R.layout.list_simple_one_line_no_ripple,
-                queryMaps,
-                new String[]{Map.COLUMN_NAME_NAME},
-                new int[]{R.id.list_text_primary},
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
-        );
+        mMapAdapter = new MapAdapter(this, queryMaps);
         mMapSpinner.setAdapter(mMapAdapter);
         mMapSpinner.setOnItemSelectedListener(new OnMapSelectedListener());
 
@@ -161,6 +160,15 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         mTagAdapter = new TagAdapter(mTags, this);
         mTagAdapter.setTagActionListener(this);
         mTagLayout.setAdapter(mTagAdapter);
+
+        if(mIsInEditMode)
+        {
+            int id = getIntent().getIntExtra(EXTRA_GRENADE_ID, -1);
+            mUtilityData = DbUtils.queryGrenadeById(mReadableDatabase, id);
+            if(mUtilityData == null)
+                throw new RuntimeException("You need to provide a valid utility_grenade_id in integer extra " + EXTRA_GRENADE_ID);
+            fillForEdit(mUtilityData);
+        }
     }
 
     @Override
@@ -234,7 +242,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     @Override
     public void onBackPressed()
     {
-        if(anyData())
+        if(anyData() && (anyChanges() || !mIsInEditMode))
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Are you sure you want to discard this grenade?")
@@ -246,6 +254,21 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         {
             super.onBackPressed();
         }
+    }
+
+    private void fillForEdit(UtilityGrenade utilityGrenade)
+    {
+        mTitleEditText.setText(utilityGrenade.getTitle());
+        mDescriptionEditText.setText(utilityGrenade.getDescription());
+        mMapSpinner.setSelection(mMapAdapter.getItemPosition(utilityGrenade.getMap().getId()));
+        mGrenadeSpinner.setSelection(mGrenadeAdapter.getItemPosition(utilityGrenade.getGrenadeId()));
+        mStanceSpinner.setSelection(mStanceAdapter.getItemPosition(utilityGrenade.getStance()));
+        mJumpthrowCheckbox.setChecked(utilityGrenade.isJumpThrow());
+        mImageList.addAll(utilityGrenade.getImgUris(this));
+        mTags.addAll(utilityGrenade.getTags());
+
+        mTagAdapter.notifyDataSetChanged();
+        mImageAdapter.notifyDataSetChanged();
     }
 
     private void submit()
@@ -326,17 +349,20 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
     private boolean anyData()
     {
-        boolean anyData = false;
-
-        if(mTitleEditText.length() > 0 ||
+        return mTitleEditText.length() > 0 ||
                 mDescriptionEditText.length() > 0 ||
                 mImageList.size() > 0 ||
-                mTags.size() > 0)
-        {
-            anyData = true;
-        }
+                mTags.size() > 0;
+    }
 
-        return anyData;
+    private boolean anyChanges()
+    {
+        if(mIsInEditMode)
+        {
+            final UtilityGrenade validate = validate();
+            return !Objects.equals(mUtilityData, validate);
+        }
+        return false;
     }
 
     /**
@@ -351,6 +377,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         InputStream inputStream = getContentResolver().openInputStream(uri);
         final byte[] data = getBytes(inputStream);
+        if(inputStream != null)
+        {
+            inputStream.close();
+        }
 
         File file = FileGenerator.createRandomFile("", "", new File(Utilities.getImgPath(this)));
         out = new FileOutputStream(file);
@@ -367,7 +397,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         int bufferSize = 1024;
         byte[] buffer = new byte[bufferSize];
 
-        int len = 0;
+        int len;
         while((len = inputStream.read(buffer)) != -1)
         {
             byteBuffer.write(buffer, 0, len);
