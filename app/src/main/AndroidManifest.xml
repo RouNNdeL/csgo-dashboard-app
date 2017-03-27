@@ -36,7 +36,9 @@
             android:name=".ui.activity.AddEditNadeActivity"
             android:windowSoftInputMode="adjustPan">
         </activity>
-        <activity android:name=".ui.activity.ViewNadeActivity">
+        <activity
+            android:name=".ui.activity.ViewNadeActivity"
+            android:theme="@style/AppTheme.ViewNade">
         </activity>
         <activity
             android:name=".ui.activity.UtilityActivity"

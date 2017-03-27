@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.widget.NestedScrollView;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.github.clans.fab.FloatingActionButton;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
@@ -52,10 +53,11 @@ public class ViewNadeActivity extends AppCompatActivity
     @BindView(R.id.view_nade_tag_container) TagLayout mTagContainer;
     @BindView(R.id.view_nade_description) TextView mDescription;
     @BindView(R.id.view_nade_jumpthrow) RelativeLayout mJumpthrow;
-    @BindView(R.id.view_nade_root) NestedScrollView mCoordinatorLayout;
+    @BindView(R.id.view_nade_root) CoordinatorLayout mCoordinatorLayout;
     @BindView(R.id.view_nade_tag_header) TextView mTagHeader;
     @BindView(R.id.view_nade_collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
     @BindView(R.id.view_nade_toolbar) Toolbar mToolbar;
+    @BindView(R.id.view_nade_fab) FloatingActionButton mFab;
 
     private TagAdapter mTagAdapter;
 
@@ -70,6 +72,13 @@ public class ViewNadeActivity extends AppCompatActivity
         startActivity(intent);
     };
     private int mUtilityId;
+    private final View.OnClickListener mOnFabClickListener = v ->
+    {
+        Intent intent = new Intent(ViewNadeActivity.this, AddEditNadeActivity.class);
+        intent.setAction(Intent.ACTION_EDIT);
+        intent.putExtra(AddEditNadeActivity.EXTRA_GRENADE_ID, mUtilityId);
+        startActivity(intent);
+    };
     //</editor-fold>
 
     @Override
@@ -92,6 +101,7 @@ public class ViewNadeActivity extends AppCompatActivity
         setSupportActionBar(mToolbar);
 
         mBackdrop.setOnClickListener(mOnBackdropClickListener);
+        mFab.setOnClickListener(mOnFabClickListener);
 
         Intent intent = getIntent();
         mUtilityId = intent.getIntExtra(EXTRA_GRENADE_ID, -1);
@@ -125,13 +135,6 @@ public class ViewNadeActivity extends AppCompatActivity
     {
         switch(item.getItemId())
         {
-            case R.id.menu_view_nade_edit:
-            {
-                Intent intent = new Intent(ViewNadeActivity.this, AddEditNadeActivity.class);
-                intent.setAction(Intent.ACTION_EDIT);
-                intent.putExtra(AddEditNadeActivity.EXTRA_GRENADE_ID, mUtilityId);
-                startActivity(intent);
-            }
             case R.id.menu_view_nade_delete:
             {
                 //TODO: Add deletion

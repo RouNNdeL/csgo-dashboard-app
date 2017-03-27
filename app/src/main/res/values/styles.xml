@@ -162,7 +162,11 @@
 
     <style name="AppTheme.Gallery" parent="AppTheme.Light.Fullscreen">
         <item name="android:colorEdgeEffect">@android:color/white</item>
-        <item name="android:textColorSecondary">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.ViewNade" parent="AppTheme">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:statusBarColor">#22000000</item>
     </style>
 
     <style name="WhiteDrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
