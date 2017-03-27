@@ -88,6 +88,10 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.game_info_armor_stats) TextView mArmorStats;
     @BindView(R.id.game_info_name_home) TextView mNameHome;
     @BindView(R.id.game_info_name_away) TextView mNameAway;
+    @BindView(R.id.game_info_backdrop) ImageView mBackdrop;
+    @BindView(R.id.game_info_toolbar) Toolbar mToolbar;
+    @BindView(R.id.game_info_collapsing_toolbar) Toolbar mCollapsingToolbar;
+    @BindView(R.id.game_info_appbar) AppBarLayout mAppbar;
 
     @BindColor(R.color.yellowT) int mColorYellowT;
     @BindColor(R.color.blueCT) int mColorBlueCT;
@@ -98,9 +102,6 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindInt(R.integer.bomb_defuse_transition_duration) int mBombDefuseTransitionDuration;
 
     private TextView text;
-    private ImageView mMapImage;
-    private Toolbar mToolbar;
-    private AppBarLayout mAppBarLayout;
     private GameState mGameState;
     private GameServer mGameServer;
     private UserData mUserData;
@@ -133,10 +134,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         ButterKnife.bind(this);
 
         text = (TextView) findViewById(R.id.text2);
-        mMapImage = (ImageView) findViewById(R.id.main_backdrop);
         //title = (TextView) findViewById(R.id.main_toolbar_title);
-        mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        mAppBarLayout = (AppBarLayout) findViewById(R.id.main_appbar);
 
         setSupportActionBar(mToolbar);
 
@@ -331,7 +329,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void startPinging()
     {
-        Runnable threadRunnable = () -> {
+        Runnable threadRunnable = () ->
+        {
             ServerPingingThread serverPingingThread = new ServerPingingThread(mGameServer);
             serverPingingThread.start();
         };
@@ -443,7 +442,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             mRoundNumber.setText(
                     String.format(
                             Locale.getDefault(),
-                            getString(R.string.game_info_round), mGameState.getRound() + 1 //Cs numbers round from 0
+                            getString(R.string.game_info_round), mGameState.getRound() + 1 //CS numbers round from 0
                     )
             );
         }
@@ -454,18 +453,15 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         final Map map = mUserData.getMaps().mapFromCodeName(mGameState.getMapCodeName());
         if(map != null)
         {
-            Glide.with(this).load(map.getImageUri()).into(mMapImage);
-            if(getSupportActionBar() != null)
-            {
-                //TODO: Find a way to fix the not updating toolbar
-                getSupportActionBar().setTitle(map.getName());
-            }
+            Glide.with(this).load(map.getImageUri()).into(mBackdrop);
+            mCollapsingToolbar.setTitle(map.getName());
         }
     }
 
     private void update()
     {
-        runOnUiThread(() -> {
+        runOnUiThread(() ->
+        {
             if(mGameState == null)
                 return;
 
@@ -539,7 +535,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         mBombTickScaleAnimator = ValueAnimator.ofFloat(1.0f, mBombTickingMaxScale);
         mBombTickingAnimator = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombPlantedActive));
 
-        mBombTickingAnimator.addUpdateListener(animation -> {
+        mBombTickingAnimator.addUpdateListener(animation ->
+        {
             Integer color = (Integer) animation.getAnimatedValue();
             if(color != null)
             {
@@ -548,7 +545,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-        mBombTickScaleAnimator.addUpdateListener(animation -> {
+        mBombTickScaleAnimator.addUpdateListener(animation ->
+        {
             mBombTicksView.setScaleX((float) animation.getAnimatedValue());
             mBombTicksView.setScaleY((float) animation.getAnimatedValue());
         });
@@ -575,7 +573,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         ValueAnimator bombColor = ValueAnimator.ofArgb(getColor(R.color.bombPlantedInactive), getColor(R.color.bombDefused));
         ValueAnimator tickAlpha = ValueAnimator.ofFloat(1.0f, 0.0f);
 
-        bombColor.addUpdateListener(animation -> {
+        bombColor.addUpdateListener(animation ->
+        {
             if(animation.getAnimatedValue() != null)
             {
                 mBombView.setImageTintList(ColorStateList.valueOf((int) animation.getAnimatedValue()));
@@ -583,7 +582,8 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-        tickAlpha.addUpdateListener(animation -> {
+        tickAlpha.addUpdateListener(animation ->
+        {
             if(animation.getAnimatedValue() != null)
             {
                 mBombTicksView.setAlpha((float) animation.getAnimatedValue());
