@@ -101,7 +101,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
 
         mFabGrenade.setOnClickListener(v ->
         {
-            startActivity(new Intent(UtilityActivity.this, AddNadeActivity.class));
+            startActivity(new Intent(UtilityActivity.this, AddEditNadeActivity.class));
             mFabMenu.close(true);
         });
 

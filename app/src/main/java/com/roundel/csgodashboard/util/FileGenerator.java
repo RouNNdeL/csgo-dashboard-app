@@ -11,7 +11,7 @@ public class FileGenerator
 {
     private static final String TAG = FileGenerator.class.getSimpleName();
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
-    private static final int DEFAULT_FILE_LENGTH = 16;
+    private static final int DEFAULT_FILE_LENGTH = 24;
 
     public static String bytesToHex(byte[] bytes)
     {

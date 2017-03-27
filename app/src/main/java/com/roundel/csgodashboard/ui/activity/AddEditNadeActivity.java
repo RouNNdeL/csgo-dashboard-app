@@ -56,9 +56,9 @@ import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AddNadeActivity extends AppCompatActivity implements TagAdapter.TagActionListener
+public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter.TagActionListener
 {
-    private static final String TAG = AddNadeActivity.class.getSimpleName();
+    private static final String TAG = AddEditNadeActivity.class.getSimpleName();
 
     public static final String EXTRA_GRENADE_ID = "com.roundel.csgodashboard.extra.GRENADE_ID";
 
@@ -91,6 +91,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
     private List<Uri> mImageList = new ArrayList<>();
+    private List<Uri> mNewImageList = new ArrayList<>();
     private Tags mTags = new Tags();
 
     private int mMapCount;
@@ -98,11 +99,12 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
     private MapAdapter mMapAdapter;
 
     private boolean mIsInEditMode;
+    private UtilityGrenade mUtilityData;
+    private int mUtilityId = -1;
 
     private DbHelper mDbHelper;
     private SQLiteDatabase mReadableDatabase;
     private SQLiteDatabase mWritableDatabase;
-    private UtilityGrenade mUtilityData;
     //</editor-fold>
 
     @Override
@@ -119,7 +121,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         if(getSupportActionBar() != null)
         {
-            getSupportActionBar().setTitle("Add grenade");
+            getSupportActionBar().setTitle(mIsInEditMode ? "Edit grenade" : "Add grenade");
         }
 
         mDbHelper = new DbHelper(this);
@@ -163,8 +165,8 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         if(mIsInEditMode)
         {
-            int id = getIntent().getIntExtra(EXTRA_GRENADE_ID, -1);
-            mUtilityData = DbUtils.queryGrenadeById(mReadableDatabase, id);
+            mUtilityId = getIntent().getIntExtra(EXTRA_GRENADE_ID, -1);
+            mUtilityData = DbUtils.queryGrenadeById(mReadableDatabase, mUtilityId);
             if(mUtilityData == null)
                 throw new RuntimeException("You need to provide a valid utility_grenade_id in integer extra " + EXTRA_GRENADE_ID);
             fillForEdit(mUtilityData);
@@ -203,6 +205,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
             Uri uri = intent.getData();
 
             mImageList.add(uri);
+            mNewImageList.add(uri);
             mImageAdapter.notifyDataSetChanged();
             mImageLayoutManager.scrollToPosition(mImageList.size());
         }
@@ -245,7 +248,10 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         if(anyData() && (anyChanges() || !mIsInEditMode))
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Are you sure you want to discard this grenade?")
+            final String message = mIsInEditMode ?
+                    "Are you sure you want to discard this grenade?" :
+                    "Are you sure you want to discard your changes?";
+            builder.setMessage(message)
                     .setPositiveButton("Keep editing", (dialog, which) -> dialog.dismiss())
                     .setNegativeButton("Discard", ((dialog, which) -> super.onBackPressed()));
             builder.show();
@@ -276,8 +282,11 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
         final UtilityGrenade utilityGrenade = validate();
         if(utilityGrenade != null)
         {
-            List<String> copiedIds = new ArrayList<>();
-            for(Uri uri : mImageList)
+            ArrayList<String> copiedIds = mIsInEditMode ?
+                    new ArrayList<>(mUtilityData.getImageIds()) :
+                    new ArrayList<>();
+
+            for(Uri uri : mNewImageList)
             {
                 try
                 {
@@ -292,8 +301,16 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
             //Update the Ids to point to the new location in the App's memory
             utilityGrenade.setImageIds(copiedIds);
 
-            DbUtils.insertGrenade(mWritableDatabase, utilityGrenade);
+            if(mIsInEditMode)
+            {
+                DbUtils.updateGrenade(mWritableDatabase, utilityGrenade, mUtilityId);
+            }
+            else
+            {
+                DbUtils.insertGrenade(mWritableDatabase, utilityGrenade);
+            }
             finish();
+
         }
     }
 
@@ -311,8 +328,8 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
 
         boolean isJumpthrow = mJumpthrowCheckbox.isChecked();
 
-        String title = mTitleEditText.getText().toString();
-        String description = mDescriptionEditText.getText().toString();
+        String title = mTitleEditText.getText().toString().replaceAll("^\\s+|\\s+$", "");
+        String description = mDescriptionEditText.getText().toString().replaceAll("^\\s+|\\s+$", "");
 
         if(title.length() == 0)
         {
@@ -419,7 +436,7 @@ public class AddNadeActivity extends AppCompatActivity implements TagAdapter.Tag
             }
             else
             {
-                Toast.makeText(AddNadeActivity.this, String.format(Locale.getDefault(), "You can have at most %d images", MAX_IMAGE_COUNT), Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddEditNadeActivity.this, String.format(Locale.getDefault(), "You can have at most %d images", MAX_IMAGE_COUNT), Toast.LENGTH_SHORT).show();
             }
         }
     }

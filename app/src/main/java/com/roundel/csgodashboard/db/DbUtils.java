@@ -72,6 +72,25 @@ public class DbUtils
 
     public static long insertGrenade(SQLiteDatabase db, UtilityGrenade utilityGrenade)
     {
+        return db.insert(
+                UtilityGrenade.TABLE_NAME,
+                null,
+                contentValuesFromGrenade(db, utilityGrenade)
+        );
+    }
+
+    public static long updateGrenade(SQLiteDatabase db, UtilityGrenade utilityGrenade, long id)
+    {
+        return db.update(
+                UtilityGrenade.TABLE_NAME,
+                contentValuesFromGrenade(db, utilityGrenade),
+                UtilityGrenade._ID + " = ?",
+                new String[]{String.valueOf(id)}
+        );
+    }
+
+    private static ContentValues contentValuesFromGrenade(SQLiteDatabase db, UtilityGrenade utilityGrenade)
+    {
         ContentValues values = new ContentValues(8);
 
         HashSet<Long> tagIds = insertTags(db, utilityGrenade.getTags());
@@ -85,7 +104,7 @@ public class DbUtils
         values.put(UtilityGrenade.COLUMN_NAME_TYPE, utilityGrenade.getGrenadeId());
         values.put(UtilityGrenade.COLUMN_NAME_TAG_IDS, joinTagIds(tagIds));
 
-        return db.insert(UtilityGrenade.TABLE_NAME, null, values);
+        return values;
     }
     //</editor-fold>
 

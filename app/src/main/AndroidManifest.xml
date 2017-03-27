@@ -33,7 +33,7 @@
         <activity android:name=".ui.activity.LogActivity">
         </activity>
         <activity
-            android:name=".ui.activity.AddNadeActivity"
+            android:name=".ui.activity.AddEditNadeActivity"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity android:name=".ui.activity.ViewNadeActivity">

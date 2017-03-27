@@ -16,7 +16,7 @@ import com.roundel.csgodashboard.adapter.recyclerview.UtilityGrenadeAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.utility.FilterGrenade;
-import com.roundel.csgodashboard.ui.activity.AddNadeActivity;
+import com.roundel.csgodashboard.ui.activity.ViewNadeActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -98,24 +98,8 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
 
     private void viewNade(int position)
     {
-        //Prepare the intent
-        Intent intent = new Intent(getContext(), AddNadeActivity.class);
-        intent.setAction(Intent.ACTION_EDIT);
-        intent.putExtra(AddNadeActivity.EXTRA_GRENADE_ID, (int) mAdapter.getItemId(position));
-
-        //Change window transitions
-
-        //Set transition options
-       /* final View child = mRecyclerView.getChildAt(position);
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                getActivity(),
-                Pair.create(
-                        child.findViewById(R.id.utility_grenade_map_img),
-                        getString(R.string.transition_utility_grenade_map_img)
-                )
-        );
-
-        ActivityCompat.startActivity(getContext(), intent, options.toBundle());*/
+        Intent intent = new Intent(getContext(), ViewNadeActivity.class);
+        intent.putExtra(ViewNadeActivity.EXTRA_GRENADE_ID, (int) mAdapter.getItemId(position));
 
         startActivity(intent);
     }

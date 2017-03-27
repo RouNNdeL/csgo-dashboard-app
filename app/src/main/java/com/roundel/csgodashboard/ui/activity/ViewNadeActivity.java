@@ -5,8 +5,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -22,7 +27,6 @@ import com.roundel.csgodashboard.entities.utility.Stance;
 import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 import com.roundel.csgodashboard.util.ListUtils;
-import com.roundel.csgodashboard.view.CircleRectView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
@@ -34,10 +38,12 @@ import butterknife.OnClick;
 
 public class ViewNadeActivity extends AppCompatActivity
 {
+    private static final String TAG = ViewNadeActivity.class.getSimpleName();
+
     public static final String EXTRA_GRENADE_ID = "com.roundel.csgodashboard.extra.GRENADE_ID";
 
     //<editor-fold desc="private variables">
-    @BindView(R.id.view_nade_backdrop) CircleRectView mBackdrop;
+    @BindView(R.id.view_nade_backdrop) ImageView mBackdrop;
     @BindView(R.id.view_nade_appbar) AppBarLayout mAppbar;
     @BindView(R.id.view_nade_map) TextView mMap;
     @BindView(R.id.view_nade_grenade_icon) ImageView mGrenadeIcon;
@@ -49,6 +55,8 @@ public class ViewNadeActivity extends AppCompatActivity
     @BindView(R.id.view_nade_jumpthrow) RelativeLayout mJumpthrow;
     @BindView(R.id.view_nade_root) NestedScrollView mCoordinatorLayout;
     @BindView(R.id.view_nade_tag_header) TextView mTagHeader;
+    @BindView(R.id.view_nade_collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
+    @BindView(R.id.view_nade_toolbar) Toolbar mToolbar;
 
     private TagAdapter mTagAdapter;
 
@@ -56,6 +64,7 @@ public class ViewNadeActivity extends AppCompatActivity
     private SQLiteDatabase mReadableDatabase;
     private UtilityGrenade mUtilityData;
     private Tags mTags;
+    private int mUtilityId;
     //</editor-fold>
 
     @Override
@@ -75,17 +84,57 @@ public class ViewNadeActivity extends AppCompatActivity
 
         ButterKnife.bind(this);
 
+        setSupportActionBar(mToolbar);
+
         Intent intent = getIntent();
-        int utilityId = intent.getIntExtra(EXTRA_GRENADE_ID, -1);
+        mUtilityId = intent.getIntExtra(EXTRA_GRENADE_ID, -1);
 
         mDbHelper = new DbHelper(this);
         mReadableDatabase = mDbHelper.getReadableDatabase();
+    }
 
-        mUtilityData = DbUtils.queryGrenadeById(mReadableDatabase, utilityId);
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        mUtilityData = DbUtils.queryGrenadeById(mReadableDatabase, mUtilityId);
         if(mUtilityData == null)
             throw new RuntimeException("You need to provide a valid utility_grenade_id in integer extra " + EXTRA_GRENADE_ID);
 
         fillActivity();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = new MenuInflater(this);
+        inflater.inflate(R.menu.menu_view_nade, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case R.id.menu_view_nade_edit:
+            {
+                Intent intent = new Intent(ViewNadeActivity.this, AddEditNadeActivity.class);
+                intent.setAction(Intent.ACTION_EDIT);
+                intent.putExtra(AddEditNadeActivity.EXTRA_GRENADE_ID, mUtilityId);
+                startActivity(intent);
+            }
+            case R.id.menu_view_nade_delete:
+            {
+                //TODO: Add deletion
+            }
+            case R.id.menu_view_nade_share:
+            {
+                //TODO: Add sharing
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -97,10 +146,7 @@ public class ViewNadeActivity extends AppCompatActivity
         final Stance stance = Stance.fromType(mUtilityData.getStance(), this);
         final Grenade grenade = Grenade.fromType(mUtilityData.getGrenadeId(), this);
 
-        if(getSupportActionBar() != null)
-        {
-            getSupportActionBar().setTitle(mUtilityData.getTitle());
-        }
+        mCollapsingToolbar.setTitle(mUtilityData.getTitle());
 
         mMap.setText(map.getName());
         mStance.setText(stance.getTitle());
@@ -113,6 +159,8 @@ public class ViewNadeActivity extends AppCompatActivity
         final Tags tags = mUtilityData.getTags();
         if(tags.size() > 0)
         {
+            mTagContainer.setVisibility(View.VISIBLE);
+            mTagHeader.setVisibility(View.VISIBLE);
             mTagAdapter = new TagAdapter(tags, this);
             mTagContainer.setAdapter(mTagAdapter);
         }

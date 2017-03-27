@@ -219,7 +219,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             }
             case R.id.testAddNade:
             {
-                Intent intent = new Intent(GameInfoActivity.this, AddNadeActivity.class);
+                Intent intent = new Intent(GameInfoActivity.this, AddEditNadeActivity.class);
                 startActivity(intent);
                 break;
             }
