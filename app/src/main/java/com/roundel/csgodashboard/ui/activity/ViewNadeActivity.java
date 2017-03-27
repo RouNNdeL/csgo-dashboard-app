@@ -67,32 +67,18 @@ public class ViewNadeActivity extends AppCompatActivity
     //TODO: Find a View that this listener should be attached to
     private final View.OnClickListener mOnBackdropClickListener = (v) ->
     {
-        final Intent intent = new Intent(ViewNadeActivity.this, GalleryActivity.class);
-        intent.putExtra(GalleryActivity.EXTRA_PHOTO_URIS, ListUtils.join(mUtilityData.getImgUris(this)));
-        startActivity(intent);
+        startNadeActivity();
     };
     private int mUtilityId;
     private final View.OnClickListener mOnFabClickListener = v ->
     {
-        Intent intent = new Intent(ViewNadeActivity.this, AddEditNadeActivity.class);
-        intent.setAction(Intent.ACTION_EDIT);
-        intent.putExtra(AddEditNadeActivity.EXTRA_GRENADE_ID, mUtilityId);
-        startActivity(intent);
+        startEditNadeActivity();
     };
     //</editor-fold>
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            CircleToRectTransition transition = new CircleToRectTransition();
-            transition.setDuration(500);
-            transition.addTarget(R.id.utility_grenade_map_img);
-            transition.addTarget(R.id.view_nade_backdrop);
-            getWindow().setSharedElementEnterTransition(transition);
-            getWindow().setSharedElementExitTransition(transition);
-        }*/
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_nade);
 
@@ -183,5 +169,20 @@ public class ViewNadeActivity extends AppCompatActivity
         final List<Uri> imgUris = mUtilityData.getImgUris(this);
         if(imgUris.size() > 0)
             Glide.with(this).load(imgUris.get(0)).into(mBackdrop);
+    }
+
+    private void startEditNadeActivity()
+    {
+        Intent intent = new Intent(ViewNadeActivity.this, AddEditNadeActivity.class);
+        intent.setAction(Intent.ACTION_EDIT);
+        intent.putExtra(AddEditNadeActivity.EXTRA_GRENADE_ID, mUtilityId);
+        startActivity(intent);
+    }
+
+    private void startNadeActivity()
+    {
+        final Intent intent = new Intent(ViewNadeActivity.this, GalleryActivity.class);
+        intent.putExtra(GalleryActivity.EXTRA_PHOTO_URIS, ListUtils.join(mUtilityData.getImgUris(this)));
+        startActivity(intent);
     }
 }
