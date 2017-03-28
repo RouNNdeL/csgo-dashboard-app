@@ -58,6 +58,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.roundel.csgodashboard.ui.activity.ViewNadeActivity"/>
         </activity>
+        <activity
+            android:name=".ui.activity.SnackbarTestActivity"
+            android:label="@string/title_activity_snackbar_test"
+            android:parentActivityName=".ui.activity.GameInfoActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.roundel.csgodashboard.ui.activity.GameInfoActivity"/>
+        </activity>
     </application>
 
 </manifest>

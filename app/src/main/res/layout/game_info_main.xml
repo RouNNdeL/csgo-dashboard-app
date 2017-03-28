@@ -433,10 +433,10 @@
         android:text="Test intro"/>
 
     <Button
-        android:id="@+id/testBomb"
+        android:id="@+id/testSnackbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Plant the bomb"/>
+        android:text="test snackbar"/>
 
     <Button
         android:id="@+id/testBombD"

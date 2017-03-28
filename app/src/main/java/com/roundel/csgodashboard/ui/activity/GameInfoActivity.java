@@ -141,7 +141,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
         this.serverThread.start();*/
 
         findViewById(R.id.testButton).setOnClickListener(this);
-        findViewById(R.id.testBomb).setOnClickListener(this);
+        findViewById(R.id.testSnackbar).setOnClickListener(this);
         findViewById(R.id.testBombD).setOnClickListener(this);
         findViewById(R.id.viewLogs).setOnClickListener(this);
         findViewById(R.id.testAddNade).setOnClickListener(this);
@@ -197,9 +197,9 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(intent);
                 break;
             }
-            case R.id.testBomb:
+            case R.id.testSnackbar:
             {
-                plantBomb(System.currentTimeMillis());
+                startActivity(new Intent(GameInfoActivity.this, SnackbarTestActivity.class));
                 break;
             }
             case R.id.testBombD:
