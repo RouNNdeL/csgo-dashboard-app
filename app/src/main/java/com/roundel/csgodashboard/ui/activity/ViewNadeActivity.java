@@ -26,6 +26,7 @@ import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Stance;
 import com.roundel.csgodashboard.entities.utility.Tags;
+import com.roundel.csgodashboard.entities.utility.Utilities;
 import com.roundel.csgodashboard.entities.utility.UtilityGrenade;
 import com.roundel.csgodashboard.util.ListUtils;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
@@ -123,6 +124,11 @@ public class ViewNadeActivity extends AppCompatActivity
             case R.id.menu_view_nade_delete:
             {
                 //TODO: Add deletion
+                Intent resultIntent = new Intent(UtilityActivity.ACTION_DELETE_UTILITY);
+                resultIntent.putExtra(UtilityActivity.EXTRA_UTILITY_TYPE, Utilities.TYPE_GRENADE);
+                resultIntent.putExtra(UtilityActivity.EXTRA_UTILITY_ID, mUtilityId);
+                setResult(UtilityActivity.RESULT_OK, resultIntent);
+                finishAfterTransition();
             }
             case R.id.menu_view_nade_share:
             {

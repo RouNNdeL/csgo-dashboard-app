@@ -23,6 +23,9 @@ public class Utilities extends ArrayList<UtilityBase>
 {
     private static final String TAG = Utilities.class.getSimpleName();
 
+    public static final int TYPE_GRENADE = 300;
+    public static final int TYPE_BOOST = 301;
+
     public static final String IMAGE_FOLDER_NAME = "utilities";
     private static final int BUFFER_SIZE = 1024;
     private static final String FILE_NAME = "utilities.dat";

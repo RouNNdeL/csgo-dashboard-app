@@ -5,8 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.internal.SnackbarContentLayout;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,14 +20,15 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 import com.roundel.csgodashboard.R;
 import com.roundel.csgodashboard.adapter.spinner.AnyGrenadeAdapter;
 import com.roundel.csgodashboard.adapter.spinner.AnyMapAdapter;
@@ -35,17 +38,31 @@ import com.roundel.csgodashboard.entities.Map;
 import com.roundel.csgodashboard.entities.utility.FilterGrenade;
 import com.roundel.csgodashboard.entities.utility.Grenade;
 import com.roundel.csgodashboard.entities.utility.Tags;
+import com.roundel.csgodashboard.entities.utility.Utilities;
+import com.roundel.csgodashboard.ui.OnViewUtilityListener;
 import com.roundel.csgodashboard.ui.fragment.UtilityGrenadeFragment;
+import com.roundel.csgodashboard.util.LogHelper;
+import com.roundel.csgodashboard.view.FloatingActionMenu;
 import com.roundel.csgodashboard.view.OverlayView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
 import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
+import java.util.Objects;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class UtilityActivity extends AppCompatActivity implements SearchView.OnQueryTextListener
+public class UtilityActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, OnViewUtilityListener
 {
     private static final String TAG = UtilityActivity.class.getSimpleName();
+
+    public static final String ACTION_DELETE_UTILITY = "com.roundel.csgodashboard.action.DELETE_UTILITY";
+    public static final String EXTRA_UTILITY_TYPE = "com.roundel.csgodashboard.extra.UTILITY_TYPE";
+    public static final String EXTRA_UTILITY_ID = "com.roundel.csgodashboard.extra.UTILITY_ID";
+
+    public static final int RESULT_DELETE_UTILITY = 2;
+
+    private static final int VIEW_NADE_REQUEST_CODE = 62312;
 
     //<editor-fold desc="private variables">
     @BindView(R.id.utility_toolbar) Toolbar mToolbar;
@@ -93,6 +110,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         mReadableDatabase = new DbHelper(this).getReadableDatabase();
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter.setOnViewUtilityListener(this);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         mFabMenu.setOnMenuToggleListener((boolean opened) -> mOverlay.setInterceptEvents(opened));
@@ -171,13 +189,51 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         return false;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == VIEW_NADE_REQUEST_CODE && resultCode == RESULT_OK)
+        {
+            final int type = data.getIntExtra(EXTRA_UTILITY_TYPE, -1);
+            if(type == Utilities.TYPE_GRENADE)
+            {
+                deleteUtilityGrenade(data);
+            }
+            else if(type == Utilities.TYPE_BOOST)
+            {
+                //TOOD: Add boost
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid utility type " + type);
+            }
+        }
+    }
+
+    @Override
+    public void onViewGrenade(long id)
+    {
+        Intent intent = new Intent(UtilityActivity.this, ViewNadeActivity.class);
+        intent.putExtra(ViewNadeActivity.EXTRA_GRENADE_ID, (int) id);
+
+        startActivityForResult(intent, VIEW_NADE_REQUEST_CODE);
+    }
+
+    @Override
+    public void onViewBoost(long id)
+    {
+
+    }
+
     private void showGrenadeFilterDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(R.layout.dialog_filter_grenade);
         builder.setPositiveButton("Ok", (dialog, which) -> filterGrenade())
                 .setNegativeButton("Cancel", (dialog, which) ->
-                {})
+                {
+                })
                 .setTitle("Search filter");
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -254,6 +310,41 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         mSectionsPagerAdapter.mUtilityGrenadeFragment.updateData(mGrenadeFilter);
     }
 
+    private void deleteUtilityGrenade(Intent intent)
+    {
+        if(Objects.equals(ACTION_DELETE_UTILITY, intent.getAction()))
+        {
+            final int type = intent.getIntExtra(EXTRA_UTILITY_TYPE, -1);
+            final int id = intent.getIntExtra(EXTRA_UTILITY_ID, -1);
+            if(type == -1 || id == -1)
+                throw new IllegalArgumentException("You need to provide a valid type and id for the utility to be deleted");
+
+            final boolean[] delete = {true};
+            Snackbar snackbar = Snackbar.make(mCoordinatorLayout, "1 deleted", Snackbar.LENGTH_LONG)
+                    .setAction("Undo", v -> delete[0] = false)
+                    .addCallback(new Snackbar.Callback()
+                    {
+                        @Override
+                        public void onDismissed(Snackbar transientBottomBar, int event)
+                        {
+                            super.onDismissed(transientBottomBar, event);
+                            if(delete[0])
+                            {
+                                LogHelper.d(TAG, "Removed utility wth id:" + id);
+                                //TODO: Delete the Utility
+                            }
+                        }
+                    });
+            View view = snackbar.getView();
+            TextView action = (TextView) view.findViewById(android.support.design.R.id.snackbar_action);
+            SnackbarContentLayout.LayoutParams layoutParams = (SnackbarContentLayout.LayoutParams) action.getLayoutParams();
+            layoutParams.gravity = Gravity.END | Gravity.CENTER_VERTICAL | Gravity.RIGHT;
+            action.setLayoutParams(layoutParams);
+
+            snackbar.show();
+        }
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one of the
      * sections/tabs/pages.
@@ -262,6 +353,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     {
         //<editor-fold desc="private variables">
         private UtilityGrenadeFragment mUtilityGrenadeFragment;
+        private OnViewUtilityListener mOnViewUtilityListener;
         //</editor-fold>
 
         public SectionsPagerAdapter(FragmentManager fm)
@@ -273,7 +365,11 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         public Fragment getItem(int position)
         {
             if(position == 0)
-                return mUtilityGrenadeFragment = UtilityGrenadeFragment.newInstance();
+            {
+                mUtilityGrenadeFragment = UtilityGrenadeFragment.newInstance();
+                mUtilityGrenadeFragment.attachViewUtilityListener(mOnViewUtilityListener);
+                return mUtilityGrenadeFragment;
+            }
             else
                 return null;
         }
@@ -295,6 +391,11 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
                     return "Boosts";
             }
             return null;
+        }
+
+        public void setOnViewUtilityListener(OnViewUtilityListener onViewUtilityListener)
+        {
+            mOnViewUtilityListener = onViewUtilityListener;
         }
     }
 }

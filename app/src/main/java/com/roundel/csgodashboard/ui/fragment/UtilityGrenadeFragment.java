@@ -1,6 +1,5 @@
 package com.roundel.csgodashboard.ui.fragment;
 
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,7 +15,7 @@ import com.roundel.csgodashboard.adapter.recyclerview.UtilityGrenadeAdapter;
 import com.roundel.csgodashboard.db.DbHelper;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.utility.FilterGrenade;
-import com.roundel.csgodashboard.ui.activity.ViewNadeActivity;
+import com.roundel.csgodashboard.ui.OnViewUtilityListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,7 +27,6 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
 {
     private static final String TAG = UtilityGrenadeFragment.class.getSimpleName();
 
-    //<editor-fold desc="private variables">
     @BindView(R.id.fragment_utility_grenade_recycler_view) RecyclerView mRecyclerView;
 
     private UtilityGrenadeAdapter mAdapter;
@@ -36,7 +34,8 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
 
     private DbHelper mDbHelper;
     private SQLiteDatabase mReadableDataBase;
-    //</editor-fold>
+
+    private OnViewUtilityListener mOnViewUtilityListenerListener;
 
     public UtilityGrenadeFragment()
     {
@@ -85,6 +84,11 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
         viewNade(position);
     }
 
+    public void attachViewUtilityListener(OnViewUtilityListener listener)
+    {
+        this.mOnViewUtilityListenerListener = listener;
+    }
+
     public void updateData(FilterGrenade newFilter)
     {
         DbUtils.Query query = DbUtils.buildQueryFromGrenadeFilter(mReadableDataBase, newFilter);
@@ -98,9 +102,7 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
 
     private void viewNade(int position)
     {
-        Intent intent = new Intent(getContext(), ViewNadeActivity.class);
-        intent.putExtra(ViewNadeActivity.EXTRA_GRENADE_ID, (int) mAdapter.getItemId(position));
-
-        startActivity(intent);
+        if(mOnViewUtilityListenerListener != null)
+            mOnViewUtilityListenerListener.onViewGrenade(mAdapter.getItemId(position));
     }
 }
