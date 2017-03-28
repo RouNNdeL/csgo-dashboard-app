@@ -656,7 +656,8 @@ public class DbUtils
                 }
             }
 
-            builder.setLength(builder.length() - delimiter.length());
+            if(builder.length() - delimiter.length() >= 0)
+                builder.setLength(builder.length() - delimiter.length());
             return builder.toString();
         }
     }
