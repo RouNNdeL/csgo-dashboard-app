@@ -123,7 +123,6 @@ public class ViewNadeActivity extends AppCompatActivity
         {
             case R.id.menu_view_nade_delete:
             {
-                //TODO: Add deletion
                 Intent resultIntent = new Intent(UtilityActivity.ACTION_DELETE_UTILITY);
                 resultIntent.putExtra(UtilityActivity.EXTRA_UTILITY_TYPE, Utilities.TYPE_GRENADE);
                 resultIntent.putExtra(UtilityActivity.EXTRA_UTILITY_ID, mUtilityId);

@@ -171,6 +171,21 @@ public class UtilityGrenadeAdapter extends CursorRecyclerViewAdapter<UtilityGren
         return new ViewHolder(view);
     }
 
+    public int getItemPosition(long id)
+    {
+        for(int i = 0; i < getCount(); i++)
+        {
+            if(getItemId(i) == id)
+                return i;
+        }
+        return -1;
+    }
+
+    private int getCount()
+    {
+        return getCursor().getCount();
+    }
+
     public void swapData(Cursor utilityCursor, LongSparseArray<String> tagArray)
     {
         mTagArray = tagArray;

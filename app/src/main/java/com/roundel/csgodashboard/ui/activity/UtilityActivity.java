@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.internal.SnackbarContentLayout;
+import android.support.annotation.Px;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
@@ -20,13 +20,17 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.roundel.csgodashboard.R;
@@ -42,6 +46,7 @@ import com.roundel.csgodashboard.entities.utility.Utilities;
 import com.roundel.csgodashboard.ui.OnViewUtilityListener;
 import com.roundel.csgodashboard.ui.fragment.UtilityGrenadeFragment;
 import com.roundel.csgodashboard.util.LogHelper;
+import com.roundel.csgodashboard.view.DisableSwipeBehavior;
 import com.roundel.csgodashboard.view.FloatingActionMenu;
 import com.roundel.csgodashboard.view.OverlayView;
 import com.roundel.csgodashboard.view.taglayout.TagAdapter;
@@ -49,6 +54,7 @@ import com.roundel.csgodashboard.view.taglayout.TagLayout;
 
 import java.util.Objects;
 
+import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -74,6 +80,11 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     @BindView(R.id.utility_fab_boost) FloatingActionButton mFabBoost;
     @BindView(R.id.utility_coordinator) CoordinatorLayout mCoordinatorLayout;
     @BindView(R.id.utility_overlay) OverlayView mOverlay;
+
+    @BindDimen(R.dimen.snackbar_margin_start) int mSnackBarMarginStart;
+    @BindDimen(R.dimen.snackbar_margin_top) int mSnackBarMarginTop;
+    @BindDimen(R.dimen.snackbar_margin_end) int mSnackBarMarginEnd;
+    @BindDimen(R.dimen.snackbar_margin_bottom) int mSnackBarMarginBottom;
 
     //Filter dialog Views and Adpaters
     private Spinner mMapSpinner;
@@ -198,7 +209,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
             final int type = data.getIntExtra(EXTRA_UTILITY_TYPE, -1);
             if(type == Utilities.TYPE_GRENADE)
             {
-                deleteUtilityGrenade(data);
+                onDeleteUtilityGrenade(data);
             }
             else if(type == Utilities.TYPE_BOOST)
             {
@@ -310,7 +321,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
         mSectionsPagerAdapter.mUtilityGrenadeFragment.updateData(mGrenadeFilter);
     }
 
-    private void deleteUtilityGrenade(Intent intent)
+    private void onDeleteUtilityGrenade(Intent intent)
     {
         if(Objects.equals(ACTION_DELETE_UTILITY, intent.getAction()))
         {
@@ -318,6 +329,8 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
             final int id = intent.getIntExtra(EXTRA_UTILITY_ID, -1);
             if(type == -1 || id == -1)
                 throw new IllegalArgumentException("You need to provide a valid type and id for the utility to be deleted");
+
+            mSectionsPagerAdapter.mUtilityGrenadeFragment.hideRow(id);
 
             final boolean[] delete = {true};
             Snackbar snackbar = Snackbar.make(mCoordinatorLayout, "1 deleted", Snackbar.LENGTH_LONG)
@@ -331,16 +344,60 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
                             if(delete[0])
                             {
                                 LogHelper.d(TAG, "Removed utility wth id:" + id);
-                                //TODO: Delete the Utility
+                                //DbUtils.deleteGrenade(mReadableDatabase, id);
                             }
                         }
                     });
-            View view = snackbar.getView();
-            TextView action = (TextView) view.findViewById(android.support.design.R.id.snackbar_action);
-            SnackbarContentLayout.LayoutParams layoutParams = (SnackbarContentLayout.LayoutParams) action.getLayoutParams();
-            layoutParams.gravity = Gravity.END | Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-            action.setLayoutParams(layoutParams);
 
+            if(getResources().getBoolean(R.bool.isTablet))
+            {
+                View snackbarView = snackbar.getView();
+                Button action = (Button) snackbarView.findViewById(android.support.design.R.id.snackbar_action);
+                LinearLayout.LayoutParams actionLayoutParams = (LinearLayout.LayoutParams) action.getLayoutParams();
+                actionLayoutParams.gravity = Gravity.END;
+                action.setLayoutParams(actionLayoutParams);
+
+                CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) snackbarView.getLayoutParams();
+                layoutParams.gravity = Gravity.START | Gravity.BOTTOM;
+                layoutParams.setMargins(mSnackBarMarginStart, mSnackBarMarginTop, mSnackBarMarginEnd, mSnackBarMarginBottom);
+                layoutParams.setMarginStart(mSnackBarMarginStart);
+                layoutParams.setMarginEnd(mSnackBarMarginEnd);
+                snackbarView.setLayoutParams(layoutParams);
+            }
+
+            showSnackBar(snackbar, true);
+        }
+    }
+
+    @Px
+    private int dp2px(int dp)
+    {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
+    private void showSnackBar(Snackbar snackbar, boolean disableSwipe)
+    {
+        if(disableSwipe)
+        {
+            Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) snackbar.getView();
+            snackbar.show();
+            layout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
+            {
+                @Override
+                public void onGlobalLayout()
+                {
+                    ViewGroup.LayoutParams lp = layout.getLayoutParams();
+                    if(lp instanceof CoordinatorLayout.LayoutParams)
+                    {
+                        ((CoordinatorLayout.LayoutParams) lp).setBehavior(new DisableSwipeBehavior());
+                        layout.setLayoutParams(lp);
+                    }
+                    layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            });
+        }
+        else
+        {
             snackbar.show();
         }
     }

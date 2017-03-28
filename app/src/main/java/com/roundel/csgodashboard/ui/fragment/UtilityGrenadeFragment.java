@@ -105,4 +105,10 @@ public class UtilityGrenadeFragment extends Fragment implements View.OnClickList
         if(mOnViewUtilityListenerListener != null)
             mOnViewUtilityListenerListener.onViewGrenade(mAdapter.getItemId(position));
     }
+
+    public void hideRow(long id)
+    {
+        int position = mAdapter.getItemPosition(id);
+        mAdapter.notifyItemRemoved(position);
+    }
 }

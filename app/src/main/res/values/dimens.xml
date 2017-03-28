@@ -24,4 +24,8 @@
     <dimen name="span_text_padding">0dp</dimen>
     <dimen name="appbar_height_view_nade">250dp</dimen>
     <dimen name="appbar_height_game_info">300dp</dimen>
+    <dimen name="snackbar_margin_start">8dp</dimen>
+    <dimen name="snackbar_margin_bottom">8dp</dimen>
+    <dimen name="snackbar_margin_end">8dp</dimen>
+    <dimen name="snackbar_margin_top">8dp</dimen>
 </resources>
