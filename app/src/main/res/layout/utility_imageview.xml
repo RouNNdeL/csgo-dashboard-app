@@ -6,7 +6,7 @@
     android:layout_height="128dp"
     android:padding="@dimen/utlity_imageview_add_photo_padding"
     android:scaleType="centerCrop"
-    android:src="@drawable/ic_add_a_photo_white_24dp"
+    android:src="@drawable/ic_photo_white_24dp"
     android:tint="@color/colorMaterialLight54">
 
 </com.roundel.csgodashboard.view.SquareImageView>

@@ -128,7 +128,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game_info);
 
         ButterKnife.bind(this);
 

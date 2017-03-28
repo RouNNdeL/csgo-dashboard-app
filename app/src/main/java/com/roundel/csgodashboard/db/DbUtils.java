@@ -89,6 +89,15 @@ public class DbUtils
         );
     }
 
+    public static long deleteGrenade(SQLiteDatabase db, long id)
+    {
+        return db.delete(
+                UtilityGrenade.TABLE_NAME,
+                UtilityGrenade._ID + " = ?",
+                new String[]{String.valueOf(id)}
+        );
+    }
+
     private static ContentValues contentValuesFromGrenade(SQLiteDatabase db, UtilityGrenade utilityGrenade)
     {
         ContentValues values = new ContentValues(8);

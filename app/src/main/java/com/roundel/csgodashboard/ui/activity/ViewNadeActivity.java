@@ -87,7 +87,6 @@ public class ViewNadeActivity extends AppCompatActivity
 
         mBackdrop.setOnClickListener(mOnBackdropClickListener);
         mFab.setOnClickListener(mOnFabClickListener);
-        //TODO: Show the edit MenuItem when the AppBAr is collapsed
 
         Intent intent = getIntent();
         mUtilityId = intent.getIntExtra(EXTRA_GRENADE_ID, -1);

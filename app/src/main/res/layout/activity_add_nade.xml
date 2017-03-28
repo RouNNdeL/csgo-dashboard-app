@@ -79,7 +79,8 @@
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/add_nade_title_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp">
 
                     <android.support.design.widget.TextInputEditText
                         android:id="@+id/add_nade_title"
@@ -112,7 +113,8 @@
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/add_nade_description_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp">
 
                     <android.support.design.widget.TextInputEditText
                         android:id="@+id/add_nade_description"

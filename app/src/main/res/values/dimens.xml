@@ -22,4 +22,6 @@
     <dimen name="tag_corner_radius">18dp</dimen>
     <dimen name="span_corner_radius">2dp</dimen>
     <dimen name="span_text_padding">0dp</dimen>
+    <dimen name="appbar_height_view_nade">250dp</dimen>
+    <dimen name="appbar_height_game_info">300dp</dimen>
 </resources>
