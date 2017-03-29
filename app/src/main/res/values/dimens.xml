@@ -10,7 +10,7 @@
     <dimen name="game_info_stats_gap">6dp</dimen>
     <dimen name="utility_tag_icon_size">16dp</dimen>
     <dimen name="tag_icon_margin_start">4dp</dimen>
-    <dimen name="utlity_imageview_add_photo_padding">32dp</dimen>
+    <dimen name="utility_imageview_add_photo_padding">32dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
     <dimen name="tag_stroke_width" format="float" grenadeId="dimen">1.5dp</dimen>
@@ -28,4 +28,5 @@
     <dimen name="snackbar_margin_bottom">8dp</dimen>
     <dimen name="snackbar_margin_end">8dp</dimen>
     <dimen name="snackbar_margin_top">8dp</dimen>
+    <dimen name="utility_image_size">128dp</dimen>
 </resources>

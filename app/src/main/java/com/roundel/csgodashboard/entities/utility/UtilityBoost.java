@@ -4,7 +4,7 @@ import android.provider.BaseColumns;
 
 import com.roundel.csgodashboard.entities.Map;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by Krzysiek on 2017-02-10.
@@ -28,7 +28,7 @@ public class UtilityBoost extends UtilityBase implements BaseColumns
     private boolean isRunBoost;
     //</editor-fold>
 
-    public UtilityBoost(List<String> imgIds, Tags tags, Map map, String title, String description, int numberOfTeamMates, boolean isRunBoost)
+    public UtilityBoost(ArrayList<String> imgIds, Tags tags, Map map, String title, String description, int numberOfTeamMates, boolean isRunBoost)
     {
         super(imgIds, tags, map, title, description);
         this.numberOfTeamMates = numberOfTeamMates;

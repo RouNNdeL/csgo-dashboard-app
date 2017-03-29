@@ -7,6 +7,7 @@ import android.os.Build;
 import com.roundel.csgodashboard.entities.Map;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ public class UtilityBase
     private static final String TAG = UtilityBase.class.getSimpleName();
 
     //<editor-fold desc="private variables">
-    private List<String> imageIds;
+    private ArrayList<String> imageIds;
     private Tags tags;
 
     private Map map;
@@ -26,7 +27,7 @@ public class UtilityBase
     private String description;
     //</editor-fold>
 
-    public UtilityBase(List<String> imageIds, Tags tags, Map map, String title, String description)
+    public UtilityBase(ArrayList<String> imageIds, Tags tags, Map map, String title, String description)
     {
         this.imageIds = imageIds;
         this.tags = tags;
@@ -66,9 +67,9 @@ public class UtilityBase
         return imageIds;
     }
 
-    public void setImageIds(List<String> imageUris)
+    public void setImageIds(ArrayList<String> imageIds)
     {
-        this.imageIds = imageUris;
+        this.imageIds = imageIds;
     }
 
     public List<Uri> getImgUris(Context context)
@@ -87,6 +88,23 @@ public class UtilityBase
             }
             return list;
         }
+    }
+
+    private LinkedHashMap<String, String> getImageMap(Context context)
+    {
+        LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
+
+        for(String id : imageIds)
+        {
+            hashMap.put(Uri.parse("file://" + Utilities.getImgPath(context) + id).toString(), id);
+        }
+
+        return hashMap;
+    }
+
+    public boolean removeIdByUri(Uri uri, Context context)
+    {
+        return imageIds.remove(getImageMap(context).get(uri.toString()));
     }
 
     public Tags getTags()

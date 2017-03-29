@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.roundel.csgodashboard.view.SquareImageView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/add_nade_imageview"
-    android:layout_width="128dp"
-    android:layout_height="128dp"
-    android:padding="@dimen/utlity_imageview_add_photo_padding"
-    android:scaleType="centerCrop"
-    android:src="@drawable/ic_photo_white_24dp"
-    android:tint="@color/colorMaterialLight54">
+    android:layout_width="@dimen/utility_image_size"
+    android:layout_height="@dimen/utility_image_size">
 
-</com.roundel.csgodashboard.view.SquareImageView>
+    <com.roundel.csgodashboard.view.SquareImageView
+        android:id="@+id/add_nade_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/utility_imageview_add_photo_padding"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_photo_white_24dp"
+        android:tint="@color/colorMaterialLight54"/>
+
+    <View
+        android:id="@+id/add_nade_image_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorMaterialDark50"
+        android:transitionName="overlay"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/add_nade_image_delete"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_centerInParent="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_close_white_24dp"
+        android:visibility="gone"/>
+</RelativeLayout>

@@ -7,8 +7,8 @@ import android.provider.BaseColumns;
 import com.roundel.csgodashboard.db.DbUtils;
 import com.roundel.csgodashboard.entities.Map;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by Krzysiek on 2017-02-10.
@@ -57,7 +57,7 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
     private boolean isJumpThrow;
     //</editor-fold>
 
-    public UtilityGrenade(List<String> imageIds, Tags tags, Map map, String title, String description, int grenadeId, int stance, boolean isJumpThrow)
+    public UtilityGrenade(ArrayList<String> imageIds, Tags tags, Map map, String title, String description, int grenadeId, int stance, boolean isJumpThrow)
     {
         super(imageIds, tags, map, title, description);
         this.grenadeId = grenadeId;
@@ -68,8 +68,8 @@ public class UtilityGrenade extends UtilityBase implements BaseColumns
     public static UtilityGrenade fromCursor(Cursor cursor)
     {
 
-        final List<String> imgIds = Arrays.asList(DbUtils.splitImgIds(
-                cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_IMG_IDS))
+        final ArrayList<String> imgIds = new ArrayList<>(Arrays.asList(DbUtils.splitImgIds(
+                cursor.getString(cursor.getColumnIndex(UtilityGrenade.COLUMN_NAME_IMG_IDS)))
         ));
         final Map map = new Map(
                 (int) cursor.getLong(cursor.getColumnIndex(Map.TABLE_NAME + "." + Map._ID)),

@@ -57,7 +57,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter.TagActionListener
+public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter.TagActionListener, UtilityImagesAdapter.PhotoActions
 {
     private static final String TAG = AddEditNadeActivity.class.getSimpleName();
 
@@ -66,7 +66,6 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
     private static final int IMAGE_REQUEST_CODE = 1237;
     private static final int MAX_IMAGE_COUNT = 500;
 
-    //<editor-fold desc="private variables">
     @BindView(R.id.add_nade_toolbar) Toolbar mToolbar;
     @BindView(R.id.add_nade_spinner_grenade) Spinner mGrenadeSpinner;
     @BindView(R.id.add_nade_spinner_stance) Spinner mStanceSpinner;
@@ -78,7 +77,6 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
     @BindView(R.id.add_nade_description) TextInputEditText mDescriptionEditText;
     @BindView(R.id.add_nade_description_container) TextInputLayout mDescriptionContainer;
     @BindView(R.id.add_nade_checkbox_jumpthrow) CheckBox mJumpthrowCheckbox;
-
     @BindInt(R.integer.tag_add_transition_duration) int mTagAddTransitionDuration;
     @BindInt(R.integer.tag_remove_transition_duration) int mTagRemoveTransitionDuration;
 
@@ -86,27 +84,20 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
     private GrenadeAdapter mGrenadeAdapter;
     private UtilityImagesAdapter mImageAdapter;
     private TagAdapter mTagAdapter;
-
     private LinearLayoutManager mImageLayoutManager;
-
     private List<Stance> mStanceList = new ArrayList<>();
     private List<Grenade> mGrenadeList = new ArrayList<>();
-    private List<Uri> mImageList = new ArrayList<>();
+    private List<Uri> mAllImageList = new ArrayList<>();
     private List<Uri> mNewImageList = new ArrayList<>();
     private Tags mTags = new Tags();
-
     private int mMapCount;
-
     private MapAdapter mMapAdapter;
-
     private boolean mIsInEditMode;
     private UtilityGrenade mUtilityData;
     private int mUtilityId = -1;
-
     private DbHelper mDbHelper;
     private SQLiteDatabase mReadableDatabase;
     private SQLiteDatabase mWritableDatabase;
-    //</editor-fold>
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -154,8 +145,8 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
         mMapSpinner.setAdapter(mMapAdapter);
         mMapSpinner.setOnItemSelectedListener(new OnMapSelectedListener());
 
-        mImageAdapter = new UtilityImagesAdapter(mImageList, this);
-        mImageAdapter.setOnAddPhotoListener(new OnAddPhotoListener());
+        mImageAdapter = new UtilityImagesAdapter(mAllImageList, this);
+        mImageAdapter.setPhotoActionListener(this);
         mImageLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mImageRecyclerView.setAdapter(mImageAdapter);
         mImageRecyclerView.setLayoutManager(mImageLayoutManager);
@@ -201,13 +192,17 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
 
         if(requestCode == IMAGE_REQUEST_CODE && resultCode == RESULT_OK && intent != null && intent.getData() != null)
         {
-
+            if(Objects.equals("image/gif", intent.getType()))
+            {
+                Toast.makeText(AddEditNadeActivity.this, "Gifs are not supported", Toast.LENGTH_LONG).show();
+                return;
+            }
             Uri uri = intent.getData();
 
-            mImageList.add(uri);
+            mAllImageList.add(uri);
             mNewImageList.add(uri);
-            mImageAdapter.notifyDataSetChanged();
-            mImageLayoutManager.scrollToPosition(mImageList.size());
+            mImageAdapter.notifyItemInserted(mAllImageList.size() - 1);
+            mImageLayoutManager.scrollToPosition(mAllImageList.size());
         }
     }
 
@@ -262,6 +257,33 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
         }
     }
 
+    @Override
+    public void onAddPhoto()
+    {
+        if(mAllImageList.size() < MAX_IMAGE_COUNT)
+        {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            String[] mimetypes = {"image/jpeg", "image/jpg", "image/png"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_REQUEST_CODE);
+        }
+        else
+        {
+            Toast.makeText(AddEditNadeActivity.this, String.format(Locale.getDefault(), "You can have at most %d images", MAX_IMAGE_COUNT), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRemovePhoto(int position)
+    {
+        mNewImageList.remove(mAllImageList.get(position));
+        mUtilityData.removeIdByUri(mAllImageList.get(position), this);
+        mAllImageList.remove(position);
+        mImageAdapter.notifyItemRemoved(position);
+    }
+
     private void fillForEdit(UtilityGrenade utilityGrenade)
     {
         mTitleEditText.setText(utilityGrenade.getTitle());
@@ -270,7 +292,7 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
         mGrenadeSpinner.setSelection(mGrenadeAdapter.getItemPosition(utilityGrenade.getGrenadeId()));
         mStanceSpinner.setSelection(mStanceAdapter.getItemPosition(utilityGrenade.getStance()));
         mJumpthrowCheckbox.setChecked(utilityGrenade.isJumpThrow());
-        mImageList.addAll(utilityGrenade.getImgUris(this));
+        mAllImageList.addAll(utilityGrenade.getImgUris(this));
         mTags.addAll(utilityGrenade.getTags());
 
         mTagAdapter.notifyDataSetChanged();
@@ -282,7 +304,7 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
         final UtilityGrenade utilityGrenade = validate();
         if(utilityGrenade != null)
         {
-            ArrayList<String> copiedIds = mIsInEditMode ?
+            ArrayList<String> allIds = mIsInEditMode ?
                     new ArrayList<>(mUtilityData.getImageIds()) :
                     new ArrayList<>();
 
@@ -290,7 +312,7 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
             {
                 try
                 {
-                    copiedIds.add(copyFromUri(uri));
+                    allIds.add(copyFromUri(uri));
                 }
                 catch(IOException e)
                 {
@@ -299,7 +321,7 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
             }
 
             //Update the Ids to point to the new location in the App's memory
-            utilityGrenade.setImageIds(copiedIds);
+            utilityGrenade.setImageIds(allIds);
 
             if(mIsInEditMode)
             {
@@ -342,11 +364,14 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
             mTitleContainer.setErrorEnabled(false);
         }
 
-        if(mImageList.size() == 0)
+        if(mAllImageList.size() == 0)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final String message = mIsInEditMode ?
+                    "You need to chose at least one image to save your grenade" :
+                    "You need to chose at least one image to add your grenade";
             builder.setTitle("Required fields")
-                    .setMessage("You need to chose at least one image to add your grenade")
+                    .setMessage(message)
                     .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
             builder.show();
             valid = false;
@@ -368,7 +393,7 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
     {
         return mTitleEditText.length() > 0 ||
                 mDescriptionEditText.length() > 0 ||
-                mImageList.size() > 0 ||
+                mAllImageList.size() > 0 ||
                 mTags.size() > 0;
     }
 
@@ -426,25 +451,6 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
     void onClick(View v)
     {
         mJumpthrowCheckbox.setChecked(!mJumpthrowCheckbox.isChecked());
-    }
-
-    private class OnAddPhotoListener implements View.OnClickListener
-    {
-        @Override
-        public void onClick(View v)
-        {
-            if(mImageList.size() < MAX_IMAGE_COUNT)
-            {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_REQUEST_CODE);
-            }
-            else
-            {
-                Toast.makeText(AddEditNadeActivity.this, String.format(Locale.getDefault(), "You can have at most %d images", MAX_IMAGE_COUNT), Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     private class OnMapSelectedListener implements AdapterView.OnItemSelectedListener

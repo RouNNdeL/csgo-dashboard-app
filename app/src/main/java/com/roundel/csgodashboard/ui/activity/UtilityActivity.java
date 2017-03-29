@@ -28,8 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.github.clans.fab.FloatingActionButton;
@@ -45,7 +43,6 @@ import com.roundel.csgodashboard.entities.utility.Tags;
 import com.roundel.csgodashboard.entities.utility.Utilities;
 import com.roundel.csgodashboard.ui.OnViewUtilityListener;
 import com.roundel.csgodashboard.ui.fragment.UtilityGrenadeFragment;
-import com.roundel.csgodashboard.util.LogHelper;
 import com.roundel.csgodashboard.view.DisableSwipeBehavior;
 import com.roundel.csgodashboard.view.FloatingActionMenu;
 import com.roundel.csgodashboard.view.OverlayView;
@@ -213,7 +210,7 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
             }
             else if(type == Utilities.TYPE_BOOST)
             {
-                //TOOD: Add boost
+                //TODO: Add boost
             }
             else
             {
@@ -332,30 +329,20 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
 
             mSectionsPagerAdapter.mUtilityGrenadeFragment.hideRow(id);
 
-            final boolean[] delete = {true};
+            //TODO: Mark the record as 'deleted' (first need to add Database support for it)
             Snackbar snackbar = Snackbar.make(mCoordinatorLayout, "1 deleted", Snackbar.LENGTH_LONG)
-                    .setAction("Undo", v -> delete[0] = false)
-                    .addCallback(new Snackbar.Callback()
+                    .setAction("Undo", v ->
                     {
-                        @Override
-                        public void onDismissed(Snackbar transientBottomBar, int event)
-                        {
-                            super.onDismissed(transientBottomBar, event);
-                            if(delete[0])
-                            {
-                                LogHelper.d(TAG, "Removed utility wth id:" + id);
-                                //DbUtils.deleteGrenade(mReadableDatabase, id);
-                            }
-                        }
+                        //TODO: remove the deleted flag from the record
                     });
 
             if(getResources().getBoolean(R.bool.isTablet))
             {
                 View snackbarView = snackbar.getView();
-                Button action = (Button) snackbarView.findViewById(android.support.design.R.id.snackbar_action);
+                /*Button action = (Button) snackbarView.findViewById(android.support.design.R.id.snackbar_action);
                 LinearLayout.LayoutParams actionLayoutParams = (LinearLayout.LayoutParams) action.getLayoutParams();
                 actionLayoutParams.gravity = Gravity.END;
-                action.setLayoutParams(actionLayoutParams);
+                action.setLayoutParams(actionLayoutParams);*/
 
                 CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) snackbarView.getLayoutParams();
                 layoutParams.gravity = Gravity.START | Gravity.BOTTOM;
