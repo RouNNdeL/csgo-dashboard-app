@@ -200,7 +200,10 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
             Uri uri = intent.getData();
 
             mAllImageList.add(uri);
-            mNewImageList.add(uri);
+            if(mIsInEditMode)
+            {
+                mNewImageList.add(uri);
+            }
             mImageAdapter.notifyItemInserted(mAllImageList.size() - 1);
             mImageLayoutManager.scrollToPosition(mAllImageList.size());
         }
@@ -278,8 +281,11 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
     @Override
     public void onRemovePhoto(int position)
     {
-        mNewImageList.remove(mAllImageList.get(position));
-        mUtilityData.removeIdByUri(mAllImageList.get(position), this);
+        if(mIsInEditMode)
+        {
+            mNewImageList.remove(mAllImageList.get(position));
+            mUtilityData.removeIdByUri(mAllImageList.get(position), this);
+        }
         mAllImageList.remove(position);
         mImageAdapter.notifyItemRemoved(position);
     }
@@ -308,7 +314,7 @@ public class AddEditNadeActivity extends AppCompatActivity implements TagAdapter
                     new ArrayList<>(mUtilityData.getImageIds()) :
                     new ArrayList<>();
 
-            for(Uri uri : mNewImageList)
+            for(Uri uri : mIsInEditMode ? mNewImageList : mAllImageList)
             {
                 try
                 {
