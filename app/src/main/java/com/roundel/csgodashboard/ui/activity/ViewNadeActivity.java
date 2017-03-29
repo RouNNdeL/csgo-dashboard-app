@@ -2,6 +2,7 @@ package com.roundel.csgodashboard.ui.activity;
 
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -153,8 +154,19 @@ public class ViewNadeActivity extends AppCompatActivity
         mStanceIcon.setImageResource(stance.getIcon());
         mGrenade.setText(grenade.getName());
         mGrenadeIcon.setImageResource(grenade.getIcon());
-        mDescription.setText(mUtilityData.getDescription());
         mJumpthrow.setVisibility(mUtilityData.isJumpThrow() ? View.VISIBLE : View.GONE);
+
+        final String description = mUtilityData.getDescription();
+        if(description.length() == 0)
+        {
+            mDescription.setText("No description");
+            mDescription.setTypeface(mDescription.getTypeface(), Typeface.ITALIC);
+        }
+        else
+        {
+            mDescription.setText(mUtilityData.getDescription());
+            mDescription.setTypeface(Typeface.create(mDescription.getTypeface(), Typeface.NORMAL));
+        }
 
         final Tags tags = mUtilityData.getTags();
         if(tags.size() > 0)
