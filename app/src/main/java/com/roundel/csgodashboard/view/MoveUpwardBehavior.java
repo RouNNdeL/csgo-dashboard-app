@@ -1,9 +1,15 @@
 package com.roundel.csgodashboard.view;
 
+import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.view.View;
+
+import com.roundel.csgodashboard.R;
 
 /**
  * Created by Krzysiek on 2017-03-28.
@@ -11,29 +17,6 @@ import android.view.View;
 
 public class MoveUpwardBehavior extends CoordinatorLayout.Behavior<FloatingActionMenu>
 {
-    private int originalPadding = 0;
-    private float previousTranslation;
-    private boolean didIntersect;
-
-    private static boolean areViewsOverlapping(View firstView, View secondView)
-    {
-
-        int[] firstPosition = new int[2];
-        int[] secondPosition = new int[2];
-
-        firstView.getLocationOnScreen(firstPosition);
-        secondView.getLocationOnScreen(secondPosition);
-
-        // Rect constructor parameters: left, top, right, bottom
-        Rect rectFirstView = new Rect(firstPosition[0], firstPosition[1],
-                firstPosition[0] + firstView.getMeasuredWidth(), firstPosition[1] + firstView.getMeasuredHeight()
-        );
-        Rect rectSecondView = new Rect(secondPosition[0], secondPosition[1],
-                secondPosition[0] + secondView.getMeasuredWidth(), secondPosition[1] + secondView.getMeasuredHeight()
-        );
-        return rectFirstView.intersect(rectSecondView);
-    }
-
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, FloatingActionMenu child, View dependency)
     {
@@ -43,21 +26,34 @@ public class MoveUpwardBehavior extends CoordinatorLayout.Behavior<FloatingActio
     @Override
     public boolean onDependentViewChanged(CoordinatorLayout parent, FloatingActionMenu child, View dependency)
     {
-        float translationY = Math.min(0, dependency.getTranslationY() - dependency.getHeight());
-        if(translationY == 0)
+        final Context context = parent.getContext();
+        if(!context.getResources().getBoolean(R.bool.isTablet))
         {
-            originalPadding = child.getPaddingBottom();
-            didIntersect = false;
+            float translationY = Math.min(0, ViewCompat.getTranslationY(dependency) - dependency.getHeight());
+            ViewCompat.setTranslationY(child, translationY);
         }
-        final boolean intersect = getViewBounds(dependency).intersect(getViewBounds(child.getMenuIconView()));
-        didIntersect = intersect || didIntersect;
-        if(intersect || (translationY != previousTranslation && didIntersect))
+        else if(getViewBounds(child).intersect(getViewBounds(dependency)))
         {
-            child.setPadding(child.getPaddingLeft(), child.getPaddingTop(), child.getPaddingRight(), (int) (originalPadding - translationY));
-            return true;
+            throw new IllegalStateException(
+                    "Snackbar is overlapping FloatingActionButton on a Tablet: " + Build.BRAND + " " + Build.DEVICE);
         }
-        previousTranslation = translationY;
+
         return false;
+    }
+
+    @Override
+    public void onDependentViewRemoved(CoordinatorLayout parent, FloatingActionMenu child, View dependency)
+    {
+        if(ViewCompat.getTranslationY(child) != 0.0F)
+        {
+            ViewCompat.animate(child)
+                    .translationY(0.0F)
+                    .scaleX(1.0F)
+                    .scaleY(1.0F)
+                    .alpha(1.0F)
+                    .setInterpolator(new FastOutSlowInInterpolator())
+                    .start();
+        }
     }
 
     private Rect getViewBounds(View view)
