@@ -11,7 +11,7 @@
         android:fillAlpha="0.5"
         android:pathData="M0,0 L24,0 L24,24 L0,24 Z M2,2 L2,22 L22,22 L22,2 Z" />-->
     <path
-        android:fillColor="#fff"
+        android:fillColor="?attr/iconColor"
         android:pathData="M13.87,3.92 L13.87,4.19 L14,4.19 L15.92,8.86 L15.92,18.62 L15.69,18.85
 L15.3,18.85 L15.3,18.45 L15.45,18.32 L15.45,9 L14.45,7.61 L14.45,19.91
 C11.35,20.58,11.35,20.58,8.1,19.91 L8.1,7.1 L10,6.82 L10,6.47 L10,6.34

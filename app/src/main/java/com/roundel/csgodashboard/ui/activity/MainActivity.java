@@ -1,5 +1,6 @@
 package com.roundel.csgodashboard.ui.activity;
 
+import android.app.UiModeManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -33,5 +34,8 @@ public class MainActivity extends AppCompatActivity
                     startActivity(new Intent(MainActivity.this, GameInfoActivity.class));
                     return false;
                 }).build();
+
+        UiModeManager modeManager = getSystemService(UiModeManager.class);
+        modeManager.setNightMode(UiModeManager.MODE_NIGHT_AUTO);
     }
 }

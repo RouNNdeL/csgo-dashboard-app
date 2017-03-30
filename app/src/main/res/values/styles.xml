@@ -1,5 +1,12 @@
 <resources>
 
+    <!--Actual theme used in manifest-->
+    <style name="DashboardTheme" parent="AppTheme.Light"/>
+
+    <style name="DashboardTheme.ViewNade" parent="AppTheme.Light.ViewNade"/>
+
+    <style name="DashboardTheme.Gallery" parent="AppTheme.Gallery"/>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
@@ -11,6 +18,10 @@
         <item name="fillingIconBackgroundColor">@color/colorMaterialLight12</item>
         <item name="colorTt">@color/yellowTtLight</item>
         <item name="colorCt">@color/blueCtLight</item>
+        <item name="iconColor">?android:textColorPrimary</item>
+        <item name="dividerColor">@color/colorMaterialLight12</item>
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Dark</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
     <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
@@ -22,6 +33,10 @@
         <item name="fillingIconBackgroundColor">@color/colorMaterialDark12</item>
         <item name="colorTt">@color/yellowTtDark</item>
         <item name="colorCt">@color/blueCtDark</item>
+        <item name="iconColor">?android:textColorSecondary</item>
+        <item name="dividerColor">@color/colorMaterialDark12</item>
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
     <style name="AppTheme.Toolbar" parent="Widget.AppCompat.Toolbar">
@@ -34,6 +49,7 @@
         <item name="android:textColorPrimary">@color/colorMaterialLight100</item>
         <item name="android:textColorSecondary">@color/colorMaterialLight87</item>
         <item name="actionMenuTextColor">?android:textColorPrimary</item>
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Dark</item>
     </style>
 
     <style name="PrimaryAccent" parent="ThemeOverlay.AppCompat.Light">

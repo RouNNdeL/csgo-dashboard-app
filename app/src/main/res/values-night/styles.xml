@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="DashboardTheme" parent="AppTheme"/>
+
+    <style name="DashboardTheme.ViewNade" parent="AppTheme.ViewNade"/>
+</resources>

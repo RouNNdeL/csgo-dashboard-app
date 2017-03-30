@@ -51,7 +51,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/colorMaterialLight12"/>
+                android:background="?attr/dividerColor"
+                android:elevation="1dp"/>
 
             <TextView
                 style="@style/ListSubheader"
@@ -72,9 +73,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="24dp"
                     android:layout_marginTop="16dp"
-                    android:src="@drawable/ic_title_black_24dp"
-                    android:tint="@android:color/white"
-                    android:tintMode="src_atop"/>
+                    android:src="@drawable/ic_title_black_24dp"/>
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/add_nade_title_container"
@@ -88,7 +87,6 @@
                         android:layout_height="wrap_content"
                         android:hint="Title"
                         android:singleLine="true"
-                        android:textColor="@android:color/white"
                         tools:ignore="Deprecated"/>
                 </android.support.design.widget.TextInputLayout>
             </LinearLayout>
@@ -106,9 +104,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="24dp"
                     android:layout_marginTop="16dp"
-                    android:src="@drawable/ic_subject_black_24dp"
-                    android:tint="@android:color/white"
-                    android:tintMode="src_atop"/>
+                    android:src="@drawable/ic_subject_black_24dp"/>
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/add_nade_description_container"
@@ -120,8 +116,7 @@
                         android:id="@+id/add_nade_description"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Description"
-                        android:textColor="@android:color/white"/>
+                        android:hint="Description"/>
                 </android.support.design.widget.TextInputLayout>
 
             </LinearLayout>
@@ -139,9 +134,7 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_map_black_24dp"
-                    android:tint="@android:color/white"
-                    android:tintMode="src_atop"/>
+                    android:src="@drawable/ic_map_black_24dp"/>
 
                 <Spinner
                     android:id="@+id/add_nade_spinner_map"
@@ -192,8 +185,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_jump_throw"
-                    android:tint="@android:color/white"/>
+                    android:src="@drawable/ic_jump_throw"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -201,7 +193,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:text="Jumpthrow"
-                    android:textColor="@android:color/white"
+                    android:textColor="?android:textColorPrimary"
                     android:textSize="16dp"/>
 
                 <CheckBox

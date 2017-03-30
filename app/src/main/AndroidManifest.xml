@@ -14,13 +14,14 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.Light">
+        android:theme="@style/DashboardTheme">
         <activity android:name=".ui.activity.GameInfoActivity">
 
         </activity>
         <activity
             android:name=".ui.activity.ServerSetupActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/AppTheme.Light">
         </activity>
         <activity android:name=".ui.activity.LogActivity">
         </activity>
@@ -30,7 +31,7 @@
         </activity>
         <activity
             android:name=".ui.activity.ViewNadeActivity"
-            android:theme="@style/AppTheme.Light.ViewNade">
+            android:theme="@style/DashboardTheme.ViewNade">
         </activity>
         <activity
             android:name=".ui.activity.UtilityActivity"
@@ -44,7 +45,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_gallery"
             android:parentActivityName=".ui.activity.ViewNadeActivity"
-            android:theme="@style/AppTheme.Gallery">
+            android:theme="@style/DashboardTheme.Gallery">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.roundel.csgodashboard.ui.activity.ViewNadeActivity"/>
