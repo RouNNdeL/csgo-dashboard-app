@@ -95,13 +95,16 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     @BindView(R.id.setup_server_connection_bar) ProgressBar mConnectionIconProgress;
     @BindView(R.id.setup_server_connection_success) ImageView mConnectionIconSuccess;
     @BindView(R.id.setup_server_connection_failure) ImageView mConnectionIconFailure;
+
+    @BindView(R.id.setup_server_search_recyclerview) RecyclerView mRecyclerView;
+    @BindView(R.id.setup_connecting_title) TextView mTitle;
+    @BindView(R.id.setup_server_search_action_btn) Button mActionButton;
+    @BindView(R.id.setup_server_search_cardview) CardView mCardView;
+
     @BindInt(R.integer.default_transition_duration) int defaultTransitionDuration;
+
     private GameServerAdapter mAdapter;
-    private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private TextView mTitle;
-    private CardView mCardView;
-    private Button mActionButton;
     private boolean canContinue = false;
     private boolean isConnectingToServer = false;
     private boolean isRefreshing = false;
@@ -109,7 +112,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private SlideAction mSlideActionInterface;
 
     private ServerConnectionInfo mServerConnectionInfoInterface;
-    private ViewGroup root;
+    private ViewGroup mRoot;
     private GameServer currentGameServer;
     //</editor-fold>
 
@@ -128,28 +131,22 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        super.onCreateView(inflater, container, savedInstanceState);
-        root = getRoot();
+        mRoot = (ViewGroup) super.onCreateView(inflater, container, savedInstanceState);
 
-        ButterKnife.bind(this, root);
+        ButterKnife.bind(this, mRoot);
 
         mManualConnectButton.setOnClickListener(this);
 
         mBackToAutoButton.setOnClickListener(this);
 
-        mTitle = (TextView) root.findViewById(R.id.setup_connecting_title);
         setTitleSearchingWifi();
 
-        mActionButton = (Button) root.findViewById(R.id.setup_server_search_action_btn);
         mActionButton.setOnClickListener(this);
-
-        mCardView = (CardView) root.findViewById(R.id.setup_server_search_cardview);
 
         mAdapter = new GameServerAdapter(mGameServers, this);
 
         mLayoutManager = new LinearLayoutManager(getContext());
 
-        mRecyclerView = (RecyclerView) root.findViewById(R.id.setup_server_search_recyclerview);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
@@ -157,7 +154,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         mManualConnectionContainer.setVisibility(View.GONE);
         mConnectionProgressContainer.setVisibility(View.GONE);
 
-        return root;
+        return mRoot;
     }
 
     @Override
@@ -444,7 +441,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         Transition autoTransition = new AutoTransition();
         autoTransition.setDuration(defaultTransitionDuration);
-        TransitionManager.beginDelayedTransition(root, autoTransition);
+        TransitionManager.beginDelayedTransition(mRoot, autoTransition);
 
         mConnectionContainer.setVisibility(View.GONE);
         mConnectionProgressContainer.setVisibility(View.VISIBLE);
@@ -455,7 +452,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         Transition autoTransition = new AutoTransition();
         autoTransition.setDuration(defaultTransitionDuration);
-        TransitionManager.beginDelayedTransition(root, autoTransition);
+        TransitionManager.beginDelayedTransition(mRoot, autoTransition);
 
         mConnectionContainer.setVisibility(View.VISIBLE);
         mConnectionProgressContainer.setVisibility(View.GONE);
@@ -473,7 +470,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
         Transition autoTransition = new AutoTransition();
         autoTransition.setDuration(defaultTransitionDuration);
-        TransitionManager.beginDelayedTransition(root, autoTransition);
+        TransitionManager.beginDelayedTransition(mRoot, autoTransition);
 
         mManualConnectionContainer.setVisibility(View.VISIBLE);
         mAutoConnectionContainer.setVisibility(View.GONE);
@@ -487,7 +484,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
         Transition autoTransition = new AutoTransition();
         autoTransition.setDuration((defaultTransitionDuration));
-        TransitionManager.beginDelayedTransition(root, autoTransition);
+        TransitionManager.beginDelayedTransition(mRoot, autoTransition);
 
         mManualConnectionContainer.setVisibility(View.GONE);
         mAutoConnectionContainer.setVisibility(View.VISIBLE);
@@ -498,7 +495,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     //<editor-fold desc="Status icon changes">
     private void setStatusIconSuccess()
     {
-        com.transitionseverywhere.TransitionManager.beginDelayedTransition(root, new Scale());
+        com.transitionseverywhere.TransitionManager.beginDelayedTransition(mRoot, new Scale());
 
         mConnectionIconSuccess.setVisibility(View.VISIBLE);
 
@@ -508,7 +505,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void setStatusIconFailure()
     {
-        com.transitionseverywhere.TransitionManager.beginDelayedTransition(root, new Scale());
+        com.transitionseverywhere.TransitionManager.beginDelayedTransition(mRoot, new Scale());
 
         mConnectionIconFailure.setVisibility(View.VISIBLE);
 
@@ -642,7 +639,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         set.addTransition(new ChangeBounds());
         set.addTransition(new android.support.transition.Fade());
 
-        TransitionManager.beginDelayedTransition(root, set);
+        TransitionManager.beginDelayedTransition(mRoot, set);
 
         if(hostMatcher.matches())
         {
@@ -705,22 +702,6 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         return isConnectingToServer;
     }
-
-    /*private void askForBarcodeScan()
-    {
-        *//*IntentIntegrator integrator = new IntentIntegrator(getActivity());
-        integrator.initiateScan();*//*
-        Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-        intent.setPackage("com.google.zxing.client.android");
-        intent.putExtra("com.google.zxing.client.android.SCAN.SCAN_MODE", "QR_CODE_MODE");
-        startActivityForResult(intent, IntentIntegrator.REQUEST_CODE);
-    }
-
-    public void onBarcodeReceived(String result)
-    {
-        LogHelper.i(TAG, result);
-        Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
-    }*/
 
     public void updateTitleWifi()
     {

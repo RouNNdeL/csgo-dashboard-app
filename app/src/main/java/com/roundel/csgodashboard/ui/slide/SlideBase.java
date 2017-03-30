@@ -1,8 +1,6 @@
 package com.roundel.csgodashboard.ui.slide;
 
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -18,11 +16,8 @@ public class SlideBase extends Fragment implements OnBackPressedListener
 {
     private static final String TAG = SlideBase.class.getSimpleName();
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
-    //<editor-fold desc="private variables">
-    private ViewGroup root;
     private int layoutResId;
     private SlideAction mSlideActionInterface;
-//</editor-fold>
 
     public static SlideBase newInstance(int layoutResId)
     {
@@ -50,8 +45,7 @@ public class SlideBase extends Fragment implements OnBackPressedListener
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        root = (ViewGroup) inflater.inflate(layoutResId, container, false);
-        return root;
+        return inflater.inflate(layoutResId, container, false);
     }
 
     @Override
@@ -63,17 +57,6 @@ public class SlideBase extends Fragment implements OnBackPressedListener
     public void attachSlideActionInterface(SlideAction slideAction)
     {
         this.mSlideActionInterface = slideAction;
-    }
-
-    @ColorInt
-    public int getBackgroundColor()
-    {
-        return ((ColorDrawable) root.getBackground()).getColor();
-    }
-
-    public ViewGroup getRoot()
-    {
-        return root;
     }
 
     public SlideAction getSlideActionInterface()

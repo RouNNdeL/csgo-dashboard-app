@@ -21,26 +21,24 @@ import android.widget.Toast;
 import com.github.paolorotolo.appintro.ISlidePolicy;
 import com.roundel.csgodashboard.R;
 
-
-import static android.view.View.GONE;
-import static android.view.View.OnClickListener;
-import static android.view.View.VISIBLE;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by Krzysiek on 2017-01-23.
  */
-public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePolicy
+public class NoWifiSlide extends SlideBase implements View.OnClickListener, ISlidePolicy
 {
     private static final String TAG = NoWifiSlide.class.getSimpleName();
     private static final String ARG_LAYOUT_RES_ID = "layoutResId";
-    //<editor-fold desc="private variables">
-    private Button mTurnWifiButton;
-    private Button mOpenWifiSettingsButton;
-    private ProgressBar mWifiProgress;
-    private ViewGroup root;
+
+    @BindView(R.id.setup_wifi_on) Button mTurnWifiButton;
+    @BindView(R.id.setup_wifi_settings) Button mOpenWifiSettingsButton;
+    @BindView(R.id.setup_wifi_progress) ProgressBar mWifiProgress;
+
     private SlideAction mSlideActionInterface;
     private WifiConnectionListener mWifiConnectionListener;
-//</editor-fold>
+
 
     public static NoWifiSlide newInstance()
     {
@@ -57,17 +55,18 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        super.onCreateView(inflater, container, savedInstanceState);
+        View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        root = getRoot();
-
-        mTurnWifiButton = (Button) root.findViewById(R.id.setup_wifi_on);
-        mOpenWifiSettingsButton = (Button) root.findViewById(R.id.setup_wifi_settings);
-        mWifiProgress = (ProgressBar) root.findViewById(R.id.setup_wifi_progress);
+        ButterKnife.bind(this, view);
 
         mOpenWifiSettingsButton.setOnClickListener(this);
         mTurnWifiButton.setOnClickListener(this);
-        return root;
+
+        mTurnWifiButton.setVisibility(View.VISIBLE);
+        mWifiProgress.setVisibility(View.GONE);
+        mOpenWifiSettingsButton.setVisibility(View.GONE);
+
+        return view;
     }
 
     @Override
@@ -83,45 +82,7 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
         switch(v.getId())
         {
             case R.id.setup_wifi_on:
-                WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
-                wifiManager.setWifiEnabled(true);
-
-                BroadcastReceiver receiver = new BroadcastReceiver()
-                {
-                    @Override
-                    public void onReceive(Context context, Intent intent)
-                    {
-                        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                        if(wifi.isWifiEnabled())
-                        {
-                            mOpenWifiSettingsButton.setVisibility(VISIBLE);
-                            mWifiProgress.setVisibility(GONE);
-                        }
-                        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-                        try
-                        {
-                            if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI && networkInfo.isConnected())
-                            {
-                                Toast.makeText(context, R.string.setup_wifi_connected, Toast.LENGTH_SHORT).show();
-                                if(mSlideActionInterface != null)
-                                {
-                                    new Handler().postDelayed(() -> mSlideActionInterface.onNextPageRequested(getParentFragment()), 250);
-                                }
-                            }
-                        }
-                        catch(NullPointerException e)
-                        {
-                        }
-                    }
-                };
-                IntentFilter intentFilter = new IntentFilter();
-                intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-                intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-                getContext().registerReceiver(receiver, intentFilter);
-
-                mWifiProgress.setVisibility(VISIBLE);
-                mTurnWifiButton.setVisibility(GONE);
+                turnOnWifi();
                 break;
             case R.id.setup_wifi_settings:
                 startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
@@ -152,6 +113,49 @@ public class NoWifiSlide extends SlideBase implements OnClickListener, ISlidePol
     public void attachWifiConnectionListener(WifiConnectionListener listener)
     {
         this.mWifiConnectionListener = listener;
+    }
+
+    private void turnOnWifi()
+    {
+        WifiManager wifiManager = (WifiManager) getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager.setWifiEnabled(true);
+
+        BroadcastReceiver receiver = new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context, Intent intent)
+            {
+                WifiManager wifi = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                if(wifi.isWifiEnabled())
+                {
+                    mOpenWifiSettingsButton.setVisibility(View.VISIBLE);
+                    mWifiProgress.setVisibility(View.GONE);
+                }
+                ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                try
+                {
+                    if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI && networkInfo.isConnected())
+                    {
+                        Toast.makeText(context, R.string.setup_wifi_connected, Toast.LENGTH_SHORT).show();
+                        if(mSlideActionInterface != null)
+                        {
+                            new Handler().postDelayed(() -> mSlideActionInterface.onNextPageRequested(getParentFragment()), 250);
+                        }
+                    }
+                }
+                catch(NullPointerException e)
+                {
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        getContext().registerReceiver(receiver, intentFilter);
+
+        mWifiProgress.setVisibility(View.VISIBLE);
+        mTurnWifiButton.setVisibility(View.GONE);
     }
 
     public interface WifiConnectionListener

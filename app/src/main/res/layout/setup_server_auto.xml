@@ -51,6 +51,8 @@
             android:textSize="16sp"/>
     </LinearLayout>
 
+
+    <!--TODO: Fix ProgressBar not being match parent-->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/setup_server_search_recyclerview"
         android:layout_width="0dp"
