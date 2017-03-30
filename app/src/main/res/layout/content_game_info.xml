@@ -16,9 +16,8 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="2dp"
-        app:cardBackgroundColor="@color/grey900"
-        app:cardElevation="2dp">
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp">
 
         <LinearLayout
             android:id="@+id/game_info_scores"
@@ -65,7 +64,7 @@
                     android:gravity="center"
                     android:text="@string/game_info_side_t"
                     android:textAppearance="@style/TextAppearance.Side"
-                    android:textColor="@color/yellowT"/>
+                    android:textColor="?attr/colorTt"/>
 
             </LinearLayout>
 
@@ -164,7 +163,7 @@
                     android:gravity="center"
                     android:text="@string/game_info_side_ct"
                     android:textAppearance="@style/TextAppearance.Side"
-                    android:textColor="@color/blueCT"/>
+                    android:textColor="?attr/colorCt"/>
 
             </LinearLayout>
 
@@ -182,9 +181,8 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="2dp"
-        app:cardBackgroundColor="@color/grey900"
-        app:cardElevation="2dp">
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp">
 
         <LinearLayout
             android:id="@+id/game_info_stats"
@@ -307,9 +305,8 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="2dp"
-        app:cardBackgroundColor="@color/grey900"
-        app:cardElevation="2dp">
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -329,7 +326,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="120dp"
                     android:padding="8dp"
-                    app:backgroundColor="@color/colorMaterialLight12"
+                    app:fillColor="?android:textColorPrimary"
+                    app:strokeColor="?android:textColorPrimary"
+                    app:backgroundColor="?fillingIconBackgroundColor"
                     app:direction="bottom_top"
                     app:pathData="@string/path_data_health"
                     app:strokeWidth="4dp"/>
@@ -359,7 +358,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="120dp"
                     android:padding="8dp"
-                    app:backgroundColor="@color/colorMaterialLight12"
+                    app:fillColor="?android:textColorPrimary"
+                    app:strokeColor="?android:textColorPrimary"
+                    app:backgroundColor="?fillingIconBackgroundColor"
                     app:direction="bottom_top"
                     app:pathData="@string/path_data_armor"
                     app:strokeWidth="4dp"/>

@@ -8,6 +8,7 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -18,6 +19,7 @@ import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -48,7 +50,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import butterknife.BindColor;
 import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -92,15 +93,14 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.game_info_collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
     @BindView(R.id.game_info_appbar) AppBarLayout mAppbar;
 
-    @BindColor(R.color.yellowT) int mColorYellowT;
-    @BindColor(R.color.blueCT) int mColorBlueCT;
-
     @BindInt(R.integer.bomb_show_transition_duration) int mBombShowTransitionDuration;
     @BindInt(R.integer.bomb_hide_transition_duration) int mBombHideTransitionDuration;
     @BindInt(R.integer.bomb_ticking_anim_duration) int mBombTickingAnimDuration;
     @BindInt(R.integer.bomb_defuse_transition_duration) int mBombDefuseTransitionDuration;
 
-    private TextView text;
+    private int mColorYellowTt;
+    private int mColorBlueCT;
+
     private GameState mGameState;
     private GameServer mGameServer;
     private UserData mUserData;
@@ -132,14 +132,19 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
 
         ButterKnife.bind(this);
 
-        text = (TextView) findViewById(R.id.text2);
-        //title = (TextView) findViewById(R.id.main_toolbar_title);
+        Resources.Theme theme = getTheme();
+        TypedValue colorTt = new TypedValue();
+        TypedValue colorCt = new TypedValue();
+
+        theme.resolveAttribute(R.attr.colorTt, colorTt, true);
+        theme.resolveAttribute(R.attr.colorCt, colorCt, true);
+
+        mColorYellowTt = colorTt.data;
+        mColorBlueCT = colorCt.data;
 
         setSupportActionBar(mToolbar);
 
-        /*this.serverThread = new Thread(new ServerThread());
-        this.serverThread.start();*/
-
+        //TODO: Remove those Views
         findViewById(R.id.testButton).setOnClickListener(this);
         findViewById(R.id.testBomb).setOnClickListener(this);
         findViewById(R.id.testBombD).setOnClickListener(this);
@@ -354,7 +359,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
             if(mGameState.getPlayer().getTeam() == GameState.Team.T)
             {
                 mSideHome.setText(getString(R.string.game_info_side_t));
-                mSideHome.setTextColor(mColorYellowT);
+                mSideHome.setTextColor(mColorYellowTt);
 
                 mSideAway.setText(getString(R.string.game_info_side_ct));
                 mSideAway.setTextColor(mColorBlueCT);
@@ -365,7 +370,7 @@ public class GameInfoActivity extends AppCompatActivity implements View.OnClickL
                 mSideHome.setTextColor(mColorBlueCT);
 
                 mSideAway.setText(getString(R.string.game_info_side_t));
-                mSideAway.setTextColor(mColorYellowT);
+                mSideAway.setTextColor(mColorYellowTt);
 
             }
         }

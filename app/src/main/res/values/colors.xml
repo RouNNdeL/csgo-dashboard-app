@@ -29,8 +29,10 @@
     <color name="colorMaterialLight87">#DEFFFFFF</color>
     <color name="colorMaterialLight100">#FFFFFFFF</color>
 
-    <color name="yellowT">#C3B465</color>
-    <color name="blueCT">#73A0B7</color>
+    <color name="yellowTtLight">#C3B465</color>
+    <color name="blueCtLight">#73A0B7</color>
+    <color name="yellowTtDark">#af940c</color>
+    <color name="blueCtDark">#297da7</color>
     <color name="greenMoney">#73B779</color>
     <color name="greenMoneyDark">#4a794f</color>
     <color name="redHealth">#C37365</color>

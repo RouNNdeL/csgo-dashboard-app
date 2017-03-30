@@ -56,4 +56,10 @@
         <attr name="metaButtonBarStyle" format="reference"/>
         <attr name="metaButtonBarButtonStyle" format="reference"/>
     </declare-styleable>
+
+    <!--My Attributes-->
+    <attr name="fillingIconBackgroundColor" format="color"/>
+    <attr name="colorCt" format="color"/>
+    <attr name="colorTt" format="color"/>
+
 </resources>
