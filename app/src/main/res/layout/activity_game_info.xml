@@ -55,7 +55,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         >
 
-        <include layout="@layout/game_info_main"/>
+        <include layout="@layout/content_game_info"/>
 
     </android.support.v4.widget.NestedScrollView>
 

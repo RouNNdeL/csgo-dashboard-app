@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.transition.AutoTransition;
@@ -31,10 +32,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.paolorotolo.appintro.ISlidePolicy;
@@ -76,11 +77,11 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private final List<GameServer> mGameServers = new ArrayList<>();
 
     //<editor-fold desc="private variables">
-    @BindView(R.id.setup_server_connection_container) RelativeLayout mConnectionContainer;
+    @BindView(R.id.setup_server_connection_container) FrameLayout mConnectionContainer;
     @BindView(R.id.setup_server_search_manual_connect) LinearLayout mManualConnectButton;
-    @BindView(R.id.setup_server_connection_auto) LinearLayout mAutoConnectionContainer;
-    @BindView(R.id.setup_server_connection_manual) LinearLayout mManualConnectionContainer;
-    @BindView(R.id.setup_server_connection_progress) LinearLayout mConnectionProgressContainer;
+    @BindView(R.id.setup_server_connection_auto) ConstraintLayout mAutoConnectionContainer;
+    @BindView(R.id.setup_server_connection_manual) ConstraintLayout mManualConnectionContainer;
+    @BindView(R.id.setup_server_connection_progress) ConstraintLayout mConnectionProgressContainer;
     /**
      * Button o the bottom of the screen, either used to refresh (auto mode) or connect (manual
      * mode)
@@ -187,7 +188,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
                 builder.setMessage("On some networks the app might not be able to automatically detect a PC. " +
                         "You can however attempt a manual connection by supplying an IP and a port shown by the server running on you PC." +
                         "\n\nDo you want to attempt the manual connection?");
-                builder.setPositiveButton("Manual", (dialog, which) -> {
+                builder.setPositiveButton("Manual", (dialog, which) ->
+                {
                     dialog.dismiss();
                     animateToManualConnection();
                 });
@@ -230,7 +232,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         try
         {
-            getActivity().runOnUiThread(() -> {
+            getActivity().runOnUiThread(() ->
+            {
                 isRefreshing = true;
                 mAdapter.setRefreshing(true);
             });
@@ -255,7 +258,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         try
         {
-            getActivity().runOnUiThread(() -> {
+            getActivity().runOnUiThread(() ->
+            {
                 isRefreshing = false;
                 mAdapter.setRefreshing(false);
             });
@@ -386,11 +390,13 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     private void onConnectionSuccessful(final GameServer gameServer)
     {
         //Remember to run UI operations with Activity.runOnUiThread();
-        getActivity().runOnUiThread(() -> {
+        getActivity().runOnUiThread(() ->
+        {
             setStatusIconSuccess();
             setStatusConnectedSuccessfully();
 
-            new Handler().postDelayed(() -> {
+            new Handler().postDelayed(() ->
+            {
                 Intent intent = new Intent(getContext(), GameInfoActivity.class);
                 intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_NAME, gameServer.getName());
                 intent.putExtra(GameInfoActivity.EXTRA_GAME_SERVER_HOST, gameServer.getHost());
@@ -404,7 +410,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         //isConnectingToServer = false;
         //Remember to run UI operations with Activity.runOnUiThread();
-        getActivity().runOnUiThread(() -> {
+        getActivity().runOnUiThread(() ->
+        {
             setStatusIconFailure();
 
             setStatusConnectionDeined();
@@ -415,7 +422,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
     {
         //isConnectingToServer = false;
         if(getActivity() != null)
-            getActivity().runOnUiThread(() -> new Handler().postDelayed(() -> {
+            getActivity().runOnUiThread(() -> new Handler().postDelayed(() ->
+            {
                 setStatusIconFailure();
 
                 setStatusConnectionFailure();
@@ -520,7 +528,7 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
 
     private void setTitleSearchingWifi()
     {
-        WifiManager wifiManager = (WifiManager) getContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifiManager.getConnectionInfo();
         final String ssid = info.getSSID();
         /*if(ssid.charAt(0) == '"' && ssid.charAt(ssid.length()-1) == '"')
@@ -545,8 +553,8 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
             Spannable spannableTitle = new SpannableString(title);
             spannableTitle.setSpan(
                     new StyleSpan(Typeface.BOLD),
-                    start,                        //Start
-                    end,         //End
+                    start,
+                    end,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             );
             mTitle.setText(spannableTitle);

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/setup_server_connection_progress"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/setup_server_connection_status">
+
+        <ProgressBar
+            android:id="@+id/setup_server_connection_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrimaryAccent"/>
+
+        <ImageView
+            android:id="@+id/setup_server_connection_success"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/green_success_circle"/>
+
+        <ImageView
+            android:id="@+id/setup_server_connection_failure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/red_failure_circle"/>
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/setup_server_connection_status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:paddingEnd="4dp"
+        android:paddingStart="4dp"
+        android:text="@string/setup_server_search_allow_connection"
+        android:textAlignment="gravity"
+        android:textColor="@color/colorMaterialDark87"
+        android:textSize="16sp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_conversion_absoluteHeight="19dp"
+        tools:layout_conversion_absoluteWidth="379dp"
+        tools:layout_conversion_absoluteX="16dp"
+        tools:layout_conversion_absoluteY="517dp"/>
+</android.support.constraint.ConstraintLayout>

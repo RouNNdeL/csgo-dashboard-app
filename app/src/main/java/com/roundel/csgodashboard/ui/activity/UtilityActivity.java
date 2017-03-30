@@ -359,7 +359,8 @@ public class UtilityActivity extends AppCompatActivity implements SearchView.OnQ
     @Px
     private int dp2px(int dp)
     {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
 
     private void showSnackBar(Snackbar snackbar, boolean disableSwipe)
