@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="MaterialTheme">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -11,7 +11,7 @@
         <item name="android:textColorPrimaryInverse">@android:color/primary_text_light</item>
     </style>
 
-    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme.Light" parent="MaterialTheme.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -122,6 +122,22 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <style name="TextAppearance.ListPrimary">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAlignment">gravity</item>
+        <item name="android:textColor">@color/colorMaterialLight100</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance.ListSecondary">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAlignment">gravity</item>
+        <item name="android:textColor">@color/colorMaterialLight70</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="LightDialog" parent="AlertDialog.AppCompat.Light">
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:background">@android:color/white</item>
@@ -139,22 +155,19 @@
         <item name="android:textAppearance">@style/TextAppearance.ListSubHeader</item>
     </style>
 
-    <style name="AppTheme.Fullscreen">
+    <style name="AppTheme.Fullscreen" parent="MaterialTheme.TranslucentStatus">
         <item name="android:homeAsUpIndicator">@drawable/ic_arrow_back_white_24dp</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:windowBackground">@null</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
         <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
     </style>
 
-    <style name="AppTheme.Light.Fullscreen">
+    <style name="AppTheme.Light.Fullscreen" parent="MaterialTheme.Light.TranslucentStatus">
         <item name="android:homeAsUpIndicator">@drawable/ic_arrow_back_white_24dp</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:windowBackground">@null</item>
         <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
         <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
         <item name="drawerArrowStyle">@style/WhiteDrawerArrowStyle</item>
@@ -162,11 +175,13 @@
 
     <style name="AppTheme.Gallery" parent="AppTheme.Light.Fullscreen">
         <item name="android:colorEdgeEffect">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
     </style>
 
     <style name="AppTheme.ViewNade" parent="AppTheme">
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:statusBarColor">#22000000</item>
     </style>
 
     <style name="WhiteDrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
@@ -177,22 +192,6 @@
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:textColorSecondary">@android:color/white</item>
-    </style>
-
-    <style name="TextAppearance.ListPrimary">
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:textAlignment">gravity</item>
-        <item name="android:textColor">@color/colorMaterialLight100</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-
-    <style name="TextAppearance.ListSecondary">
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:textAlignment">gravity</item>
-        <item name="android:textColor">@color/colorMaterialLight70</item>
-        <item name="android:textSize">14sp</item>
     </style>
 
 </resources>

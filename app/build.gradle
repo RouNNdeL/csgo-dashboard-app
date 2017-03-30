@@ -52,6 +52,10 @@ dependencies {
     compile 'com.alexvasilkov:gesture-views:2.2.0'
     compile 'frankiesardo:icepick:3.2.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile "com.mikepenz:materialize:1.0.1@aar"
+    compile('com.mikepenz:materialdrawer:5.8.2@aar') {
+        transitive = true
+    }
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     provided 'frankiesardo:icepick-processor:3.2.0'
