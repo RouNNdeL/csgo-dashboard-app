@@ -153,6 +153,10 @@ public class ServerSearchSlide extends SlideBase implements View.OnClickListener
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+        mAutoConnectionContainer.setVisibility(View.VISIBLE);
+        mManualConnectionContainer.setVisibility(View.GONE);
+        mConnectionProgressContainer.setVisibility(View.GONE);
+
         return root;
     }
 

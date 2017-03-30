@@ -8,7 +8,8 @@
     android:layout_height="@dimen/setup_search_server_recyclerview_height"
     android:orientation="vertical"
     tools:layout_editor_absoluteX="0dp"
-    tools:layout_editor_absoluteY="159dp">
+    tools:layout_editor_absoluteY="159dp"
+    tools:showIn="@layout/setup_server_search">
 
     <LinearLayout
         android:id="@+id/setup_server_search_manual_connect"

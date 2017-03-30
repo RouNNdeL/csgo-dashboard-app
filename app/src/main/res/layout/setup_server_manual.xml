@@ -11,7 +11,8 @@
     tools:layout_conversion_absoluteHeight="0dp"
     tools:layout_conversion_absoluteWidth="0dp"
     tools:layout_conversion_absoluteX="0dp"
-    tools:layout_conversion_absoluteY="350dp">
+    tools:layout_conversion_absoluteY="350dp"
+    tools:showIn="@layout/setup_server_search">
 
 
     <ImageView
